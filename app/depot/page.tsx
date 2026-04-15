@@ -57,8 +57,36 @@ export default function DepotPage() {
 
       const r = await fetch("/api/depot", { method: "POST", body: fd });
       if (!r.ok) {
-        const j = await r.json().catch(() => ({}));
-        throw new Error(j?.error || "Erreur dépôt");
+        const j: { error?: string; retryAfterSec?: number } = await r
+          .json()
+          .catch(() => ({}));
+
+        const code = j?.error || "Erreur dépôt";
+        const retry = j?.retryAfterSec;
+        if (code === "rate_limited" || code === "rate_limited_handle") {
+          throw new Error(
+            `Trop de dépôts d’un coup. Réessaie dans ~${retry ?? 60}s.`,
+          );
+        }
+        if (code === "already_pending") {
+          throw new Error(
+            "Un profil avec ce pseudo est déjà en attente de modération.",
+          );
+        }
+        if (code === "file_too_large") {
+          throw new Error("PDF trop lourd (max ~12 Mo).");
+        }
+        if (code === "pdf_only") {
+          throw new Error("Le CV doit être au format PDF.");
+        }
+        if (code === "charte_required") {
+          throw new Error("Tu dois accepter la charte.");
+        }
+        if (code === "handle_required" || code === "job_required") {
+          throw new Error("Pseudo et métier sont obligatoires.");
+        }
+
+        throw new Error(code);
       }
 
       setStatus("done");
