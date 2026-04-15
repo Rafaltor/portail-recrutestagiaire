@@ -1,0 +1,197 @@
+/* Shopify header styles (ported for portal) */
+
+/* Keep only header-related rules from theme-overrides.css to avoid breaking portal UI. */
+
+.header-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  overflow: visible;
+  background: linear-gradient(180deg, var(--rs-pole-header-top, #e8eeff) 0%, var(--rs-pole-header-bot, #d4dff7) 100%);
+  border-bottom: 3px solid var(--rs-gold-shadow, #8a6f12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 10px rgba(30, 50, 70, 0.12);
+}
+
+.header-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.055;
+  background: repeating-linear-gradient(90deg, #fff 0, #fff 1px, transparent 1px, transparent 5px);
+}
+
+.header-wrap .container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.rs-header-two-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rs-banner-top.rs-header-pole-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0 10px;
+}
+
+.rs-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.rs-nav-brand__img {
+  display: block;
+  height: auto;
+}
+
+.rs-nav-brand__name.logo {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #001a57;
+  font-size: 18px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.rs-banner-top__cart {
+  white-space: nowrap;
+}
+
+.rs-cart-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  margin-left: 4px;
+  border-radius: 10px;
+  background: var(--rs-logo-red, #b3122a);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.rs-banner-nav.rs-header-pole-tabs {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 6px 0 10px;
+}
+
+.rs-subnav.rs-subnav--buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rs-subnav__item {
+  position: relative;
+}
+
+.rs-subnav__trigger {
+  appearance: none;
+  border: 2px outset rgba(0, 0, 0, 0.25);
+  background: #fff;
+  color: #001a57;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.rs-subnav__item.is-active .rs-subnav__trigger {
+  background: #ffd230;
+  color: #0015a3;
+}
+
+.rs-subnav__dropdown {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  min-width: 260px;
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(10, 20, 30, 0.18);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+  z-index: 9999;
+}
+
+.rs-subnav__item:hover .rs-subnav__dropdown,
+.rs-subnav__item:focus-within .rs-subnav__dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.rs-subnav__dropdown a {
+  display: block;
+  padding: 10px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.rs-subnav__dropdown a:hover {
+  background: #f3f4f6;
+}
+
+/* Kitsch banner (simple version) */
+.rs-header-kitsch-pop {
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffd230;
+  color: #0015a3;
+  overflow: hidden;
+}
+
+.rs-header-kitsch-pop__track {
+  display: flex;
+  gap: 0;
+  padding: 6px 0;
+  white-space: nowrap;
+  animation: rsKitschMarquee 16s linear infinite;
+}
+
+.rs-header-kitsch-pop__chunk {
+  padding: 0 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+}
+
+@keyframes rsKitschMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
