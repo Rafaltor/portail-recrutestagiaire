@@ -24,6 +24,7 @@ export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [votes, setVotes] = useState<Record<string, number>>({});
+  const [myVotes, setMyVotes] = useState<Record<string, 1 | -1 | 0>>({});
   const [q, setQ] = useState("");
   const [message, setMessage] = useState<string>("");
 
@@ -48,9 +49,10 @@ export default function ProfilsPage() {
         if (!alive) return;
         setProfiles(list);
 
-        // scores
+        // scores + mes votes (pour permettre de changer)
         if (list.length) {
           const ids = list.map((p) => p.id);
+          const visitorId = getOrCreateVisitorId();
           const vr = await supabase
             .from("votes")
             .select("profile_id,value")
@@ -58,13 +60,25 @@ export default function ProfilsPage() {
           if (vr.error) throw vr.error;
 
           const map: Record<string, number> = {};
+          const mine: Record<string, 1 | -1 | 0> = {};
           ((vr.data ?? []) as VoteRow[]).forEach((r) => {
             map[r.profile_id] = (map[r.profile_id] ?? 0) + (r.value ?? 0);
           });
+          const my = await supabase
+            .from("votes")
+            .select("profile_id,value")
+            .in("profile_id", ids)
+            .eq("visitor_id", visitorId);
+          if (my.error) throw my.error;
+          ((my.data ?? []) as VoteRow[]).forEach((r) => {
+            mine[r.profile_id] = (r.value === -1 ? -1 : 1) as 1 | -1;
+          });
           if (!alive) return;
           setVotes(map);
+          setMyVotes(mine);
         } else {
           setVotes({});
+          setMyVotes({});
         }
       } catch (e: unknown) {
         setMessage(e instanceof Error ? e.message : "Erreur inconnue");
@@ -98,19 +112,25 @@ export default function ProfilsPage() {
   async function vote(profileId: string, value: 1 | -1) {
     setMessage("");
     const visitorId = getOrCreateVisitorId();
-    const res = await supabase.from("votes").insert({
-      profile_id: profileId,
-      visitor_id: visitorId,
-      value,
-    });
+    const prev = myVotes[profileId] ?? 0;
+    if (prev === value) return;
+    const res = await supabase.from("votes").upsert(
+      {
+        profile_id: profileId,
+        visitor_id: visitorId,
+        value,
+      },
+      { onConflict: "profile_id,visitor_id" },
+    );
     if (res.error) {
-      // double vote => constraint unique
-      setMessage(
-        "Vote déjà enregistré pour ce profil (sur ce navigateur).",
-      );
+      setMessage(res.error.message || "Impossible d’enregistrer le vote.");
       return;
     }
-    setVotes((v) => ({ ...v, [profileId]: (v[profileId] ?? 0) + value }));
+    setMyVotes((m) => ({ ...m, [profileId]: value }));
+    setVotes((v) => ({
+      ...v,
+      [profileId]: (v[profileId] ?? 0) + (value - prev),
+    }));
   }
 
   return (
@@ -211,13 +231,21 @@ export default function ProfilsPage() {
                 <div className="ml-auto flex items-center gap-2">
                   <button
                     onClick={() => vote(p.id, 1)}
-                    className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+                    className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                      (myVotes[p.id] ?? 0) === 1
+                        ? "bg-emerald-700"
+                        : "bg-emerald-600 hover:bg-emerald-500"
+                    }`}
                   >
                     Like
                   </button>
                   <button
                     onClick={() => vote(p.id, -1)}
-                    className="rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-500"
+                    className={`rounded-md px-3 py-2 text-sm font-semibold text-white ${
+                      (myVotes[p.id] ?? 0) === -1
+                        ? "bg-rose-700"
+                        : "bg-rose-600 hover:bg-rose-500"
+                    }`}
                   >
                     Dislike
                   </button>
