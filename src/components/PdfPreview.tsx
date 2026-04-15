@@ -18,7 +18,8 @@ export default function PdfPreview({ url }: Props) {
       setLoading(true);
       setError("");
       try {
-        const pdfjs = await import("pdfjs-dist");
+        // Use legacy build for better mobile/Safari compatibility.
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         type PdfDoc = {
           getPage: (n: number) => Promise<PdfPage>;
         };
@@ -32,18 +33,25 @@ export default function PdfPreview({ url }: Props) {
 
         const pdfjsAny = pdfjs as unknown as {
           GlobalWorkerOptions: { workerSrc?: string };
-          getDocument: (arg: { url: string }) => { promise: Promise<PdfDoc> };
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          getDocument: (arg: any) => { promise: Promise<PdfDoc> };
         };
         const { GlobalWorkerOptions, getDocument } = pdfjsAny;
 
-        if (!GlobalWorkerOptions.workerSrc) {
+        // PDF.js workers can be problematic on iOS/Safari (module workers, CSP, etc.).
+        // For MVP, disable worker on iOS to avoid runtime crashes.
+        const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+        const isIOS = /iPad|iPhone|iPod/.test(ua);
+        const disableWorker = isIOS;
+
+        if (!disableWorker && !GlobalWorkerOptions.workerSrc) {
           GlobalWorkerOptions.workerSrc = new URL(
-            "pdfjs-dist/build/pdf.worker.min.mjs",
+            "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
             import.meta.url,
           ).toString();
         }
 
-        const loadingTask = getDocument({ url });
+        const loadingTask = getDocument({ url, disableWorker });
         const pdf = await loadingTask.promise;
         const page = (await pdf.getPage(1)) as PdfPage;
 
@@ -72,7 +80,11 @@ export default function PdfPreview({ url }: Props) {
 
         if (cancelled) return;
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Erreur PDF");
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Impossible d’afficher l’aperçu du PDF sur cet appareil.",
+        );
       } finally {
         if (!cancelled) setLoading(false);
       }
