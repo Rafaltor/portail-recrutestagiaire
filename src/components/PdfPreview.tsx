@@ -44,7 +44,9 @@ export default function PdfPreview({ url }: Props) {
         const isIOS = /iPad|iPhone|iPod/.test(ua);
         const disableWorker = isIOS;
 
-        if (!disableWorker && !GlobalWorkerOptions.workerSrc) {
+        // Always set workerSrc when missing. Even with disableWorker,
+        // some environments still require a defined workerSrc.
+        if (!GlobalWorkerOptions.workerSrc) {
           GlobalWorkerOptions.workerSrc = new URL(
             "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
             import.meta.url,
