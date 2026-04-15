@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
+import PdfPreview from "@/components/PdfPreview";
 
 type Profile = {
   id: string;
@@ -118,13 +119,7 @@ export default function ProfilPage({
       </div>
 
       {profile && cvUrl ? (
-        <div className="rounded-lg border border-zinc-200 bg-white p-2">
-          <iframe
-            title="CV PDF"
-            src={cvUrl}
-            className="h-[78vh] w-full"
-          />
-        </div>
+        <PdfPreview url={cvUrl} />
       ) : null}
     </div>
   );
