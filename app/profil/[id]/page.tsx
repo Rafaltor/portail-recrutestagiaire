@@ -1,0 +1,132 @@
+"use client";
+
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
+
+type Profile = {
+  id: string;
+  handle: string;
+  job_title: string;
+  city: string | null;
+  portfolio_url: string | null;
+  cv_path: string;
+};
+
+type ProfileRow = Profile & { status: string };
+
+export default function ProfilPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [cvUrl, setCvUrl] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  useEffect(() => {
+    let alive = true;
+    async function run() {
+      setLoading(true);
+      setMessage("");
+      try {
+        const profileRes = await fetch(`/api/profile/${id}`, {
+          method: "GET",
+        });
+
+        if (profileRes.status === 404) {
+          setMessage("Profil introuvable ou non publié.");
+          setProfile(null);
+          return;
+        }
+        if (!profileRes.ok) {
+          const j = await profileRes.json().catch(() => ({}));
+          throw new Error(j?.error || "Erreur API profil");
+        }
+
+        const data = (await profileRes.json()) as ProfileRow;
+        if (!alive) return;
+        setProfile(data);
+
+        const cvRes = await fetch(`/api/cv/${id}`, { method: "GET" });
+        if (!cvRes.ok) {
+          const j = await cvRes.json().catch(() => ({}));
+          throw new Error(j?.error || "Erreur API CV");
+        }
+        const cv = (await cvRes.json()) as { url: string };
+        if (!alive) return;
+        setCvUrl(cv.url);
+      } catch (e: unknown) {
+        setMessage(e instanceof Error ? e.message : "Erreur inconnue");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+    run();
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+
+  return (
+    <div className="grid gap-6">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+        <Link href="/profils" className="text-sm font-semibold text-blue-700">
+          ← Retour aux profils
+        </Link>
+        {loading ? (
+          <p className="mt-3 text-sm text-zinc-700">Chargement…</p>
+        ) : message ? (
+          <p className="mt-3 text-sm text-red-700">{message}</p>
+        ) : profile ? (
+          <div className="mt-3">
+            <div className="text-sm font-black text-zinc-900">
+              @{profile.handle.replace(/^@/, "")}
+            </div>
+            <h1 className="mt-1 text-2xl font-black tracking-tight">
+              {profile.job_title}
+            </h1>
+            <p className="mt-1 text-sm text-zinc-700">
+              {profile.city ? profile.city : "—"}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {profile.portfolio_url ? (
+                <a
+                  href={profile.portfolio_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+                >
+                  Portfolio
+                </a>
+              ) : null}
+              {cvUrl ? (
+                <a
+                  href={cvUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                >
+                  Ouvrir le PDF
+                </a>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {profile && cvUrl ? (
+        <div className="rounded-lg border border-zinc-200 bg-white p-2">
+          <iframe
+            title="CV PDF"
+            src={cvUrl}
+            className="h-[78vh] w-full"
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
