@@ -240,12 +240,15 @@ export default function SwipePage() {
                 <div className="absolute inset-0">
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
-                    style={{ transform: "scale(0.965) translateY(14px)", opacity: 0.82 }}
+                    style={{
+                      transform: "scale(0.965) translateY(14px)",
+                      filter: "brightness(0.99)",
+                    }}
                   >
                     <div className="flex h-full flex-col overflow-hidden">
                       <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                        <div className="text-sm font-black text-zinc-900">
-                          {normHandle(third.profile.handle)}
+                        <div className="text-sm font-black text-zinc-900 opacity-0">
+                          @placeholder
                         </div>
                       </div>
                       <div className="min-h-0 flex-1 p-2">
@@ -261,12 +264,15 @@ export default function SwipePage() {
                 <div className="absolute inset-0">
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
-                    style={{ transform: "scale(0.985) translateY(6px)", opacity: 0.92 }}
+                    style={{
+                      transform: "scale(0.985) translateY(6px)",
+                      filter: "brightness(0.995)",
+                    }}
                   >
                     <div className="flex h-full flex-col overflow-hidden">
                       <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                        <div className="text-sm font-black text-zinc-900">
-                          {normHandle(second.profile.handle)}
+                        <div className="text-sm font-black text-zinc-900 opacity-0">
+                          @placeholder
                         </div>
                       </div>
                       <div className="min-h-0 flex-1 p-2">
