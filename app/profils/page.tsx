@@ -114,22 +114,21 @@ export default function ProfilsPage() {
     const visitorId = getOrCreateVisitorId();
     const prev = myVotes[profileId] ?? 0;
     if (prev === value) return;
-    const res = await supabase.from("votes").upsert(
-      {
-        profile_id: profileId,
-        visitor_id: visitorId,
-        value,
-      },
-      { onConflict: "profile_id,visitor_id" },
-    );
-    if (res.error) {
-      setMessage(res.error.message || "Impossible d’enregistrer le vote.");
+    const r = await fetch("/api/vote", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ profileId, value, visitorId }),
+    });
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      setMessage(j?.error || "Impossible d’enregistrer le vote.");
       return;
     }
+    const j = (await r.json()) as { ok: boolean; prev: number; value: 1 | -1 };
     setMyVotes((m) => ({ ...m, [profileId]: value }));
     setVotes((v) => ({
       ...v,
-      [profileId]: (v[profileId] ?? 0) + (value - prev),
+      [profileId]: (v[profileId] ?? 0) + ((j.value ?? value) - (j.prev ?? prev)),
     }));
   }
 
