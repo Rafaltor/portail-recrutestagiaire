@@ -28,6 +28,8 @@ export default function SwipePage() {
 
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [animating, setAnimating] = useState<null | { dir: 1 | -1 }>(null);
+  const [fadeIn, setFadeIn] = useState(false);
   const startXRef = useRef<number | null>(null);
 
   async function fetchNext(): Promise<SwipeItem | null> {
@@ -89,12 +91,11 @@ export default function SwipePage() {
       return;
     }
 
-    // advance
-    setDragX(0);
-    setDragging(false);
+    // advance (swap content only after the card has animated out)
     if (next) {
       setCurrent(next);
       setNext(null);
+      setFadeIn(true);
       void ensurePrefetch();
     } else {
       const n = await fetchNext().catch(() => null);
@@ -105,9 +106,15 @@ export default function SwipePage() {
       } else {
         setCurrent(n);
         setNext(null);
+        setFadeIn(true);
         void ensurePrefetch();
       }
     }
+
+    // reset swipe state after swap
+    setDragX(0);
+    setDragging(false);
+    setAnimating(null);
   }
 
   useEffect(() => {
@@ -158,11 +165,25 @@ export default function SwipePage() {
   function onPointerUp() {
     if (!dragging) return;
     setDragging(false);
-    if (dragX > threshold) void castVote(1);
-    else if (dragX < -threshold) void castVote(-1);
-    else setDragX(0);
+    if (dragX > threshold) {
+      setAnimating({ dir: 1 });
+      setDragX(window.innerWidth * 1.2);
+      window.setTimeout(() => void castVote(1), 180);
+    } else if (dragX < -threshold) {
+      setAnimating({ dir: -1 });
+      setDragX(-window.innerWidth * 1.2);
+      window.setTimeout(() => void castVote(-1), 180);
+    } else {
+      setDragX(0);
+    }
     startXRef.current = null;
   }
+
+  useEffect(() => {
+    if (!fadeIn) return;
+    const t = window.setTimeout(() => setFadeIn(false), 220);
+    return () => window.clearTimeout(t);
+  }, [fadeIn]);
 
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
@@ -217,8 +238,11 @@ export default function SwipePage() {
               className="relative select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
               style={{
                 transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
-                transition: dragging ? "none" : "transform 160ms ease-out",
+                transitionProperty: "transform, opacity",
+                transitionDuration: dragging || animating ? "180ms" : "160ms",
+                transitionTimingFunction: "ease-out",
                 touchAction: "none",
+                opacity: fadeIn ? 0 : 1,
               }}
             >
               {overlay ? (
@@ -236,7 +260,9 @@ export default function SwipePage() {
               ) : null}
 
               <div className="p-2">
-                <PdfPreview url={current.cvUrl} />
+                <div className="h-[72svh] md:h-[78svh]">
+                  <PdfPreview url={current.cvUrl} />
+                </div>
               </div>
             </div>
           </div>

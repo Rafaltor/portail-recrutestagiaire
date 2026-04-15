@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   url: string;
+  mode?: "cover-height" | "fit-width";
 };
 
-export default function PdfPreview({ url }: Props) {
+export default function PdfPreview({ url, mode = "cover-height" }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -60,12 +61,18 @@ export default function PdfPreview({ url }: Props) {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        // Fit width to container (max ~980px)
-        const containerWidth =
-          canvas.parentElement?.getBoundingClientRect().width ?? 900;
+        const parent = canvas.parentElement;
+        const rect = parent?.getBoundingClientRect();
+        const containerWidth = rect?.width ?? 900;
+        // Aim to use the available height (avoid cropping on desktop).
+        const containerHeight = rect?.height ?? 900;
 
         const vp1 = page.getViewport({ scale: 1 });
-        const scale = Math.max(0.5, Math.min(2.2, containerWidth / vp1.width));
+        const byWidth = containerWidth / vp1.width;
+        const byHeight = containerHeight / vp1.height;
+        const raw =
+          mode === "fit-width" ? byWidth : Math.min(byWidth, byHeight);
+        const scale = Math.max(0.5, Math.min(3.2, raw));
         const viewport = page.getViewport({ scale });
 
         const ctx = canvas.getContext("2d");
@@ -106,19 +113,15 @@ export default function PdfPreview({ url }: Props) {
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white">
-      <div className="flex items-center justify-between gap-3 border-b border-zinc-200 px-3 py-2">
-        <div className="text-xs font-black uppercase tracking-wider text-zinc-700">
-          Aperçu (page 1)
-        </div>
-        {loading ? (
-          <div className="text-xs font-semibold text-zinc-500">Chargement…</div>
-        ) : null}
-      </div>
-
       {error ? (
         <div className="px-3 py-3 text-sm text-red-700">{error}</div>
       ) : (
-        <div className="overflow-hidden bg-zinc-50 p-2">
+        <div className="relative overflow-hidden bg-zinc-50 p-2">
+          {loading ? (
+            <div className="absolute inset-x-0 top-2 text-center text-xs font-semibold text-zinc-500">
+              Chargement…
+            </div>
+          ) : null}
           <canvas ref={canvasRef} className="mx-auto block max-w-full" />
         </div>
       )}
