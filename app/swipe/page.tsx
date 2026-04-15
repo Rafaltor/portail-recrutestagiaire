@@ -9,9 +9,7 @@ type SwipeItem = {
   cvUrl: string;
 };
 
-type ApiDone = { done: true };
-type ApiOk = SwipeItem;
-type ApiRes = ApiDone | ApiOk;
+type ApiBatch = { done: boolean; items: SwipeItem[] };
 
 function normHandle(h: string) {
   const s = String(h || "").trim().replace(/^@/, "");
@@ -22,8 +20,7 @@ export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>("");
-  const [current, setCurrent] = useState<SwipeItem | null>(null);
-  const [next, setNext] = useState<SwipeItem | null>(null);
+  const [deck, setDeck] = useState<SwipeItem[]>([]);
   const [done, setDone] = useState(false);
 
   const [dragX, setDragX] = useState(0);
@@ -40,31 +37,33 @@ export default function SwipePage() {
 
   const startXRef = useRef<number | null>(null);
 
-  async function fetchNext(): Promise<SwipeItem | null> {
-    const r = await fetch(`/api/swipe/next?visitorId=${encodeURIComponent(visitorId)}`);
+  const DECK_SIZE = 7;
+
+  async function fetchBatch(excludeIds: string[], n = DECK_SIZE): Promise<ApiBatch> {
+    const qp = new URLSearchParams();
+    qp.set("visitorId", visitorId);
+    qp.set("n", String(n));
+    if (excludeIds.length) qp.set("excludeIds", excludeIds.join(","));
+    const r = await fetch(`/api/swipe/batch?${qp.toString()}`);
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       throw new Error(j?.error || "Erreur chargement");
     }
-    const j = (await r.json()) as ApiRes;
-    if ("done" in j) return null;
-    return j;
+    return (await r.json()) as ApiBatch;
   }
 
   async function prime() {
     setLoading(true);
     setMessage("");
     try {
-      const first = await fetchNext();
-      if (!first) {
+      const res = await fetchBatch([], DECK_SIZE);
+      if (!res.items.length) {
         setDone(true);
-        setCurrent(null);
-        setNext(null);
+        setDeck([]);
         return;
       }
-      setCurrent(first);
-      const n = await fetchNext();
-      setNext(n);
+      setDeck(res.items);
+      setDone(res.done);
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "Erreur inconnue");
     } finally {
@@ -72,12 +71,22 @@ export default function SwipePage() {
     }
   }
 
-  async function ensurePrefetch() {
-    if (next || done) return;
+  async function refillIfNeeded(nextDeck: SwipeItem[]) {
+    if (done) return;
+    if (nextDeck.length >= DECK_SIZE) return;
     try {
-      const n = await fetchNext();
-      setNext(n);
-      if (!n) setDone(true);
+      const excludeIds = nextDeck.map((i) => i.profile.id);
+      const res = await fetchBatch(excludeIds, DECK_SIZE - nextDeck.length);
+      if (!res.items.length) {
+        setDone(true);
+        return;
+      }
+      setDeck((d) => {
+        // d might have changed; merge carefully
+        const curIds = new Set(d.map((i) => i.profile.id));
+        const add = res.items.filter((i) => !curIds.has(i.profile.id));
+        return [...d, ...add].slice(0, DECK_SIZE);
+      });
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "Erreur inconnue");
     }
@@ -95,25 +104,9 @@ export default function SwipePage() {
     }
   }
 
-  async function advanceAfterCommit() {
-    // ensure we always have a "next" ready shortly after
-    if (next) {
-      setCurrent(next);
-      setNext(null);
-      void ensurePrefetch();
-      return;
-    }
-    const n = await fetchNext().catch(() => null);
-    if (!n) {
-      setDone(true);
-      setCurrent(null);
-      setNext(null);
-      return;
-    }
-    setCurrent(n);
-    setNext(null);
-    void ensurePrefetch();
-  }
+  const current = deck[0] ?? null;
+  const second = deck[1] ?? null;
+  const third = deck[2] ?? null;
 
   useEffect(() => {
     void prime();
@@ -136,33 +129,43 @@ export default function SwipePage() {
     function onKey(e: KeyboardEvent) {
       if (!current) return;
       if (e.key === "ArrowRight") {
-        if (outgoing) return;
-        const x = window.innerWidth * 1.2;
-        setOutgoing({ item: current, x, tilt: 6, overlay: "like" });
-        setDragX(x);
-        void advanceAfterCommit();
-        void sendVote(current.profile.id, 1);
-        window.setTimeout(() => setOutgoing(null), 220);
+        commitSwipe(1, 1);
       }
       if (e.key === "ArrowLeft") {
-        if (outgoing) return;
-        const x = -window.innerWidth * 1.2;
-        setOutgoing({ item: current, x, tilt: -6, overlay: "nope" });
-        setDragX(x);
-        void advanceAfterCommit();
-        void sendVote(current.profile.id, -1);
-        window.setTimeout(() => setOutgoing(null), 220);
+        commitSwipe(-1, -1);
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, visitorId, next, done]);
+  }, [current, visitorId, deck, done]);
 
   const threshold = 120;
   const tilt = Math.max(-12, Math.min(12, dragX / 18));
   const overlay =
     dragX > 30 ? "like" : dragX < -30 ? "nope" : null;
+
+  function commitSwipe(dir: 1 | -1, value: 1 | -1) {
+    if (!current || outgoing) return;
+    const x = window.innerWidth * 1.2 * dir;
+    setOutgoing({
+      item: current,
+      x,
+      tilt: dir === 1 ? Math.max(2, tilt) : Math.min(-2, tilt),
+      overlay: dir === 1 ? "like" : "nope",
+    });
+    // Reset the interactive card so the next card doesn't inherit off-screen translateX.
+    setDragX(0);
+    startXRef.current = null;
+    setDeck((d) => {
+      const nextDeck = d.slice(1);
+      void refillIfNeeded(nextDeck);
+      if (nextDeck.length === 0) setDone(true);
+      return nextDeck;
+    });
+    void sendVote(current.profile.id, value);
+    window.setTimeout(() => setOutgoing(null), 220);
+  }
 
   function onPointerDown(e: React.PointerEvent) {
     if (!current || outgoing) return;
@@ -180,32 +183,9 @@ export default function SwipePage() {
     if (!dragging) return;
     setDragging(false);
     if (dragX > threshold) {
-      if (!current) return;
-      const x = window.innerWidth * 1.2;
-      setOutgoing({
-        item: current,
-        x,
-        tilt,
-        overlay: "like",
-      });
-      setDragX(x);
-      // reveal next immediately
-      void advanceAfterCommit();
-      void sendVote(current.profile.id, 1);
-      window.setTimeout(() => setOutgoing(null), 220);
+      commitSwipe(1, 1);
     } else if (dragX < -threshold) {
-      if (!current) return;
-      const x = -window.innerWidth * 1.2;
-      setOutgoing({
-        item: current,
-        x,
-        tilt,
-        overlay: "nope",
-      });
-      setDragX(x);
-      void advanceAfterCommit();
-      void sendVote(current.profile.id, -1);
-      window.setTimeout(() => setOutgoing(null), 220);
+      commitSwipe(-1, -1);
     } else {
       setDragX(0);
     }
@@ -255,23 +235,42 @@ export default function SwipePage() {
         <div className="flex h-full items-center justify-center px-2 pb-24 pt-3">
           <div className="w-full max-w-xl">
             <div className="relative h-[72svh] md:h-[78svh]">
-              {next ? (
+              {/* 3rd card (deepest) */}
+              {third ? (
                 <div className="absolute inset-0">
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
-                    style={{
-                      transform: "scale(0.985) translateY(6px)",
-                      opacity: 0.92,
-                    }}
+                    style={{ transform: "scale(0.965) translateY(14px)", opacity: 0.82 }}
                   >
                     <div className="flex h-full flex-col overflow-hidden">
                       <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
                         <div className="text-sm font-black text-zinc-900">
-                          {normHandle(next.profile.handle)}
+                          {normHandle(third.profile.handle)}
                         </div>
                       </div>
                       <div className="min-h-0 flex-1 p-2">
-                        <PdfPreview url={next.cvUrl} />
+                        <PdfPreview url={third.cvUrl} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* 2nd card */}
+              {second ? (
+                <div className="absolute inset-0">
+                  <div
+                    className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                    style={{ transform: "scale(0.985) translateY(6px)", opacity: 0.92 }}
+                  >
+                    <div className="flex h-full flex-col overflow-hidden">
+                      <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
+                        <div className="text-sm font-black text-zinc-900">
+                          {normHandle(second.profile.handle)}
+                        </div>
+                      </div>
+                      <div className="min-h-0 flex-1 p-2">
+                        <PdfPreview url={second.cvUrl} />
                       </div>
                     </div>
                   </div>
@@ -363,13 +362,7 @@ export default function SwipePage() {
           <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
             <button
               onClick={() => {
-                if (!current || outgoing) return;
-                const x = -window.innerWidth * 1.2;
-                setOutgoing({ item: current, x, tilt: -6, overlay: "nope" });
-                setDragX(x);
-                void advanceAfterCommit();
-                void sendVote(current.profile.id, -1);
-                window.setTimeout(() => setOutgoing(null), 220);
+                commitSwipe(-1, -1);
               }}
               className="rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-black text-zinc-900 hover:bg-zinc-100"
             >
@@ -377,13 +370,7 @@ export default function SwipePage() {
             </button>
             <button
               onClick={() => {
-                if (!current || outgoing) return;
-                const x = window.innerWidth * 1.2;
-                setOutgoing({ item: current, x, tilt: 6, overlay: "like" });
-                setDragX(x);
-                void advanceAfterCommit();
-                void sendVote(current.profile.id, 1);
-                window.setTimeout(() => setOutgoing(null), 220);
+                commitSwipe(1, 1);
               }}
               className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-black text-white hover:bg-zinc-800"
             >
