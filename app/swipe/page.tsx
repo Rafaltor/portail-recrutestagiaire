@@ -115,6 +115,18 @@ export default function SwipePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Lock page scroll on mobile to avoid accidental scrollbars while swiping.
+  useEffect(() => {
+    const prevOverflow = document.documentElement.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (!current) return;
@@ -153,43 +165,50 @@ export default function SwipePage() {
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
-        <h1 className="text-xl font-black tracking-tight">Vote (Swipe)</h1>
-        <p className="mt-2 text-sm text-zinc-700">
-          Swipe droite = like. Swipe gauche = dislike. (Flèches ←/→ aussi.)
-        </p>
-        {message ? <p className="mt-3 text-sm text-red-700">{message}</p> : null}
+    <div className="relative h-[100svh] w-full overflow-hidden">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 px-3 pt-3">
+        <div className="mx-auto flex max-w-xl items-center justify-between">
+          <div className="pointer-events-auto rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-sm font-black text-zinc-900 backdrop-blur">
+            {current ? normHandle(current.profile.handle) : "@—"}
+          </div>
+          {message ? (
+            <div className="pointer-events-auto rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-800">
+              {message}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {loading ? (
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-700">
+        <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
           Chargement…
         </div>
       ) : done || !current ? (
-        <div className="rounded-lg border border-zinc-200 bg-white p-6">
-          <div className="text-lg font-black">C’est tout pour l’instant.</div>
-          <p className="mt-2 text-sm text-zinc-700">
-            Tu as voté sur tous les profils disponibles.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href="/profils"
-              className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
-            >
-              Voir les profils
-            </a>
-            <a
-              href="/depot"
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
-            >
-              Déposer
-            </a>
+        <div className="flex h-full items-center justify-center px-6">
+          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
+            <div className="text-lg font-black">C’est tout pour l’instant.</div>
+            <p className="mt-2 text-sm text-zinc-700">
+              Tu as voté sur tous les profils disponibles.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href="/profils"
+                className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+              >
+                Voir les profils
+              </a>
+              <a
+                href="/depot"
+                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+              >
+                Déposer
+              </a>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="grid gap-4">
-          <div className="mx-auto w-full max-w-xl">
+        <div className="flex h-full items-center justify-center px-2 pb-24 pt-14">
+          <div className="w-full max-w-xl">
             <div
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
@@ -199,17 +218,11 @@ export default function SwipePage() {
               style={{
                 transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
                 transition: dragging ? "none" : "transform 160ms ease-out",
-                touchAction: "pan-y",
+                touchAction: "none",
               }}
             >
-              <div className="flex items-center justify-center border-b border-zinc-200 px-5 py-4">
-                <div className="text-sm font-black text-zinc-900">
-                  {normHandle(current.profile.handle)}
-                </div>
-              </div>
-
               {overlay ? (
-                <div className="pointer-events-none absolute left-4 top-16">
+                <div className="pointer-events-none absolute left-3 top-3">
                   <div
                     className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
                       overlay === "like"
@@ -222,13 +235,17 @@ export default function SwipePage() {
                 </div>
               ) : null}
 
-              <div className="p-5">
+              <div className="p-2">
                 <PdfPreview url={current.cvUrl} />
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="mx-auto flex w-full max-w-xl items-center justify-center gap-3">
+      {!loading && !done && current ? (
+        <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-5">
+          <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
             <button
               onClick={() => void castVote(-1)}
               className="rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-black text-zinc-900 hover:bg-zinc-100"
@@ -243,7 +260,7 @@ export default function SwipePage() {
             </button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

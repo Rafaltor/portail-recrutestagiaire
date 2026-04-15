@@ -71,8 +71,14 @@ export default function PdfPreview({ url }: Props) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
+        // Render in HiDPI to avoid blurry canvas on mobile.
+        const dpr =
+          typeof window !== "undefined" ? Math.min(3, window.devicePixelRatio || 1) : 1;
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = `${Math.floor(viewport.width)}px`;
+        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         const renderTask = page.render({
           canvasContext: ctx,
@@ -99,8 +105,8 @@ export default function PdfPreview({ url }: Props) {
   }, [url]);
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-2">
-      <div className="flex items-center justify-between gap-3 px-2 py-2">
+    <div className="rounded-lg border border-zinc-200 bg-white">
+      <div className="flex items-center justify-between gap-3 border-b border-zinc-200 px-3 py-2">
         <div className="text-xs font-black uppercase tracking-wider text-zinc-700">
           Aperçu (page 1)
         </div>
@@ -110,9 +116,9 @@ export default function PdfPreview({ url }: Props) {
       </div>
 
       {error ? (
-        <div className="px-2 pb-3 text-sm text-red-700">{error}</div>
+        <div className="px-3 py-3 text-sm text-red-700">{error}</div>
       ) : (
-        <div className="overflow-auto rounded-md bg-zinc-50 p-2">
+        <div className="overflow-hidden bg-zinc-50 p-2">
           <canvas ref={canvasRef} className="mx-auto block max-w-full" />
         </div>
       )}
