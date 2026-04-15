@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type FormState = {
   handle: string;
@@ -47,39 +46,20 @@ export default function DepotPage() {
       }
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
-      const now = new Date();
-      const safeHandle = form.handle
-        .trim()
-        .replace(/^@/, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9._-]+/g, "-")
-        .slice(0, 60);
-      const path = `pending/${safeHandle}/${now.getTime()}-${file.name
-        .toLowerCase()
-        .replace(/[^a-z0-9._-]+/g, "-")}`;
+      const fd = new FormData();
+      fd.set("handle", form.handle.trim());
+      fd.set("jobTitle", form.jobTitle.trim());
+      fd.set("city", form.city.trim());
+      fd.set("tags", form.tags.trim());
+      fd.set("portfolioUrl", form.portfolioUrl.trim());
+      fd.set("accepted", String(!!form.accepted));
+      fd.set("cv", file);
 
-      const upload = await supabase.storage.from("cvs").upload(path, file, {
-        upsert: false,
-        contentType: "application/pdf",
-      });
-      if (upload.error) throw upload.error;
-
-      const tags = form.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean)
-        .slice(0, 12);
-
-      const insert = await supabase.from("profiles").insert({
-        handle: form.handle.trim(),
-        job_title: form.jobTitle.trim(),
-        city: form.city.trim() || null,
-        tags,
-        portfolio_url: form.portfolioUrl.trim() || null,
-        cv_path: path,
-        status: "pending",
-      });
-      if (insert.error) throw insert.error;
+      const r = await fetch("/api/depot", { method: "POST", body: fd });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j?.error || "Erreur dépôt");
+      }
 
       setStatus("done");
       setMessage(
