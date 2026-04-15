@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { tryGetSupabaseServer } from "@/lib/supabase-server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const supabaseServer = getSupabaseServer();
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) {
+    return NextResponse.json(
+      { error: "server_misconfigured" },
+      { status: 500 },
+    );
+  }
 
   const res = await supabaseServer
     .from("profiles")
