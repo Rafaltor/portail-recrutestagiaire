@@ -28,8 +28,16 @@ export default function SwipePage() {
 
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [animating, setAnimating] = useState<null | { dir: 1 | -1 }>(null);
-  const [fadeIn, setFadeIn] = useState(false);
+
+  // When a swipe is committed, we keep rendering the outgoing card on top
+  // while we immediately reveal the next card underneath.
+  const [outgoing, setOutgoing] = useState<{
+    item: SwipeItem;
+    x: number;
+    tilt: number;
+    overlay: "like" | "nope";
+  } | null>(null);
+
   const startXRef = useRef<number | null>(null);
 
   async function fetchNext(): Promise<SwipeItem | null> {
@@ -75,11 +83,7 @@ export default function SwipePage() {
     }
   }
 
-  async function castVote(value: 1 | -1) {
-    if (!current) return;
-    setMessage("");
-    const profileId = current.profile.id;
-
+  async function sendVote(profileId: string, value: 1 | -1) {
     const r = await fetch("/api/vote", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -88,33 +92,27 @@ export default function SwipePage() {
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       setMessage(j?.error || "Impossible d’enregistrer le vote.");
-      return;
     }
+  }
 
-    // advance (swap content only after the card has animated out)
+  async function advanceAfterCommit() {
+    // ensure we always have a "next" ready shortly after
     if (next) {
       setCurrent(next);
       setNext(null);
-      setFadeIn(true);
       void ensurePrefetch();
-    } else {
-      const n = await fetchNext().catch(() => null);
-      if (!n) {
-        setDone(true);
-        setCurrent(null);
-        setNext(null);
-      } else {
-        setCurrent(n);
-        setNext(null);
-        setFadeIn(true);
-        void ensurePrefetch();
-      }
+      return;
     }
-
-    // reset swipe state after swap
-    setDragX(0);
-    setDragging(false);
-    setAnimating(null);
+    const n = await fetchNext().catch(() => null);
+    if (!n) {
+      setDone(true);
+      setCurrent(null);
+      setNext(null);
+      return;
+    }
+    setCurrent(n);
+    setNext(null);
+    void ensurePrefetch();
   }
 
   useEffect(() => {
@@ -137,8 +135,24 @@ export default function SwipePage() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (!current) return;
-      if (e.key === "ArrowRight") void castVote(1);
-      if (e.key === "ArrowLeft") void castVote(-1);
+      if (e.key === "ArrowRight") {
+        if (outgoing) return;
+        const x = window.innerWidth * 1.2;
+        setOutgoing({ item: current, x, tilt: 6, overlay: "like" });
+        setDragX(x);
+        void advanceAfterCommit();
+        void sendVote(current.profile.id, 1);
+        window.setTimeout(() => setOutgoing(null), 220);
+      }
+      if (e.key === "ArrowLeft") {
+        if (outgoing) return;
+        const x = -window.innerWidth * 1.2;
+        setOutgoing({ item: current, x, tilt: -6, overlay: "nope" });
+        setDragX(x);
+        void advanceAfterCommit();
+        void sendVote(current.profile.id, -1);
+        window.setTimeout(() => setOutgoing(null), 220);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -151,7 +165,7 @@ export default function SwipePage() {
     dragX > 30 ? "like" : dragX < -30 ? "nope" : null;
 
   function onPointerDown(e: React.PointerEvent) {
-    if (!current) return;
+    if (!current || outgoing) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     startXRef.current = e.clientX;
     setDragging(true);
@@ -166,39 +180,49 @@ export default function SwipePage() {
     if (!dragging) return;
     setDragging(false);
     if (dragX > threshold) {
-      setAnimating({ dir: 1 });
-      setDragX(window.innerWidth * 1.2);
-      window.setTimeout(() => void castVote(1), 180);
+      if (!current) return;
+      const x = window.innerWidth * 1.2;
+      setOutgoing({
+        item: current,
+        x,
+        tilt,
+        overlay: "like",
+      });
+      setDragX(x);
+      // reveal next immediately
+      void advanceAfterCommit();
+      void sendVote(current.profile.id, 1);
+      window.setTimeout(() => setOutgoing(null), 220);
     } else if (dragX < -threshold) {
-      setAnimating({ dir: -1 });
-      setDragX(-window.innerWidth * 1.2);
-      window.setTimeout(() => void castVote(-1), 180);
+      if (!current) return;
+      const x = -window.innerWidth * 1.2;
+      setOutgoing({
+        item: current,
+        x,
+        tilt,
+        overlay: "nope",
+      });
+      setDragX(x);
+      void advanceAfterCommit();
+      void sendVote(current.profile.id, -1);
+      window.setTimeout(() => setOutgoing(null), 220);
     } else {
       setDragX(0);
     }
     startXRef.current = null;
   }
 
-  useEffect(() => {
-    if (!fadeIn) return;
-    const t = window.setTimeout(() => setFadeIn(false), 220);
-    return () => window.clearTimeout(t);
-  }, [fadeIn]);
-
   return (
     <div className="relative h-[100svh] w-full overflow-hidden">
-      <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 px-3 pt-3">
-        <div className="mx-auto flex max-w-xl items-center justify-between">
-          <div className="pointer-events-auto rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-sm font-black text-zinc-900 backdrop-blur">
-            {current ? normHandle(current.profile.handle) : "@—"}
-          </div>
-          {message ? (
+      {message ? (
+        <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 px-3 pt-3">
+          <div className="mx-auto flex max-w-xl justify-end">
             <div className="pointer-events-auto rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-800">
               {message}
             </div>
-          ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {loading ? (
         <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
@@ -228,40 +252,105 @@ export default function SwipePage() {
           </div>
         </div>
       ) : (
-        <div className="flex h-full items-center justify-center px-2 pb-24 pt-14">
+        <div className="flex h-full items-center justify-center px-2 pb-24 pt-3">
           <div className="w-full max-w-xl">
-            <div
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              onPointerCancel={onPointerUp}
-              className="relative select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
-              style={{
-                transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
-                transitionProperty: "transform, opacity",
-                transitionDuration: dragging || animating ? "180ms" : "160ms",
-                transitionTimingFunction: "ease-out",
-                touchAction: "none",
-                opacity: fadeIn ? 0 : 1,
-              }}
-            >
-              {overlay ? (
-                <div className="pointer-events-none absolute left-3 top-3">
+            <div className="relative h-[72svh] md:h-[78svh]">
+              {next ? (
+                <div className="absolute inset-0">
                   <div
-                    className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
-                      overlay === "like"
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                        : "border-rose-300 bg-rose-50 text-rose-800"
-                    }`}
+                    className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                    style={{
+                      transform: "scale(0.985) translateY(6px)",
+                      opacity: 0.92,
+                    }}
                   >
-                    {overlay === "like" ? "LIKE" : "NOPE"}
+                    <div className="flex h-full flex-col overflow-hidden">
+                      <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
+                        <div className="text-sm font-black text-zinc-900">
+                          {normHandle(next.profile.handle)}
+                        </div>
+                      </div>
+                      <div className="min-h-0 flex-1 p-2">
+                        <PdfPreview url={next.cvUrl} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : null}
 
-              <div className="p-2">
-                <div className="h-[72svh] md:h-[78svh]">
-                  <PdfPreview url={current.cvUrl} />
+              {outgoing ? (
+                <div
+                  className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                  style={{
+                    transform: `translateX(${outgoing.x}px) rotate(${outgoing.tilt}deg)`,
+                    transitionProperty: "transform",
+                    transitionDuration: "220ms",
+                    transitionTimingFunction: "ease-out",
+                    pointerEvents: "none",
+                  }}
+                >
+                  <div className="flex h-full flex-col overflow-hidden">
+                    <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
+                      <div className="text-sm font-black text-zinc-900">
+                        {normHandle(outgoing.item.profile.handle)}
+                      </div>
+                    </div>
+                    <div className="min-h-0 flex-1 p-2">
+                      <PdfPreview url={outgoing.item.cvUrl} />
+                    </div>
+                  </div>
+                  <div className="pointer-events-none absolute left-3 top-3">
+                    <div
+                      className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
+                        outgoing.overlay === "like"
+                          ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                          : "border-rose-300 bg-rose-50 text-rose-800"
+                      }`}
+                    >
+                      {outgoing.overlay === "like" ? "LIKE" : "NOPE"}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              <div
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={onPointerUp}
+                className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                style={{
+                  transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
+                  transitionProperty: "transform",
+                  transitionDuration: dragging ? "200ms" : "160ms",
+                  transitionTimingFunction: "ease-out",
+                  touchAction: "none",
+                  opacity: outgoing ? 0 : 1,
+                }}
+              >
+                {overlay ? (
+                  <div className="pointer-events-none absolute left-3 top-3">
+                    <div
+                      className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
+                        overlay === "like"
+                          ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                          : "border-rose-300 bg-rose-50 text-rose-800"
+                      }`}
+                    >
+                      {overlay === "like" ? "LIKE" : "NOPE"}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex h-full flex-col overflow-hidden">
+                  <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
+                    <div className="text-sm font-black text-zinc-900">
+                      {normHandle(current.profile.handle)}
+                    </div>
+                  </div>
+                  <div className="min-h-0 flex-1 p-2">
+                    <PdfPreview url={current.cvUrl} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -273,13 +362,29 @@ export default function SwipePage() {
         <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-5">
           <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
             <button
-              onClick={() => void castVote(-1)}
+              onClick={() => {
+                if (!current || outgoing) return;
+                const x = -window.innerWidth * 1.2;
+                setOutgoing({ item: current, x, tilt: -6, overlay: "nope" });
+                setDragX(x);
+                void advanceAfterCommit();
+                void sendVote(current.profile.id, -1);
+                window.setTimeout(() => setOutgoing(null), 220);
+              }}
               className="rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-black text-zinc-900 hover:bg-zinc-100"
             >
               Dislike
             </button>
             <button
-              onClick={() => void castVote(1)}
+              onClick={() => {
+                if (!current || outgoing) return;
+                const x = window.innerWidth * 1.2;
+                setOutgoing({ item: current, x, tilt: 6, overlay: "like" });
+                setDragX(x);
+                void advanceAfterCommit();
+                void sendVote(current.profile.id, 1);
+                window.setTimeout(() => setOutgoing(null), 220);
+              }}
               className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-black text-white hover:bg-zinc-800"
             >
               Like
