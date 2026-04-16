@@ -176,6 +176,11 @@
 }
 
 .rs-header-kitsch-pop--brand {
+  /* Defaults aligned with Shopify theme section settings */
+  --rs-kitsch-pop-a: #ffd230;
+  --rs-kitsch-pop-b: #4d79ff;
+  --rs-kitsch-pop-fg: #0015a3;
+
   padding: 8px 0;
   background: linear-gradient(
     118deg,
