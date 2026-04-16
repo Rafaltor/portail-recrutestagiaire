@@ -131,11 +131,17 @@ export async function POST(req: Request) {
   });
   if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
 
+  const origin = req.headers.get("origin") || "";
+  const absoluteProfileUrl = origin
+    ? `${origin}/mon-profil/${ownerToken}`
+    : `/mon-profil/${ownerToken}`;
+
   return NextResponse.json(
     {
       ok: true,
       ownerToken,
       profileUrl: `/mon-profil/${ownerToken}`,
+      absoluteProfileUrl,
     },
     { status: 200 },
   );
