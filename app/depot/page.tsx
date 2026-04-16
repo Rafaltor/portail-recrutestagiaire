@@ -15,6 +15,7 @@ type DepotSuccess = {
   ok: true;
   ownerToken?: string;
   profileUrl?: string;
+  absoluteProfileUrl?: string;
 };
 
 export default function DepotPage() {
@@ -32,6 +33,12 @@ export default function DepotPage() {
   );
   const [message, setMessage] = useState<string>("");
   const [ownerProfileUrl, setOwnerProfileUrl] = useState<string>("");
+  const [ownerProfileAbsoluteUrl, setOwnerProfileAbsoluteUrl] = useState<string>(
+    "",
+  );
+  const ownerToken = useMemo(() => {
+    return ownerProfileUrl.split("/").pop() || "";
+  }, [ownerProfileUrl]);
 
   const canSubmit = useMemo(() => {
     return (
@@ -46,6 +53,7 @@ export default function DepotPage() {
     setStatus("loading");
     setMessage("");
     setOwnerProfileUrl("");
+    setOwnerProfileAbsoluteUrl("");
 
     try {
       if (!file) throw new Error("Ajoute un PDF.");
@@ -104,6 +112,9 @@ export default function DepotPage() {
       );
       if (data.profileUrl) {
         setOwnerProfileUrl(data.profileUrl);
+      }
+      if (data.absoluteProfileUrl) {
+        setOwnerProfileAbsoluteUrl(data.absoluteProfileUrl);
       }
       setFile(null);
       setForm((f) => ({ ...f, accepted: false }));
@@ -232,13 +243,31 @@ export default function DepotPage() {
         ) : null}
 
         {status === "done" && ownerProfileUrl ? (
-          <div className="mt-3">
+          <div className="mt-3 grid gap-3">
             <a
               href={ownerProfileUrl}
-              className="inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+              className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
             >
               Voir mon profil privé (stats)
             </a>
+            <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
+              <p>
+                Optionnel : crée un compte pour suivre l&apos;historique et les
+                évolutions de tes versions.
+              </p>
+              {ownerToken ? (
+                <a
+                  href={`/connexion?token=${encodeURIComponent(
+                    ownerToken,
+                  )}&profileUrl=${encodeURIComponent(
+                    ownerProfileAbsoluteUrl || ownerProfileUrl,
+                  )}`}
+                  className="mt-2 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                >
+                  Créer un compte / se connecter
+                </a>
+              ) : null}
+            </div>
           </div>
         ) : null}
       </div>
