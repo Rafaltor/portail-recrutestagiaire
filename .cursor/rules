@@ -1,0 +1,99 @@
+# Recrute Stagiaire — Portail candidatures
+# portail.recrutestagiaire.eu
+
+## Stack technique
+- Framework : Next.js (App Router) avec TypeScript strict
+- Hébergement : Vercel
+- Base de données : Supabase
+- Boutique séparée : Shopify sur recrutestagiaire.eu
+- Portail : portail.recrutestagiaire.eu
+
+## Architecture des dossiers
+- /app : pages et routes Next.js (App Router)
+- /components : composants réutilisables
+- /lib : connexion Supabase et utilitaires
+- /public : assets statiques
+
+## Contexte du projet
+Recrute Stagiaire est un label créatif parisien fondé par 11 personnes.
+Le portail est une plateforme communautaire gratuite où :
+- Les candidats déposent leur CV créatif en PDF mono-page
+- La communauté vote via un système de swipe (like/dislike)
+- Le stagiaire le plus liké est recruté tous les 2 mois
+- Le CV gagnant est imprimé sur tous les packagings de la marque pendant 2 mois
+- Le stagiaire recruté touche 10% des recettes des produits floqués de son CV
+- Le portail est gratuit — la monétisation vient uniquement de la boutique Shopify
+
+## Règles métier non négociables
+- Aucune photo de profil autorisée sur les CVs
+- CV mono-page PDF obligatoire
+- Système de vote sans compte via identifiant visiteur unique
+- Maximum 10 likes par jour et par visiteur
+- Le classement est 100% communautaire, jamais manipulé manuellement
+- Ne jamais exposer ou modifier les variables d'environnement
+
+## Fonctionnalités déjà en production
+- /depot : dépôt de CV en PDF
+- /profils : affichage des profils avec classement
+- /swipe : interface de vote swipe gauche/droite avec tampon APPROUVÉ/REFUSÉ
+- Système de like/dislike via identifiant visiteur sans compte
+
+## Fonctionnalités à développer (par priorité)
+1. Lien token personnel : /mon-profil/[token] avec stats du candidat
+   - Nombre de vues du CV
+   - Ratio likes/dislikes
+   - Position dans le classement général
+   - Évolution entre les versions du CV
+2. Heatmap des votes sur chaque CV
+   - Visualisation des zones likées/dislikées sur le PDF
+3. Limitation à 10 likes par jour par visiteur
+   - Reset automatique à minuit
+   - Feedback visuel quand le quota est atteint
+4. Système de récompenses visiteur
+   - Si le profil liké est recruté → -10% sur la boutique Shopify
+   - Code promo généré automatiquement et envoyé par email
+5. Jeu des 11 fondateurs au lancement
+   - CVs des fondateurs mélangés anonymement aux candidats
+   - Score affiché après avoir identifié les 11
+   - Récompense si score parfait
+6. Mécanique Pokémon Shiny
+   - Coloris exclusifs cachés dans les swipes
+   - Déblocage à l'achat si liké
+7. Système de réputation Talent Scout
+   - Score de prescripteur basé sur les bons choix recrutés
+   - Badge affiché publiquement
+
+## Style de code
+- TypeScript strict, pas de any
+- Commentaires en français
+- Composants en arrow functions
+- Nommage des composants en PascalCase
+- Nommage des fonctions et variables en camelCase
+- Toujours gérer les états vides (loading, error, empty)
+- Sur /swipe : si aucun profil, afficher un message d'invitation à candidater
+
+## Base de données Supabase
+- Ne jamais modifier les migrations existantes
+- Ne jamais changer le schéma de la table des CVs sans validation explicite
+- Toujours utiliser Row Level Security (RLS)
+- Toujours utiliser les types générés par Supabase
+
+## Gestion des branches et PR
+- Une branche par fonctionnalité : feature/nom-de-la-feature
+- Ne jamais pusher directement sur main
+- PR avec description claire : ce qui a changé, pourquoi, comment tester
+- Toujours vérifier que /swipe, /profils et /depot fonctionnent avant de pusher
+
+## Zones interdites
+- Ne jamais toucher aux variables d'environnement (.env)
+- Ne jamais modifier le système de vote existant sans instruction explicite
+- Ne jamais exposer les données personnelles des candidats
+- Ne jamais manipuler le classement manuellement
+- Ne jamais casser la connexion entre le portail et la boutique Shopify
+
+## Performance et UX
+- Pages optimisées pour mobile en priorité (audience 18-28 ans)
+- Temps de chargement du swipe < 1 seconde
+- Toujours afficher un état de chargement explicite
+- Animations fluides sur le tampon APPROUVÉ/REFUSÉ
+- Le swipe doit fonctionner au touch sur mobile
