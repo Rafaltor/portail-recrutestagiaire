@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-dvh bg-zinc-50 text-zinc-900">
+      <body className="min-h-dvh bg-[#e8e8e8] text-[#212529]">
         <header className="header-wrap rs-header">
           <div className="rs-header-kitsch-pop rs-header-kitsch-pop--brand" aria-hidden="true">
             <div className="rs-header-kitsch-pop__track">
@@ -111,7 +111,9 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-5xl px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-[980px] px-[10px] py-0">
+          {children}
+        </main>
       </body>
     </html>
   );
