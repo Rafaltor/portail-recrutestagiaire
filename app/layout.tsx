@@ -70,7 +70,7 @@ export default function RootLayout({
                 <a className="nav-brand rs-nav-brand" href="https://recrutestagiaire.eu">
                   <Image
                     className="rs-nav-brand__img"
-                    src="https://recrutestagiaire.eu/cdn/shop/t/22/assets/rs-logo-eu.png?v=176671118349166250451776112697"
+                    src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                     alt="Recrute Stagiaire"
                     width={40}
                     height={34}

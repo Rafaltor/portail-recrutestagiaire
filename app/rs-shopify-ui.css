@@ -4,6 +4,9 @@
   --rs-logo-blue: #0033ab;
   --rs-logo-blue-pale: #e8eeff;
   --rs-logo-blue-dark: #001a57;
+  --rs-logo-blue-ink: var(--rs-logo-blue-dark);
+  --rs-logo-blue-bright: #5b86e5;
+  --rs-logo-blue-mid: #1b55c4;
   --rs-pole-blue: var(--rs-logo-blue);
   --rs-pole-blue-dark: var(--rs-logo-blue-dark);
   --rs-gold-soft: #fff8e8;
@@ -11,6 +14,7 @@
   --rs-gold-shadow: #8a6f12;
   --rs-pole-header-top: #e8eeff;
   --rs-pole-header-bot: #d4dff7;
+  --rs-pole-tab-bg: #c8d4f5;
 
   --rs-logo-blue-deep: #001a57;
   --rs-logo-red: #b3122a;
