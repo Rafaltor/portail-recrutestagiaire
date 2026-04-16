@@ -72,36 +72,62 @@ export default function RootLayout({
                     className="rs-nav-brand__img"
                     src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                     alt="Recrute Stagiaire"
-                    width={52}
-                    height={40}
+                    width={60}
+                    height={44}
                     priority
-                    style={{ height: 40, width: "auto" }}
+                    style={{ height: 44, width: "auto" }}
                   />
                   <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
                 </a>
 
-                <a
-                  href="https://recrutestagiaire.eu/cart"
-                  className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-1 text-decoration-none"
-                >
-                  <svg
-                    className="rs-icon-dossier"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    focusable="false"
-                    stroke="currentColor"
-                    strokeWidth="1.85"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                <div className="rs-banner-top__actions">
+                  <a
+                    href="https://recrutestagiaire.eu/cart"
+                    className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-decoration-none"
                   >
-                    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
-                  </svg>
-                  <span className="rs-caf-btn-dossier__label">Mon dossier</span>
-                </a>
+                    <svg
+                      className="rs-icon-dossier"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      focusable="false"
+                      stroke="currentColor"
+                      strokeWidth="1.85"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
+                    </svg>
+                    <span className="rs-caf-btn-dossier__label">Mon dossier</span>
+                  </a>
+
+                  <Link
+                    href="/connexion"
+                    className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-decoration-none"
+                  >
+                    <svg
+                      className="rs-icon-account"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      focusable="false"
+                      stroke="currentColor"
+                      strokeWidth="1.85"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 21a8 8 0 0 0-16 0" />
+                      <path d="M12 13a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+                    </svg>
+                    <span className="rs-caf-btn-dossier__label">Mon espace</span>
+                  </Link>
+                </div>
               </div>
 
               <nav className="rs-banner-nav rs-header-pole-tabs" aria-label="Navigation principale">
@@ -137,12 +163,6 @@ export default function RootLayout({
                         <Link href="/swipe">Voter (Swipe)</Link>
                       </li>
                     </ul>
-                  </li>
-
-                  <li className="rs-subnav__item">
-                    <Link className="rs-subnav__trigger" href="/connexion">
-                      Compte
-                    </Link>
                   </li>
 
                   <li className="rs-subnav__item">

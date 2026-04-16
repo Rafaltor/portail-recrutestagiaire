@@ -77,6 +77,12 @@
   flex-shrink: 0;
 }
 
+.rs-icon-account {
+  display: inline-block;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
 .rs-caf-btn-dossier.abt-btn:hover,
 .rs-caf-btn-dossier.abt-btn:focus-visible {
   background: linear-gradient(180deg, var(--rs-logo-blue-bright, #5b86e5) 0%, var(--rs-logo-blue-mid, #1b55c4) 100%) !important;
