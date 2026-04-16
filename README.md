@@ -2,7 +2,25 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+1) Install dependencies:
+
+```bash
+npm ci
+```
+
+2) Create your local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+3) Fill in Supabase values in `.env.local`:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (required for server-side routes and production build)
+
+4) Run the development server:
 
 ```bash
 npm run dev
@@ -15,6 +33,17 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Environment validation
+
+Use these checks after setup:
+
+```bash
+npm run lint
+npm run build
+```
+
+If `npm run build` fails with missing Supabase env vars, verify `.env.local` contains all three variables listed above.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
