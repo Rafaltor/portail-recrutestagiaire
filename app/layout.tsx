@@ -3,9 +3,17 @@ import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { HeaderMobileNav } from "@/components/HeaderMobileNav";
+import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
 import "./rs-shopify-ui.css";
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +38,8 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-dvh bg-[#e8e8e8] text-[#212529]">
+        <RouteHtmlDataset />
+        <HeaderMobileNav />
         <header
           className="header-wrap rs-header rs-header--banner"
           style={

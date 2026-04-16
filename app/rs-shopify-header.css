@@ -252,6 +252,92 @@
   }
 }
 
+/* ===== Mobile: header proche desktop mais usable téléphone ===== */
+@media (max-width: 575.98px) {
+  html[data-rs-route="inner"] .header-wrap .container {
+    padding: 0 10px;
+  }
+
+  /* Ligne logo + actions : autorise retour à la ligne */
+  html[data-rs-route="inner"] .rs-banner-top.rs-header-pole-brand {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 0 10px;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-banner-top .nav-brand {
+    flex: 1 1 100%;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-banner-top__actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  html[data-rs-route="inner"] .rs-nav-brand__name.logo {
+    font-size: 16px !important;
+  }
+
+  /* Onglets: barre scroll horizontale */
+  html[data-rs-route="inner"] .header-wrap .rs-banner-nav.rs-header-pole-tabs {
+    overflow: visible;
+    padding: 4px 4px 0;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav.rs-subnav--buttons {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: max-content;
+    min-width: 100%;
+    gap: 6px;
+    padding: 0 2px;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav.rs-subnav--buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__item {
+    flex: 0 0 auto;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__trigger {
+    min-height: 40px;
+    padding: 9px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  /* Dropdown: large, aligné sous le bouton */
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__dropdown {
+    min-width: 220px;
+    width: max(220px, 78vw);
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__dropdown a {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  /* Mobile: menus au tap (pas fiable au hover) */
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__item.is-open {
+    z-index: 12000;
+  }
+
+  html[data-rs-route="inner"] .header-wrap .rs-subnav__item.is-open .rs-subnav__dropdown {
+    display: block !important;
+  }
+
+}
+
 .header-wrap .rs-subnav__item:hover .rs-subnav__trigger,
 .header-wrap .rs-subnav__item:focus-within .rs-subnav__trigger {
   background: rgba(255, 255, 255, 0.95);

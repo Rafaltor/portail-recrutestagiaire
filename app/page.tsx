@@ -1,3 +1,11 @@
+import type { Viewport } from "next";
+
+// Accueil volontairement "desktop sur mobile" (effet dézoom rétro)
+export const viewport: Viewport = {
+  width: 1180,
+  viewportFit: "cover",
+};
+
 export default function Home() {
   return (
     <div className="grid gap-6">
