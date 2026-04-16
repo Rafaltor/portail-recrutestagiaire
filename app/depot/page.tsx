@@ -11,6 +11,12 @@ type FormState = {
   accepted: boolean;
 };
 
+type DepotSuccess = {
+  ok: true;
+  ownerToken?: string;
+  profileUrl?: string;
+};
+
 export default function DepotPage() {
   const [form, setForm] = useState<FormState>({
     handle: "",
@@ -25,6 +31,7 @@ export default function DepotPage() {
     "idle",
   );
   const [message, setMessage] = useState<string>("");
+  const [ownerProfileUrl, setOwnerProfileUrl] = useState<string>("");
 
   const canSubmit = useMemo(() => {
     return (
@@ -38,6 +45,7 @@ export default function DepotPage() {
   async function onSubmit() {
     setStatus("loading");
     setMessage("");
+    setOwnerProfileUrl("");
 
     try {
       if (!file) throw new Error("Ajoute un PDF.");
@@ -89,10 +97,14 @@ export default function DepotPage() {
         throw new Error(code);
       }
 
+      const data = (await r.json()) as DepotSuccess;
       setStatus("done");
       setMessage(
         "Candidature envoyée. Elle sera visible après modération (pas de photo de profil).",
       );
+      if (data.profileUrl) {
+        setOwnerProfileUrl(data.profileUrl);
+      }
       setFile(null);
       setForm((f) => ({ ...f, accepted: false }));
     } catch (e: unknown) {
@@ -217,6 +229,17 @@ export default function DepotPage() {
           >
             {message}
           </p>
+        ) : null}
+
+        {status === "done" && ownerProfileUrl ? (
+          <div className="mt-3">
+            <a
+              href={ownerProfileUrl}
+              className="inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+            >
+              Voir mon profil privé (stats)
+            </a>
+          </div>
         ) : null}
       </div>
     </div>

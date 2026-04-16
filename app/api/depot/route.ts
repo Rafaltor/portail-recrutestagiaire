@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
+import { generateProfileOwnerToken } from "@/lib/profile-owner-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -104,7 +105,8 @@ export async function POST(req: Request) {
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, "-")
     .slice(0, 80);
-  const path = `pending/${safeHandle}/${Date.now()}-${safeName}`;
+  const ownerToken = generateProfileOwnerToken();
+  const path = `pending/${safeHandle}/${ownerToken}-${Date.now()}-${safeName}`;
 
   const upload = await supabaseServer.storage.from("cvs").upload(path, file, {
     upsert: false,
@@ -129,6 +131,13 @@ export async function POST(req: Request) {
   });
   if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
 
-  return NextResponse.json({ ok: true }, { status: 200 });
+  return NextResponse.json(
+    {
+      ok: true,
+      ownerToken,
+      profileUrl: `/mon-profil/${ownerToken}`,
+    },
+    { status: 200 },
+  );
 }
 
