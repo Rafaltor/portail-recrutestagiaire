@@ -50,6 +50,22 @@ export async function GET(
     );
   }
 
+  // Best effort: increment views counter when column exists.
+  const viewsRes = await supabaseServer
+    .from("profiles")
+    .select("views_count")
+    .eq("id", id)
+    .maybeSingle();
+  if (!viewsRes.error && viewsRes.data) {
+    const current = Number(
+      (viewsRes.data as { views_count?: number | null }).views_count ?? 0,
+    );
+    await supabaseServer
+      .from("profiles")
+      .update({ views_count: current + 1 })
+      .eq("id", id);
+  }
+
   return NextResponse.json({ url: signed.data.signedUrl }, { status: 200 });
 }
 
