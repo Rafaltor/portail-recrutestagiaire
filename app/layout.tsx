@@ -86,6 +86,9 @@ export default function RootLayout({
                       <li>
                         <Link href="/swipe">Voter (Swipe)</Link>
                       </li>
+                  <li>
+                    <Link href="/connexion">Compte</Link>
+                  </li>
                     </ul>
                   </li>
 

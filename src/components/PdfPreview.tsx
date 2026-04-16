@@ -109,7 +109,7 @@ export default function PdfPreview({ url, mode = "cover-height" }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [url]);
+  }, [url, mode]);
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white">
