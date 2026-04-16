@@ -31,6 +31,11 @@ export function HeaderMobileNav() {
       dropdown.style.zIndex = "";
       dropdown.style.maxHeight = "";
       dropdown.style.overflowY = "";
+      dropdown.style.opacity = "";
+      dropdown.style.visibility = "";
+      dropdown.style.transform = "";
+      dropdown.style.transition = "";
+      dropdown.style.display = "";
     }
 
     function positionDropdown(li: Element) {
@@ -47,11 +52,23 @@ export function HeaderMobileNav() {
 
       dropdown.style.position = "fixed";
       dropdown.style.left = `${left}px`;
-      dropdown.style.top = `${Math.round(br.bottom + 6)}px`;
+      dropdown.style.top = `${Math.round(br.bottom)}px`;
       dropdown.style.width = `${width}px`;
       dropdown.style.zIndex = "20000";
-      dropdown.style.maxHeight = `calc(100vh - ${Math.round(br.bottom + 12)}px)`;
+      dropdown.style.maxHeight = `calc(100vh - ${Math.round(br.bottom + 8)}px)`;
       dropdown.style.overflowY = "auto";
+      dropdown.style.display = "block";
+
+      dropdown.style.transition = "opacity 160ms ease, transform 160ms ease";
+      dropdown.style.opacity = "0";
+      dropdown.style.visibility = "visible";
+      dropdown.style.transform = "translateY(-6px)";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          dropdown.style.opacity = "1";
+          dropdown.style.transform = "translateY(0)";
+        });
+      });
     }
 
     function closeAll() {
