@@ -230,7 +230,10 @@ export default function MonProfilTokenPage({
             </h3>
             {!userEmail ? (
               <div className="mt-3 text-sm text-zinc-700">
-                <p>Connecte-toi pour voir l'historique complet de tes versions de CV.</p>
+                <p>
+                  Connecte-toi pour voir l&apos;historique complet de tes versions
+                  de CV.
+                </p>
                 <a
                   href={`/connexion?token=${encodeURIComponent(token)}&profileUrl=${encodeURIComponent(
                     typeof window !== "undefined"
@@ -243,7 +246,9 @@ export default function MonProfilTokenPage({
                 </a>
               </div>
             ) : historyLoading ? (
-              <p className="mt-3 text-sm text-zinc-700">Chargement de l'historique…</p>
+              <p className="mt-3 text-sm text-zinc-700">
+                Chargement de l&apos;historique…
+              </p>
             ) : historyError ? (
               <p className="mt-3 text-sm text-red-700">{historyError}</p>
             ) : history?.items?.length ? (

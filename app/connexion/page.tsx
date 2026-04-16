@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type LinkRes = { ok: true; shopifyCustomerId: string };
 
-export default function ConnexionPage() {
+function ConnexionPageInner() {
   const searchParams = useSearchParams();
   const linkToken = String(searchParams.get("token") || "").trim();
   const profileUrlParam = String(searchParams.get("profileUrl") || "").trim();
@@ -369,6 +369,23 @@ export default function ConnexionPage() {
         ) : null}
       </div>
     </div>
+  );
+}
+
+export default function ConnexionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid gap-6">
+          <div className="rs-panel rounded-lg p-6">
+            <h1 className="text-xl font-black tracking-tight">Connexion</h1>
+            <p className="mt-2 text-sm text-zinc-700">Chargement…</p>
+          </div>
+        </div>
+      }
+    >
+      <ConnexionPageInner />
+    </Suspense>
   );
 }
 
