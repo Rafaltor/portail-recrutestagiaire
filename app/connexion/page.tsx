@@ -113,14 +113,14 @@ export default function ConnexionPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">Connexion</h1>
         <p className="mt-2 text-sm text-zinc-700">
           Connexion rapide (email) pour lier ton compte au portail.
         </p>
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         {userEmail ? (
           <>
             <div className="text-sm text-zinc-700">
@@ -131,14 +131,14 @@ export default function ConnexionPage() {
               <button
                 disabled={status === "linking"}
                 onClick={() => void linkShopify()}
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
+                className="rs-btn rs-btn--primary disabled:opacity-50"
               >
                 {status === "linking" ? "Liaison..." : "Lier Shopify"}
               </button>
 
               <button
                 onClick={() => void signOut()}
-                className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
+                className="rs-btn rs-btn--ghost"
               >
                 Déconnexion
               </button>
@@ -167,7 +167,7 @@ export default function ConnexionPage() {
               <button
                 disabled={status === "sending"}
                 onClick={() => void sendMagicLink()}
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50"
+                className="rs-btn rs-btn--primary disabled:opacity-50"
               >
                 {status === "sending" ? "Envoi..." : "Recevoir le lien de connexion"}
               </button>

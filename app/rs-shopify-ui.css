@@ -1,0 +1,142 @@
+/* UI shared look (portal) — inspired by Shopify theme */
+
+:root {
+  --rs-logo-blue-deep: #001a57;
+  --rs-logo-red: #b3122a;
+  --rs-eu-yellow: #ffcc00;
+  --rs-eu-yellow-lite: #ffe566;
+  --rs-panel-bg: #ffffff;
+  --rs-panel-border: #c5d5e4;
+}
+
+/* Panels like the Shopify site */
+.rs-panel {
+  background: var(--rs-panel-bg);
+  border: 1px solid var(--rs-panel-border);
+  box-shadow: 0 1px 3px rgba(0, 40, 100, 0.08);
+}
+
+/* Windows-relief buttons (used across portal pages) */
+.rs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  border: 2px outset rgba(0, 0, 0, 0.25);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.92),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.rs-btn:active {
+  border-style: inset;
+  transform: translateY(0.5px);
+}
+
+.rs-btn--primary {
+  background: linear-gradient(
+    180deg,
+    #fffff8 0%,
+    #fff9e6 20%,
+    #fff4c4 33%,
+    #fff0a8 42%,
+    #ffe566 58%,
+    #f2ca38 78%,
+    #e6c040 100%
+  );
+  color: var(--rs-logo-blue-deep);
+  border-color: #fff8dc;
+}
+
+.rs-btn--primary:hover {
+  background: linear-gradient(180deg, #fff8d8 0%, #fff0b8 35%, #ffe9a0 70%, #ffe28a 100%);
+  color: var(--rs-logo-blue-deep);
+  text-decoration: none;
+}
+
+.rs-btn--ghost {
+  background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
+  color: var(--rs-logo-blue-deep);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.rs-btn--ghost:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
+}
+
+.rs-btn--danger {
+  background: linear-gradient(180deg, #fff5f5 0%, #ffe3e6 100%);
+  color: #6b0f1a;
+  border-color: rgba(107, 15, 26, 0.22);
+}
+
+.rs-btn--danger:hover {
+  background: linear-gradient(180deg, #ffeef0 0%, #ffd7dc 100%);
+}
+
+/* Footer styling (Jobhill-like) */
+.footer.skin-dark-footer {
+  margin-top: 22px;
+  background: #111827;
+  color: #e5e7eb;
+  border-top: 3px solid rgba(255, 255, 255, 0.12);
+}
+
+.footer.skin-dark-footer a {
+  color: #e5e7eb;
+  text-decoration: none;
+}
+
+.footer.skin-dark-footer a:hover {
+  text-decoration: underline;
+}
+
+.footer .footer-widget .widget-title {
+  font-weight: 900;
+  color: #ffffff;
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.footer .footer-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer .footer-menu li {
+  margin: 7px 0;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Footer grid (responsive) */
+.rs-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px;
+}
+.rs-footer-col {
+  grid-column: span 12;
+}
+@media (min-width: 768px) {
+  .rs-footer-col-b,
+  .rs-footer-col-c {
+    grid-column: span 4;
+  }
+  .rs-footer-col-a {
+    grid-column: span 4;
+  }
+}
+

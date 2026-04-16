@@ -103,7 +103,7 @@ export default function DepotPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">
           Déposer un profil (PDF)
         </h1>
@@ -113,7 +113,7 @@ export default function DepotPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-1">
             <span className="text-sm font-semibold">Pseudo (@instagram)</span>
@@ -197,13 +197,13 @@ export default function DepotPage() {
           <button
             disabled={!canSubmit || status === "loading"}
             onClick={onSubmit}
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rs-btn rs-btn--primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {status === "loading" ? "Envoi..." : "Envoyer"}
           </button>
           <a
             href="/profils"
-            className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-100"
+            className="rs-btn rs-btn--ghost"
           >
             Voir les profils
           </a>

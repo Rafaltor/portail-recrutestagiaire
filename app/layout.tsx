@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./rs-shopify-header.css";
+import "./rs-shopify-ui.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -114,6 +115,92 @@ export default function RootLayout({
         <main className="mx-auto w-full max-w-[980px] px-[10px] py-0">
           {children}
         </main>
+
+        <footer className="footer skin-dark-footer">
+          <div className="container" style={{ paddingTop: 26, paddingBottom: 18 }}>
+            <div className="rs-footer-grid">
+              <div className="rs-footer-col rs-footer-col-a">
+                <div className="footer-widget">
+                  <div className="footerLogo" style={{ marginBottom: 10 }}>
+                    <span style={{ color: "#fff", fontWeight: 900, fontSize: 18 }}>
+                      RECRUTE STAGIAIRE
+                    </span>
+                  </div>
+                  <div className="footerText" style={{ maxWidth: 520 }}>
+                    <p style={{ margin: 0, color: "rgba(255,255,255,0.78)" }}>
+                      Collectif artistique mode & textile, Paris. Chaque vêtement
+                      est une offre. Chaque achat, une candidature.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rs-footer-col rs-footer-col-b">
+                <div className="footer-widget">
+                  <h4 className="widget-title">Collections</h4>
+                  <ul className="footer-menu">
+                    <li>
+                      <a href="https://recrutestagiaire.eu/collections/abcdrs">
+                        Collection ABCDRS
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://recrutestagiaire.eu/collections/les-stagiaires-de-base">
+                        Les stagiaires de base
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://recrutestagiaire.eu/collections/all">
+                        Toutes les offres
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="rs-footer-col rs-footer-col-c">
+                <div className="footer-widget">
+                  <h4 className="widget-title">Le collectif</h4>
+                  <ul className="footer-menu">
+                    <li>
+                      <a href="https://recrutestagiaire.eu/pages/about">À propos</a>
+                    </li>
+                    <li>
+                      <Link href="/profils">Profils candidats</Link>
+                    </li>
+                    <li>
+                      <Link href="/depot">Déposer une candidature</Link>
+                    </li>
+                    <li>
+                      <a href="https://recrutestagiaire.eu/pages/contact">Contact</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="rs-footer-col rs-footer-col-d">
+                <div className="footer-bottom">
+                  <div
+                    className="container"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      padding: 0,
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>
+                      © {new Date().getFullYear()} Recrute Stagiaire. Tous droits
+                      réservés.
+                    </p>
+                    <p style={{ margin: 0 }}>Paris, France</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
