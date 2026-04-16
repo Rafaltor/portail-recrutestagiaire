@@ -87,7 +87,13 @@ export default function ConnexionPage() {
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       setStatus("error");
-      setMessage(j?.error || "Impossible de lier le compte Shopify.");
+      if (j?.error === "shopify_customer_not_found") {
+        setMessage(
+          "Aucun compte client Shopify trouvé pour cet email. (On peut activer la création automatique si tu veux.)",
+        );
+      } else {
+        setMessage(j?.error || "Impossible de lier le compte Shopify.");
+      }
       return;
     }
 

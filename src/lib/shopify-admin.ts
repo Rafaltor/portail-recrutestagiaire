@@ -65,3 +65,37 @@ export async function findShopifyCustomerIdByEmail(email: string) {
   return String(firstId);
 }
 
+export async function createShopifyCustomer(email: string) {
+  const store = process.env.SHOPIFY_STORE_DOMAIN;
+  if (!store) throw new Error("Missing SHOPIFY_STORE_DOMAIN");
+
+  const token = await getShopifyAdminAccessToken();
+  const apiVersion = process.env.SHOPIFY_API_VERSION || "2024-04";
+  const url = `https://${store}/admin/api/${apiVersion}/customers.json`;
+
+  const r = await fetch(url, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "X-Shopify-Access-Token": token,
+    },
+    body: JSON.stringify({
+      customer: {
+        email,
+        // Keeps it minimal; we just need a stable customer id.
+        // verified_email is only meaningful for some setups; safe to omit.
+      },
+    }),
+  });
+
+  if (!r.ok) {
+    const txt = await r.text().catch(() => "");
+    throw new Error(`shopify_create_failed:${r.status}:${txt.slice(0, 400)}`);
+  }
+
+  const j = (await r.json()) as { customer?: { id?: number } };
+  const id = j.customer?.id;
+  if (!id) throw new Error("shopify_create_missing_id");
+  return String(id);
+}
+

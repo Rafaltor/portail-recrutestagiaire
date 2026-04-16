@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
-import { findShopifyCustomerIdByEmail } from "@/lib/shopify-admin";
+import {
+  createShopifyCustomer,
+  findShopifyCustomerIdByEmail,
+} from "@/lib/shopify-admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,7 +42,17 @@ export async function POST(req: Request) {
     return bad(msg, 500);
   }
 
-  if (!shopifyCustomerId) return bad("shopify_customer_not_found", 404);
+  // Optional: auto-create Shopify customer if missing (requires write_customers)
+  if (!shopifyCustomerId) {
+    const allowCreate = process.env.SHOPIFY_AUTO_CREATE_CUSTOMER === "true";
+    if (!allowCreate) return bad("shopify_customer_not_found", 404);
+    try {
+      shopifyCustomerId = await createShopifyCustomer(email);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "shopify_error";
+      return bad(msg, 500);
+    }
+  }
 
   // 2) Persist link in Supabase (service role bypasses RLS)
   // Expected table (create it in Supabase SQL editor):
