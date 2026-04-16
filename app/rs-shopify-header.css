@@ -195,6 +195,39 @@
   z-index: 2;
 }
 
+/* Onglet actif = relief Windows jaune (copié du thème Shopify) */
+.header-wrap .rs-subnav__item.is-active .rs-subnav__trigger,
+.header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger,
+.header-wrap .rs-subnav__item.is-active:focus-within .rs-subnav__trigger {
+  color: var(--rs-logo-blue-deep, #001a57) !important;
+  background: linear-gradient(
+    180deg,
+    #fffff8 0%,
+    #fff9e6 20%,
+    #fff4c4 33%,
+    #fff0a8 42%,
+    #ffe566 58%,
+    #f2ca38 78%,
+    #e6c040 100%
+  ) !important;
+  border: 2px outset #fff8dc !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+    inset -1px -1px 0 rgba(100, 75, 0, 0.22) !important;
+  text-shadow: none;
+}
+
+.header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger {
+  filter: none !important;
+  background: linear-gradient(180deg, #fff8d8 0%, #fff0b8 35%, #ffe9a0 70%, #ffe28a 100%) !important;
+  border: 2px outset #fff8e8 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 0 rgba(255, 210, 100, 0.28) !important;
+  color: var(--rs-logo-blue-deep, #001a57) !important;
+  text-decoration: none;
+}
+
 @media (max-width: 991.98px) {
   .header-wrap .rs-banner-nav.rs-header-pole-tabs {
     padding: 4px 4px 0;

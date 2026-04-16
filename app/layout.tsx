@@ -72,10 +72,10 @@ export default function RootLayout({
                     className="rs-nav-brand__img"
                     src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                     alt="Recrute Stagiaire"
-                    width={40}
-                    height={34}
+                    width={52}
+                    height={40}
                     priority
-                    style={{ height: 34, width: "auto" }}
+                    style={{ height: 40, width: "auto" }}
                   />
                   <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
                 </a>
@@ -84,6 +84,22 @@ export default function RootLayout({
                   href="https://recrutestagiaire.eu/cart"
                   className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-1 text-decoration-none"
                 >
+                  <svg
+                    className="rs-icon-dossier"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    stroke="currentColor"
+                    strokeWidth="1.85"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
+                  </svg>
                   <span className="rs-caf-btn-dossier__label">Mon dossier</span>
                 </a>
               </div>
@@ -120,10 +136,13 @@ export default function RootLayout({
                       <li>
                         <Link href="/swipe">Voter (Swipe)</Link>
                       </li>
-                  <li>
-                    <Link href="/connexion">Compte</Link>
-                  </li>
                     </ul>
+                  </li>
+
+                  <li className="rs-subnav__item">
+                    <Link className="rs-subnav__trigger" href="/connexion">
+                      Compte
+                    </Link>
                   </li>
 
                   <li className="rs-subnav__item">
