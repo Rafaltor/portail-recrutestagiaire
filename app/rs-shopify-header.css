@@ -21,6 +21,24 @@
   background-repeat: no-repeat;
 }
 
+/* Shopify: overlay gradient semi-transparent au-dessus de l'image */
+.header-wrap.rs-header--banner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 240, 248, 0.88) 0%,
+    rgba(210, 224, 238, 0.92) 50%,
+    rgba(190, 210, 230, 0.94) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
 .header-wrap::after {
   content: "";
   position: absolute;
@@ -63,18 +81,22 @@
 
 .rs-nav-brand__img {
   display: block;
+  object-fit: contain;
+  flex-shrink: 0;
   height: auto;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .rs-nav-brand__name.logo {
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  color: #001a57;
-  font-size: 18px;
-  line-height: 1;
-  text-transform: uppercase;
-  text-decoration: none;
+  color: var(--rs-pole-blue) !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  letter-spacing: 0.02em;
+  text-shadow: none;
+  font-family: "Arial", Helvetica, sans-serif !important;
+  display: inline-block !important;
 }
 
 .rs-banner-top__cart {
