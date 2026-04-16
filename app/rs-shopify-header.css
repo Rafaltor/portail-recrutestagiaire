@@ -58,10 +58,11 @@
   overflow: visible;
 }
 
-.rs-header-two-tier {
+.header-wrap .rs-header-two-tier {
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding: 6px 0 0;
 }
 
 .rs-banner-top.rs-header-pole-brand {
@@ -69,7 +70,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 0 10px;
+  padding: 6px 0 10px;
 }
 
 .rs-nav-brand {
@@ -322,7 +323,7 @@
   --rs-kitsch-pop-b: #4d79ff;
   --rs-kitsch-pop-fg: #0015a3;
 
-  padding: 8px 0;
+  padding: 5.5px 0;
   background: linear-gradient(
     118deg,
     var(--rs-gold-soft) 0%,
