@@ -18,6 +18,66 @@
   --rs-panel-border: #c5d5e4;
 }
 
+/* ===== Shopify "abt-btn" (Windows relief + biseau) ===== */
+.abt-btn {
+  --rs-btn-chamfer: 3px;
+  border-radius: 0 !important;
+  clip-path: polygon(
+    var(--rs-btn-chamfer) 0%,
+    calc(100% - var(--rs-btn-chamfer)) 0%,
+    100% var(--rs-btn-chamfer),
+    100% calc(100% - var(--rs-btn-chamfer)),
+    calc(100% - var(--rs-btn-chamfer)) 100%,
+    0% calc(100% - var(--rs-btn-chamfer)),
+    0% var(--rs-btn-chamfer)
+  );
+}
+
+.rs-caf-btn-dossier.abt-btn {
+  background: linear-gradient(
+    180deg,
+    var(--rs-logo-blue-bright, #5b86e5) 0%,
+    var(--rs-pole-blue, #0033ab) 55%,
+    var(--rs-pole-blue-dark, #001a57) 100%
+  ) !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  padding: 7px 16px !important;
+  border-radius: 0 !important;
+  border: 2px outset #a8bdfc !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+    inset -1px -1px 0 rgba(0, 25, 70, 0.45) !important;
+}
+
+.rs-caf-btn-dossier__label {
+  color: #fff !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.rs-banner-top__cart {
+  color: #fff !important;
+}
+
+.rs-banner-top__cart:visited {
+  color: #fff !important;
+}
+
+.rs-caf-btn-dossier.abt-btn:hover,
+.rs-caf-btn-dossier.abt-btn:focus-visible {
+  background: linear-gradient(180deg, var(--rs-logo-blue-bright, #5b86e5) 0%, var(--rs-logo-blue-mid, #1b55c4) 100%) !important;
+  border: 2px outset #7a9fe8 !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset -1px -1px 0 rgba(0, 15, 50, 0.55) !important;
+  text-decoration: none !important;
+  color: #fff !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+  transform: none;
+}
+
 /* Panels like the Shopify site */
 .rs-panel {
   background: var(--rs-panel-bg);

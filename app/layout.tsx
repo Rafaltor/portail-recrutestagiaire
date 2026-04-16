@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import type { CSSProperties } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./rs-shopify-header.css";
@@ -28,7 +30,14 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-dvh bg-[#e8e8e8] text-[#212529]">
-        <header className="header-wrap rs-header">
+        <header
+          className="header-wrap rs-header rs-header--banner"
+          style={
+            {
+              ["--rs-header-bg-img"]: `url(//recrutestagiaire.eu/cdn/shop/files/geometric-glass-city-architecture.jpg?v=1776117913&width=2400)`,
+            } as CSSProperties
+          }
+        >
           <div
             className="rs-header-kitsch-pop rs-header-kitsch-pop--brand"
             aria-hidden="true"
@@ -59,6 +68,15 @@ export default function RootLayout({
             <div className="rs-header-two-tier" aria-label="En-tête du site">
               <div className="rs-banner-top rs-header-pole-brand">
                 <a className="nav-brand rs-nav-brand" href="https://recrutestagiaire.eu">
+                  <Image
+                    className="rs-nav-brand__img"
+                    src="https://recrutestagiaire.eu/cdn/shop/t/22/assets/rs-logo-eu.png?v=176671118349166250451776112697"
+                    alt="Recrute Stagiaire"
+                    width={40}
+                    height={34}
+                    priority
+                    style={{ height: 34, width: "auto" }}
+                  />
                   <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
                 </a>
 
