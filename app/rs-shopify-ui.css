@@ -71,6 +71,12 @@
   color: #fff !important;
 }
 
+.rs-banner-top__actions .rs-caf-btn-dossier {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* lock spacing to match Shopify */
+}
+
 .rs-icon-dossier {
   display: inline-block;
   vertical-align: -2px;

@@ -72,10 +72,10 @@ export default function RootLayout({
                     className="rs-nav-brand__img"
                     src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                     alt="Recrute Stagiaire"
-                    width={60}
-                    height={44}
+                    width={76}
+                    height={56}
                     priority
-                    style={{ height: 44, width: "auto" }}
+                    style={{ height: 56, width: "auto" }}
                   />
                   <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
                 </a>
