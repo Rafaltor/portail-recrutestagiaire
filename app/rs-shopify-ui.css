@@ -1,6 +1,15 @@
 /* UI shared look (portal) — inspired by Shopify theme */
 
 :root {
+  --rs-logo-blue: #0033ab;
+  --rs-logo-blue-pale: #e8eeff;
+  --rs-logo-blue-dark: #001a57;
+  --rs-gold-soft: #fff8e8;
+  --rs-gold-light: #ffe566;
+  --rs-gold-shadow: #8a6f12;
+  --rs-pole-header-top: #e8eeff;
+  --rs-pole-header-bot: #d4dff7;
+
   --rs-logo-blue-deep: #001a57;
   --rs-logo-red: #b3122a;
   --rs-eu-yellow: #ffcc00;

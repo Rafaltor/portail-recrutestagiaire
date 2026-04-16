@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./rs-shopify-header.css";
@@ -25,11 +26,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const kitschPopStyle = {
+    ["--rs-kitsch-pop-a"]: "#ffd230",
+    ["--rs-kitsch-pop-b"]: "#4d79ff",
+    ["--rs-kitsch-pop-fg"]: "#0015a3",
+  } as Record<string, string>;
+
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-dvh bg-[#e8e8e8] text-[#212529]">
         <header className="header-wrap rs-header">
-          <div className="rs-header-kitsch-pop rs-header-kitsch-pop--brand" aria-hidden="true">
+          <div
+            className="rs-header-kitsch-pop rs-header-kitsch-pop--brand"
+            aria-hidden="true"
+            style={kitschPopStyle as unknown as CSSProperties}
+          >
+            <span
+              className="rs-header-kitsch-pop__deco rs-header-kitsch-pop__deco--a"
+              aria-hidden="true"
+            >
+              ✦
+            </span>
+            <span
+              className="rs-header-kitsch-pop__deco rs-header-kitsch-pop__deco--b"
+              aria-hidden="true"
+            >
+              ✦
+            </span>
             <div className="rs-header-kitsch-pop__track">
               <span className="rs-header-kitsch-pop__chunk">
                 ★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★ •

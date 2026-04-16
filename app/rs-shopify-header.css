@@ -164,34 +164,159 @@
   background: #f3f4f6;
 }
 
-/* Kitsch banner (simple version) */
+/* Header — bandeau kitsch animé (rose charte + bleu logo, cohérent avec le site) */
 .rs-header-kitsch-pop {
   position: relative;
-  z-index: 2;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  background: #ffd230;
-  color: #0015a3;
   overflow: hidden;
+  width: 100%;
+  border-bottom: 2px solid var(--rs-gold-shadow);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 3px 12px rgba(15, 74, 110, 0.12);
+}
+
+.rs-header-kitsch-pop--brand {
+  padding: 8px 0;
+  background: linear-gradient(
+    118deg,
+    var(--rs-gold-soft) 0%,
+    #ffffff 20%,
+    var(--rs-kitsch-pop-b, var(--rs-logo-blue-pale)) 42%,
+    #ffffff 62%,
+    color-mix(in srgb, var(--rs-kitsch-pop-a, var(--rs-gold-light)) 42%, white) 82%,
+    var(--rs-kitsch-pop-b, var(--rs-logo-blue-pale)) 100%
+  );
+  background-size: 340% 100%;
+  animation: rs-kitsch-brand-bg 11s ease-in-out infinite;
+}
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .rs-header-kitsch-pop--brand {
+    background: linear-gradient(
+      118deg,
+      var(--rs-gold-soft) 0%,
+      #ffffff 28%,
+      var(--rs-kitsch-pop-b, var(--rs-logo-blue-pale)) 52%,
+      #ffffff 72%,
+      var(--rs-kitsch-pop-a, var(--rs-gold-light)) 100%
+    );
+    background-size: 340% 100%;
+  }
+}
+
+@keyframes rs-kitsch-brand-bg {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.rs-header-kitsch-pop--brand::before {
+  content: "";
+  position: absolute;
+  inset: -45% -50%;
+  background: linear-gradient(
+    108deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 60%
+  );
+  animation: rs-kitsch-brand-shine 4.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes rs-kitsch-brand-shine {
+  0% {
+    transform: translateX(-22%) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(28%) skewX(-14deg);
+  }
+}
+
+.rs-header-kitsch-pop__deco {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--rs-gold-shadow);
+  text-shadow:
+    0 0 10px var(--rs-gold-light),
+    1px 1px 0 rgba(255, 255, 255, 0.95);
+  pointer-events: none;
+  animation: rs-kitsch-brand-twinkle 1.4s ease-in-out infinite;
+}
+
+.rs-header-kitsch-pop__deco--a {
+  left: 10px;
+}
+
+.rs-header-kitsch-pop__deco--b {
+  right: 10px;
+  animation-delay: 0.65s;
+}
+
+@keyframes rs-kitsch-brand-twinkle {
+  0%,
+  100% {
+    opacity: 0.45;
+    filter: brightness(0.92);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.12);
+  }
 }
 
 .rs-header-kitsch-pop__track {
-  display: flex;
-  gap: 0;
-  padding: 6px 0;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  padding: 0 40px;
+  box-sizing: border-box;
+  font-family: "Trebuchet MS", "Lucida Grande", Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  font-size: 0.74rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   white-space: nowrap;
-  animation: rsKitschMarquee 16s linear infinite;
+  will-change: transform;
+  color: var(--rs-logo-blue) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95);
+  animation: rs-kitsch-pop-marquee 22s linear infinite,
+    rs-kitsch-brand-text-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rs-kitsch-brand-text-pulse {
+  0%,
+  100% {
+    letter-spacing: 0.07em;
+  }
+  50% {
+    letter-spacing: 0.09em;
+  }
 }
 
 .rs-header-kitsch-pop__chunk {
-  padding: 0 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 11px;
+  flex: 0 0 auto;
+  padding-right: 2.5rem;
 }
 
-@keyframes rsKitschMarquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+@keyframes rs-kitsch-pop-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
