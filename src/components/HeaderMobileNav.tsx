@@ -2,9 +2,19 @@
 
 import { useEffect } from "react";
 
+function prefersTapForSubnav(): boolean {
+  try {
+    if (window.matchMedia("(hover: none)").matches) return true;
+    if (window.matchMedia("(pointer: coarse)").matches) return true;
+  } catch {
+    /* ignore */
+  }
+  const w = window.innerWidth || document.documentElement.clientWidth || 0;
+  return w > 0 && w <= 991.98;
+}
+
 export function HeaderMobileNav() {
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 575.98px)");
     const header = document.querySelector(".header-wrap");
     if (!header) return;
 
@@ -12,13 +22,41 @@ export function HeaderMobileNav() {
     if (!list) return;
     const listEl = list;
 
+    let lockedY = 0;
+
+    function lockScroll() {
+      if (document.documentElement.getAttribute("data-rs-nav-scroll-lock") === "1") return;
+      document.documentElement.setAttribute("data-rs-nav-scroll-lock", "1");
+      lockedY = window.scrollY || document.documentElement.scrollTop || 0;
+      document.documentElement.classList.add("rs-nav-open");
+      document.body.classList.add("rs-nav-open");
+      document.body.style.position = "fixed";
+      document.body.style.top = `${-lockedY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    }
+
+    function unlockScroll() {
+      if (document.documentElement.getAttribute("data-rs-nav-scroll-lock") !== "1") return;
+      document.documentElement.removeAttribute("data-rs-nav-scroll-lock");
+      document.documentElement.classList.remove("rs-nav-open");
+      document.body.classList.remove("rs-nav-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, lockedY);
+    }
+
     const onDocClick = (e: MouseEvent) => {
-      if (!mq.matches) return;
+      if (!prefersTapForSubnav()) return;
       if (!header.contains(e.target as Node)) closeAll();
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!mq.matches) return;
+      if (!prefersTapForSubnav()) return;
       if (e.key === "Escape") closeAll();
     };
 
@@ -27,6 +65,7 @@ export function HeaderMobileNav() {
       dropdown.style.position = "";
       dropdown.style.left = "";
       dropdown.style.top = "";
+      dropdown.style.right = "";
       dropdown.style.width = "";
       dropdown.style.zIndex = "";
       dropdown.style.maxHeight = "";
@@ -47,13 +86,18 @@ export function HeaderMobileNav() {
       const br = btn.getBoundingClientRect();
       const vw = window.innerWidth || document.documentElement.clientWidth || 0;
       const pad = 10;
-      const left = Math.max(pad, Math.min(br.left, vw - pad));
-      const width = Math.min(Math.max(br.width, 220), vw - pad * 2);
+      const minW = 220;
+      const maxW = Math.max(0, vw - pad * 2);
+      const width = Math.min(Math.max(br.width, minW), maxW);
+      /* Centrer sous le bouton, puis garder le panneau dans le viewport */
+      let left = br.left + (br.width - width) / 2;
+      left = Math.max(pad, Math.min(left, vw - pad - width));
 
       dropdown.style.position = "fixed";
-      dropdown.style.left = `${left}px`;
+      dropdown.style.left = `${Math.round(left)}px`;
       dropdown.style.top = `${Math.round(br.bottom)}px`;
-      dropdown.style.width = `${width}px`;
+      dropdown.style.right = "auto";
+      dropdown.style.width = `${Math.round(width)}px`;
       dropdown.style.zIndex = "20000";
       dropdown.style.maxHeight = `calc(100vh - ${Math.round(br.bottom + 8)}px)`;
       dropdown.style.overflowY = "auto";
@@ -78,17 +122,16 @@ export function HeaderMobileNav() {
         if (btn) btn.setAttribute("aria-expanded", "false");
         resetDropdownLayout(li.querySelector<HTMLElement>(".rs-subnav__dropdown"));
       });
+      unlockScroll();
     }
 
     const onViewportChange = () => {
-      if (!mq.matches) return;
+      if (!prefersTapForSubnav()) return;
       const open = listEl.querySelector(".rs-subnav__item.is-open");
-      if (!open) return;
-      positionDropdown(open);
+      if (open) positionDropdown(open);
     };
 
-    const triggers: Array<{ li: Element; btn: HTMLButtonElement; onClick: (e: Event) => void }> =
-      [];
+    const triggers: Array<{ btn: HTMLButtonElement; onClick: (e: Event) => void }> = [];
 
     listEl.querySelectorAll(".rs-subnav__item").forEach((li) => {
       const btn = li.querySelector<HTMLButtonElement>(".rs-subnav__trigger");
@@ -97,7 +140,7 @@ export function HeaderMobileNav() {
       btn.setAttribute("aria-expanded", "false");
 
       const onClick = (e: Event) => {
-        if (!mq.matches) return;
+        if (!prefersTapForSubnav()) return;
         e.preventDefault();
         e.stopPropagation();
         const isOpen = li.classList.contains("is-open");
@@ -105,45 +148,32 @@ export function HeaderMobileNav() {
         if (!isOpen) {
           li.classList.add("is-open");
           btn.setAttribute("aria-expanded", "true");
+          lockScroll();
           positionDropdown(li);
         }
       };
 
       btn.addEventListener("click", onClick);
-      triggers.push({ li, btn, onClick });
+      triggers.push({ btn, onClick });
     });
 
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", onKeyDown);
 
-    const onMqChange = () => {
-      if (!mq.matches) closeAll();
+    const onResize = () => {
+      if (!prefersTapForSubnav()) closeAll();
       else onViewportChange();
     };
 
-    if (mq.addEventListener) {
-      mq.addEventListener("change", onMqChange);
-    } else {
-      // Safari legacy
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (mq as any).addListener?.(onMqChange);
-    }
-
     window.addEventListener("scroll", onViewportChange, true);
-    window.addEventListener("resize", onViewportChange);
+    window.addEventListener("resize", onResize);
 
     return () => {
       document.removeEventListener("click", onDocClick);
       document.removeEventListener("keydown", onKeyDown);
-      if (mq.removeEventListener) {
-        mq.removeEventListener("change", onMqChange);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (mq as any).removeListener?.(onMqChange);
-      }
       triggers.forEach(({ btn, onClick }) => btn.removeEventListener("click", onClick));
       window.removeEventListener("scroll", onViewportChange, true);
-      window.removeEventListener("resize", onViewportChange);
+      window.removeEventListener("resize", onResize);
       closeAll();
     };
   }, []);
