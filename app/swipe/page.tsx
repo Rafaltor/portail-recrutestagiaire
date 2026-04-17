@@ -106,6 +106,8 @@ export default function SwipePage() {
     dir: 1 | -1;
     overlay: "like" | "nope";
     imprint: StampImprint | null;
+    /** After mount, set true on next frames so transform transitions from center (correct left/right slide). */
+    slideOut: boolean;
   } | null>(null);
   const [stampDrag, setStampDrag] = useState<StampDragState | null>(null);
   const [stampImpact, setStampImpact] = useState<{
@@ -470,14 +472,24 @@ export default function SwipePage() {
     }
 
     imprintHoldTimerRef.current = window.setTimeout(() => {
-      const dir: 1 | -1 = kind === "approved" ? 1 : -1;
+      // Same convention as drag: vote 1 → exit right, -1 → exit left.
+      const dir: 1 | -1 = value;
+      const votedProfileId = current.profile.id;
       setOutgoing({
         item: current,
         dir,
-        overlay: dir === 1 ? "like" : "nope",
+        overlay: value === 1 ? "like" : "nope",
         imprint: resolvedImprint,
+        slideOut: false,
       });
       consumeTopAndRefill();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setOutgoing((o) =>
+            o && o.item.profile.id === votedProfileId ? { ...o, slideOut: true } : o,
+          );
+        });
+      });
       window.setTimeout(() => {
         setOutgoing(null);
         setPendingTransition(null);
@@ -485,7 +497,7 @@ export default function SwipePage() {
         setStampDropping(false);
         setNextAppearing(false);
         transitionInFlightRef.current = false;
-      }, CARD_TRANSITION_MS);
+      }, CARD_TRANSITION_MS + 48);
     }, holdImprintMs);
   }
 
@@ -843,6 +855,7 @@ export default function SwipePage() {
         <div className="flex h-full items-start justify-center px-0 pb-0 pt-0">
           <div className="w-full">
             <div
+              dir="ltr"
               className="relative min-h-[360px] sm:min-h-[480px]"
               style={{ height: `calc(100% - ${CONTROL_BAR_HEIGHT}px)` }}
             >
@@ -895,11 +908,13 @@ export default function SwipePage() {
                 <div
                   className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                   style={{
-                    transform: `translateX(${outgoing.dir > 0 ? "118%" : "-118%"}) rotate(${
-                      outgoing.dir > 0 ? 7 : -7
-                    }deg)`,
+                    transform: outgoing.slideOut
+                      ? `translateX(${outgoing.dir > 0 ? "118%" : "-118%"}) rotate(${
+                          outgoing.dir > 0 ? 7 : -7
+                        }deg)`
+                      : "translateX(0) rotate(0deg)",
                     transitionProperty: "transform",
-                    transitionDuration: `${CARD_TRANSITION_MS}ms`,
+                    transitionDuration: outgoing.slideOut ? `${CARD_TRANSITION_MS}ms` : "0ms",
                     transitionTimingFunction: "ease-out",
                     pointerEvents: "none",
                   }}
