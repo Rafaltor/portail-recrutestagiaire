@@ -43,6 +43,192 @@ function normHandle(h: string) {
   return s ? `@${s}` : "@—";
 }
 
+function stampLabel(kind: StampKind) {
+  return kind === "approved" ? "APPROUVÉ" : "REFUSÉ";
+}
+
+function stampInkClasses(kind: StampKind) {
+  return kind === "approved"
+    ? "text-emerald-700"
+    : "text-rose-700";
+}
+
+function StampVisual({
+  kind,
+  floating = false,
+  muted = false,
+}: {
+  kind: StampKind;
+  floating?: boolean;
+  muted?: boolean;
+}) {
+  const label = stampLabel(kind);
+  const tilt = kind === "approved" ? "-rotate-[15deg]" : "rotate-[15deg]";
+  return (
+    <div
+      className={`relative inline-flex select-none flex-col items-center ${
+        muted ? "opacity-45" : "opacity-100"
+      } ${floating ? "scale-[1.05]" : ""}`}
+    >
+      <svg
+        width="124"
+        height="26"
+        viewBox="0 0 124 26"
+        className="drop-shadow-[0_4px_6px_rgba(0,0,0,0.35)]"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id={`rs-handle-${kind}`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#5a5a5f" />
+            <stop offset="100%" stopColor="#2e2e31" />
+          </linearGradient>
+        </defs>
+        <rect
+          x="26"
+          y="5"
+          width="72"
+          height="16"
+          rx="6"
+          fill={`url(#rs-handle-${kind})`}
+        />
+      </svg>
+
+      <svg
+        width="164"
+        height="78"
+        viewBox="0 0 164 78"
+        className="-mt-3"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id={`rs-body-${kind}`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#4f4f55" />
+            <stop offset="100%" stopColor="#242428" />
+          </linearGradient>
+          <linearGradient id={`rs-rubber-${kind}`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#1e1e22" />
+            <stop offset="100%" stopColor="#0f0f12" />
+          </linearGradient>
+          <filter id={`rs-inner-shadow-${kind}`} x="-50%" y="-50%" width="200%" height="200%">
+            <feOffset dx="0" dy="1" />
+            <feGaussianBlur stdDeviation="1.2" result="offset-blur" />
+            <feComposite
+              operator="out"
+              in="SourceGraphic"
+              in2="offset-blur"
+              result="inverse"
+            />
+            <feFlood floodColor="#000" floodOpacity="0.45" result="color" />
+            <feComposite operator="in" in="color" in2="inverse" result="shadow" />
+            <feComposite operator="over" in="shadow" in2="SourceGraphic" />
+          </filter>
+          <filter id={`rs-rubber-noise-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.95"
+              numOctaves="2"
+              seed={kind === "approved" ? "4" : "7"}
+              result="noise"
+            />
+            <feColorMatrix
+              in="noise"
+              type="saturate"
+              values="0"
+              result="mono"
+            />
+            <feComponentTransfer in="mono" result="faded">
+              <feFuncA type="table" tableValues="0 0.08" />
+            </feComponentTransfer>
+            <feBlend mode="overlay" in="SourceGraphic" in2="faded" />
+          </filter>
+        </defs>
+        <rect
+          x="16"
+          y="7"
+          width="132"
+          height="45"
+          rx="11"
+          fill={`url(#rs-body-${kind})`}
+          filter={`url(#rs-inner-shadow-${kind})`}
+        />
+        <rect
+          x="10"
+          y="34"
+          width="144"
+          height="34"
+          rx="8"
+          fill={`url(#rs-rubber-${kind})`}
+          filter={`url(#rs-rubber-noise-${kind})`}
+        />
+      </svg>
+
+      <div
+        className={`pointer-events-none absolute bottom-2 font-black tracking-[0.18em] ${tilt} ${stampInkClasses(
+          kind,
+        )}`}
+        style={{
+          fontFamily: "Arial Black, Arial, sans-serif",
+          textShadow:
+            kind === "approved"
+              ? "0 0 0.4px rgba(5,120,90,0.8), 0 0 1.4px rgba(5,120,90,0.55)"
+              : "0 0 0.4px rgba(170,28,44,0.85), 0 0 1.4px rgba(170,28,44,0.55)",
+          filter: "saturate(1.08) contrast(1.06)",
+        }}
+      >
+        <span className="inline-block text-[13px] opacity-[0.96]">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+function StampImprintVisual({ kind }: { kind: StampKind }) {
+  const label = stampLabel(kind);
+  const tilt = kind === "approved" ? "-rotate-[15deg]" : "rotate-[15deg]";
+  return (
+    <div className="relative inline-flex select-none flex-col items-center opacity-[0.85]">
+      <svg width="170" height="72" viewBox="0 0 170 72" aria-hidden="true">
+        <defs>
+          <filter id={`rs-imprint-noise-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.95"
+              numOctaves="2"
+              seed={kind === "approved" ? "12" : "17"}
+              result="noise"
+            />
+            <feColorMatrix in="noise" type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncA type="table" tableValues="0 0.18" />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+        <rect
+          x="11"
+          y="13"
+          width="148"
+          height="46"
+          rx="8"
+          fill={kind === "approved" ? "rgba(6,120,86,0.12)" : "rgba(170,28,44,0.12)"}
+          filter={`url(#rs-imprint-noise-${kind})`}
+        />
+      </svg>
+      <div
+        className={`pointer-events-none absolute top-6 font-black tracking-[0.18em] ${tilt} ${stampInkClasses(kind)}`}
+        style={{
+          fontFamily: "Arial Black, Arial, sans-serif",
+          textShadow:
+            kind === "approved"
+              ? "0 0 0.4px rgba(5,120,90,0.84), 0 0 1.4px rgba(5,120,90,0.52)"
+              : "0 0 0.4px rgba(170,28,44,0.84), 0 0 1.4px rgba(170,28,44,0.52)",
+          filter: "saturate(1.08) contrast(1.03)",
+        }}
+      >
+        <span className="inline-block text-[14px]">{label}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
   const [session, setSession] = useState<Session | null>(null);
@@ -442,6 +628,9 @@ export default function SwipePage() {
     const imprint = buildImprint(kind, clientX, clientY);
     if (imprint) setCardImprint(imprint);
     setStampImpact({ kind, x: clientX, y: clientY });
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate?.(24);
+    }
     suppressClickUntilRef.current = Date.now() + 350;
     stampImpactTimerRef.current = window.setTimeout(() => {
       setStampImpact(null);
@@ -826,15 +1015,7 @@ export default function SwipePage() {
                         transform: "translate(-50%, -50%)",
                       }}
                     >
-                      <div
-                        className={`rounded-lg border-2 px-3 py-2 text-xs font-black uppercase tracking-wider opacity-95 ${
-                          outgoing.imprint.kind === "approved"
-                            ? "border-emerald-500 bg-emerald-100/85 text-emerald-800"
-                            : "border-rose-500 bg-rose-100/85 text-rose-800"
-                        }`}
-                      >
-                        {outgoing.imprint.kind === "approved" ? "APPROUVÉ" : "REFUSÉ"}
-                      </div>
+                      <StampImprintVisual kind={outgoing.imprint.kind} />
                     </div>
                   ) : null}
                 </div>
@@ -880,15 +1061,7 @@ export default function SwipePage() {
                       transform: "translate(-50%, -50%)",
                     }}
                   >
-                    <div
-                      className={`rounded-lg border-2 px-3 py-2 text-xs font-black uppercase tracking-wider opacity-95 ${
-                        cardImprint.kind === "approved"
-                          ? "border-emerald-500 bg-emerald-100/85 text-emerald-800"
-                          : "border-rose-500 bg-rose-100/85 text-rose-800"
-                      }`}
-                    >
-                      {cardImprint.kind === "approved" ? "APPROUVÉ" : "REFUSÉ"}
-                    </div>
+                    <StampImprintVisual kind={cardImprint.kind} />
                   </div>
                 ) : null}
 
@@ -918,7 +1091,7 @@ export default function SwipePage() {
               onClick={(e) => {
                 void handleStampClick(e, "declined");
               }}
-              className={`rounded-lg border-2 border-rose-300 bg-rose-50 px-4 py-2 text-[12px] font-black uppercase tracking-wider text-rose-800 shadow-sm transition-transform hover:bg-rose-100 ${
+              className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
                 activeStampKind === "declined" ? "opacity-45" : ""
               }`}
               style={{
@@ -926,7 +1099,7 @@ export default function SwipePage() {
                 animation: stampDrag || stampDropping ? "none" : "stampWobble 1800ms ease-in-out infinite",
               }}
             >
-              Refusé
+              <StampVisual kind="declined" muted={activeStampKind === "declined"} />
             </button>
             <button
               data-stamp-source="approved"
@@ -939,7 +1112,7 @@ export default function SwipePage() {
               onClick={(e) => {
                 void handleStampClick(e, "approved");
               }}
-              className={`rounded-lg border-2 border-emerald-300 bg-emerald-50 px-4 py-2 text-[12px] font-black uppercase tracking-wider text-emerald-800 shadow-sm transition-transform hover:bg-emerald-100 ${
+              className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
                 activeStampKind === "approved" ? "opacity-45" : ""
               }`}
               style={{
@@ -947,7 +1120,7 @@ export default function SwipePage() {
                 animation: stampDrag || stampDropping ? "none" : "stampWobble 1800ms ease-in-out infinite",
               }}
             >
-              Approuvé
+              <StampVisual kind="approved" muted={activeStampKind === "approved"} />
             </button>
           </div>
           <div className="mt-1 text-center text-[11px] font-semibold text-zinc-600">
@@ -963,27 +1136,23 @@ export default function SwipePage() {
 
       {stampDrag ? (
         <div
-          className={`pointer-events-none fixed z-[10030] rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider shadow-lg ${
-            stampDrag.kind === "approved"
-              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-              : "border-rose-300 bg-rose-50 text-rose-800"
-          }`}
+          className="pointer-events-none fixed z-[10030]"
           style={{
             left: 0,
             top: 0,
             transform: `translate(${stampDrag.x}px, ${stampDrag.y}px) ${
-              stampDrag.returning ? "scale(0.96)" : "scale(1.02)"
+              stampDrag.returning ? "scale(0.95)" : "scale(1.06)"
             }`,
             transformOrigin: "center center",
             transition: stampDrag.returning
               ? `transform ${STAMP_RETURN_MS}ms cubic-bezier(0.18, 0.88, 0.3, 1)`
               : "none",
-            boxShadow: stampDrag.returning
-              ? "0 12px 24px rgba(0,0,0,0.14)"
-              : "0 18px 30px rgba(0,0,0,0.24)",
+            filter: stampDrag.returning
+              ? "drop-shadow(0 12px 24px rgba(0,0,0,0.14))"
+              : "drop-shadow(0 18px 30px rgba(0,0,0,0.24))",
           }}
         >
-          {stampDrag.kind === "approved" ? "APPROUVÉ" : "REFUSÉ"}
+          <StampVisual kind={stampDrag.kind} floating />
         </div>
       ) : null}
 
@@ -996,17 +1165,8 @@ export default function SwipePage() {
             transform: "translate(-50%, -50%)",
           }}
         >
-          <div
-            className={`rounded-lg border-2 px-3 py-2 text-sm font-black uppercase tracking-wider ${
-              stampImpact.kind === "approved"
-                ? "border-emerald-500 bg-emerald-100/90 text-emerald-800"
-                : "border-rose-500 bg-rose-100/90 text-rose-800"
-            }`}
-            style={{
-              animation: "stampImpact 280ms cubic-bezier(0.2, 1.15, 0.35, 1)",
-            }}
-          >
-            {stampImpact.kind === "approved" ? "APPROUVÉ" : "REFUSÉ"}
+          <div style={{ animation: "stampImpact 280ms cubic-bezier(0.2, 1.15, 0.35, 1)" }}>
+            <StampVisual kind={stampImpact.kind} />
           </div>
           <div
             className={`pointer-events-none absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full ${
