@@ -404,7 +404,7 @@ export default function SwipePage() {
     };
   }, [session?.access_token, visitorId]);
 
-  // Route-scoped header/layout overrides for swipe only.
+  // Active les styles `html[data-rs-swipe="1"]` (rs-shopify-header.css) : header desktop = marque | onglets centrés | Mon dossier.
   useEffect(() => {
     document.documentElement.setAttribute("data-rs-swipe", "1");
     return () => {
