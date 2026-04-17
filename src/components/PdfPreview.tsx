@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
+function doubleRaf(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
 type Props = {
   url: string;
   /** fit-width: fill width (may crop vertically). fit-page / cover-height: entire page visible (contain). */
@@ -19,6 +27,7 @@ export default function PdfPreview({
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const rafRef = useRef<number | null>(null);
+  const layoutPrimedForUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,6 +38,17 @@ export default function PdfPreview({
         setError("");
       }
       try {
+        if (
+          !silent &&
+          layoutPrimedForUrlRef.current !== url &&
+          typeof window !== "undefined"
+        ) {
+          await doubleRaf();
+          if (cancelled) return;
+          layoutPrimedForUrlRef.current = url;
+        }
+        if (cancelled) return;
+
         const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         type PdfDoc = {
           getPage: (n: number) => Promise<PdfPage>;
@@ -68,6 +88,12 @@ export default function PdfPreview({
         if (!canvas || !wrap) return;
 
         const rect = wrap.getBoundingClientRect();
+        if (rect.width < 16 || rect.height < 16) {
+          requestAnimationFrame(() => {
+            if (!cancelled) scheduleRender(true);
+          });
+          return;
+        }
         const containerWidth = Math.max(1, rect.width);
         const containerHeight = Math.max(1, rect.height);
 
@@ -127,12 +153,14 @@ export default function PdfPreview({
         cancelled = true;
         if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
         ro.disconnect();
+        layoutPrimedForUrlRef.current = null;
       };
     }
 
     return () => {
       cancelled = true;
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      layoutPrimedForUrlRef.current = null;
     };
   }, [url, mode]);
 
@@ -140,7 +168,7 @@ export default function PdfPreview({
     <div
       className={
         immersive
-          ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-md bg-zinc-100"
+          ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-none bg-zinc-100"
           : "rounded-lg border border-zinc-200 bg-white"
       }
     >
