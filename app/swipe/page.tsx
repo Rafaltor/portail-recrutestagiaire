@@ -158,6 +158,11 @@ export default function SwipePage() {
     () => false,
   );
 
+  const swipePdfMode = useMemo(
+    () => (desktopSwipeLayout ? "fit-cover" : "fit-width"),
+    [desktopSwipeLayout],
+  );
+
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
   const STAMP_DROP_DELAY_MS = 48;
@@ -412,14 +417,14 @@ export default function SwipePage() {
         typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
 
       if (desktop) {
-        const padX = 16;
-        const padY = 12;
+        const padX = 12;
+        const padY = 10;
         const availW = Math.max(0, r.width - padX * 2);
         const availH = Math.max(0, r.height - padY * 2);
         const vw = window.innerWidth || r.width;
         const halfScreen = Math.floor(vw * 0.5);
         const w = Math.min(availW, halfScreen);
-        const nw = Math.max(320, Math.floor(w));
+        const nw = Math.max(340, Math.floor(w));
         const nh = nw;
         setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
         return;
@@ -431,11 +436,11 @@ export default function SwipePage() {
       const availH = Math.max(0, r.height - padY * 2);
       const a = 210;
       const b = 297;
-      const w = availW;
+      const w = Math.max(0, availW - 6);
       const hIdeal = (w * b) / a;
       const h = Math.min(availH, hIdeal);
-      const nw = Math.max(200, Math.floor(w));
-      const nh = Math.max(220, Math.floor(h));
+      const nw = Math.max(176, Math.floor(w));
+      const nh = Math.max(200, Math.floor(h));
       setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
     }
     measure();
@@ -1034,7 +1039,7 @@ export default function SwipePage() {
                       <PdfPreview
                         key={third.profile.id}
                         url={third.cvUrl}
-                        mode="fit-page"
+                        mode={swipePdfMode}
                         immersive
                       />
                     </div>
@@ -1063,7 +1068,7 @@ export default function SwipePage() {
                       <PdfPreview
                         key={second.profile.id}
                         url={second.cvUrl}
-                        mode="fit-page"
+                        mode={swipePdfMode}
                         immersive
                       />
                     </div>
@@ -1077,7 +1082,9 @@ export default function SwipePage() {
                   style={{
                     transform: outgoing.slideOut
                       ? `translateX(${
-                          outgoing.dir > 0 ? "calc(50vw + 50%)" : "calc(-50vw - 50%)"
+                          outgoing.dir > 0
+                            ? "calc(100vw + 100%)"
+                            : "calc(-100vw - 100%)"
                         }) rotate(${outgoing.exitStartTilt}deg)`
                       : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`,
                     transitionProperty: "transform",
@@ -1092,7 +1099,7 @@ export default function SwipePage() {
                     <PdfPreview
                       key={outgoing.item.profile.id}
                       url={outgoing.item.cvUrl}
-                      mode="fit-page"
+                      mode={swipePdfMode}
                       immersive
                     />
                   </div>
@@ -1176,7 +1183,7 @@ export default function SwipePage() {
                   <PdfPreview
                     key={current.profile.id}
                     url={current.cvUrl}
-                    mode="fit-page"
+                    mode={swipePdfMode}
                     immersive
                   />
                 </div>

@@ -713,6 +713,16 @@ html[data-rs-swipe="1"] .header-wrap .rs-subnav__item.is-active .rs-subnav__trig
   box-shadow: none !important;
 }
 
+/* Swipe: un seul panneau ouvert — pas d’ouverture au survol / focus sur les autres onglets */
+html[data-rs-swipe="1"] .header-wrap .rs-subnav__item:not(.is-open):hover .rs-subnav__dropdown,
+html[data-rs-swipe="1"] .header-wrap .rs-subnav__item:not(.is-open):focus-within .rs-subnav__dropdown {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-6px) !important;
+  transition: opacity 0ms linear 160ms, transform 160ms ease, visibility 0ms linear 160ms !important;
+}
+
 html[data-rs-swipe="1"] .header-wrap .rs-subnav__dropdown {
   min-width: 160px;
   width: max-content;

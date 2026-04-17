@@ -12,8 +12,12 @@ function doubleRaf(): Promise<void> {
 
 type Props = {
   url: string;
-  /** fit-width: fill width (may crop vertically). fit-page / cover-height: entire page visible (contain). */
-  mode?: "cover-height" | "fit-width" | "fit-page";
+  /**
+   * fit-width: fill width (may crop vertically).
+   * fit-page / cover-height: entire page visible (contain).
+   * fit-cover: scale up to cover box (may crop).
+   */
+  mode?: "cover-height" | "fit-width" | "fit-page" | "fit-cover";
   immersive?: boolean;
 };
 
@@ -103,7 +107,11 @@ export default function PdfPreview({
         const byWidth = containerWidth / vp1.width;
         const byHeight = containerHeight / vp1.height;
         const raw =
-          mode === "fit-width" ? byWidth : Math.min(byWidth, byHeight);
+          mode === "fit-width"
+            ? byWidth
+            : mode === "fit-cover"
+              ? Math.max(byWidth, byHeight)
+              : Math.min(byWidth, byHeight);
         const scale = Math.max(0.45, Math.min(3.2, raw));
         const viewport = page.getViewport({ scale });
 
@@ -216,7 +224,7 @@ export default function PdfPreview({
     <div
       className={
         immersive
-          ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-none bg-zinc-100"
+          ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-none bg-white"
           : "rounded-lg border border-zinc-200 bg-white"
       }
     >
@@ -225,8 +233,8 @@ export default function PdfPreview({
       ) : (
         <div
           ref={wrapRef}
-          className={`relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden bg-zinc-50 ${
-            immersive ? "h-full p-0" : "min-h-[200px] p-2"
+          className={`relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden ${
+            immersive ? "h-full bg-white p-0" : "min-h-[200px] bg-zinc-50 p-2"
           }`}
         >
           {loading ? (

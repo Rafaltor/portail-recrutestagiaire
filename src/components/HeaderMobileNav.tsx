@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 function prefersTapForSubnav(): boolean {
@@ -13,7 +14,25 @@ function prefersTapForSubnav(): boolean {
   return w > 0 && w <= 991.98;
 }
 
+function useTapSubnavForRoute(pathname: string | null): boolean {
+  if (pathname === "/swipe") return true;
+  return prefersTapForSubnav();
+}
+
+function shouldLockBodyForOpenMenu(pathname: string | null): boolean {
+  if (pathname === "/swipe" && typeof window !== "undefined") {
+    try {
+      if (window.matchMedia("(min-width: 768px)").matches) return false;
+    } catch {
+      /* ignore */
+    }
+  }
+  return true;
+}
+
 export function HeaderMobileNav() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const header = document.querySelector(".header-wrap");
     if (!header) return;
@@ -22,9 +41,12 @@ export function HeaderMobileNav() {
     if (!list) return;
     const listEl = list;
 
+    const tapSubnav = useTapSubnavForRoute(pathname);
+
     let lockedY = 0;
 
     function lockScroll() {
+      if (!shouldLockBodyForOpenMenu(pathname)) return;
       if (document.documentElement.getAttribute("data-rs-nav-scroll-lock") === "1") return;
       document.documentElement.setAttribute("data-rs-nav-scroll-lock", "1");
       lockedY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -51,12 +73,12 @@ export function HeaderMobileNav() {
     }
 
     const onDocClick = (e: MouseEvent) => {
-      if (!prefersTapForSubnav()) return;
+      if (!tapSubnav) return;
       if (!header.contains(e.target as Node)) closeAll();
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!prefersTapForSubnav()) return;
+      if (!tapSubnav) return;
       if (e.key === "Escape") closeAll();
     };
 
@@ -126,7 +148,7 @@ export function HeaderMobileNav() {
     }
 
     const onViewportChange = () => {
-      if (!prefersTapForSubnav()) return;
+      if (!tapSubnav) return;
       const open = listEl.querySelector(".rs-subnav__item.is-open");
       if (open) positionDropdown(open);
     };
@@ -140,7 +162,7 @@ export function HeaderMobileNav() {
       btn.setAttribute("aria-expanded", "false");
 
       const onClick = (e: Event) => {
-        if (!prefersTapForSubnav()) return;
+        if (!tapSubnav) return;
         e.preventDefault();
         e.stopPropagation();
         const isOpen = li.classList.contains("is-open");
@@ -161,7 +183,7 @@ export function HeaderMobileNav() {
     document.addEventListener("keydown", onKeyDown);
 
     const onResize = () => {
-      if (!prefersTapForSubnav()) closeAll();
+      if (!tapSubnav) closeAll();
       else onViewportChange();
     };
 
@@ -176,7 +198,7 @@ export function HeaderMobileNav() {
       window.removeEventListener("resize", onResize);
       closeAll();
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }
