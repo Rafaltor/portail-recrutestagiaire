@@ -3,6 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import PdfPreview from "@/components/PdfPreview";
 import { getOrCreateVisitorId } from "@/lib/visitor";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+import {
+  AUTH_LIKES_PER_DAY,
+  FREE_SWIPE_LIMIT,
+  dayKeyUTC,
+  getLikesDayKey,
+  getSwipeCountKey,
+  readLocalInt,
+  writeLocalInt,
+} from "@/lib/swipe-gating";
 
 type SwipeItem = {
   profile: { id: string; handle: string };
@@ -18,10 +29,16 @@ function normHandle(h: string) {
 
 export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>("");
   const [deck, setDeck] = useState<SwipeItem[]>([]);
   const [done, setDone] = useState(false);
+  const [blockedByFreeLimit, setBlockedByFreeLimit] = useState(false);
+  const [freeSwipesUsed, setFreeSwipesUsed] = useState(0);
+  const [likesToday, setLikesToday] = useState(0);
 
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -38,6 +55,11 @@ export default function SwipePage() {
   const startXRef = useRef<number | null>(null);
 
   const DECK_SIZE = 7;
+  const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
+  const likesDayKey = useMemo(
+    () => getLikesDayKey(visitorId, dayKeyUTC()),
+    [visitorId],
+  );
 
   async function fetchBatch(excludeIds: string[], n = DECK_SIZE): Promise<ApiBatch> {
     const qp = new URLSearchParams();
@@ -55,6 +77,18 @@ export default function SwipePage() {
   async function prime() {
     setLoading(true);
     setMessage("");
+    if (!isConnected) {
+      const used = readLocalInt(swipeCountKey);
+      setFreeSwipesUsed(used);
+      if (used >= FREE_SWIPE_LIMIT) {
+        setBlockedByFreeLimit(true);
+        setDeck([]);
+        setDone(true);
+        setLoading(false);
+        return;
+      }
+      setBlockedByFreeLimit(false);
+    }
     try {
       const res = await fetchBatch([], DECK_SIZE);
       if (!res.items.length) {
@@ -93,15 +127,45 @@ export default function SwipePage() {
   }
 
   async function sendVote(profileId: string, value: 1 | -1) {
+    if (isConnected && value === 1) {
+      const currentLikes = readLocalInt(likesDayKey);
+      setLikesToday(currentLikes);
+      if (currentLikes >= AUTH_LIKES_PER_DAY) {
+        setMessage("Limite atteinte: 10 likes par jour. Réessaie demain.");
+        return false;
+      }
+    }
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const r = await fetch("/api/vote", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        ...(session?.access_token
+          ? { authorization: `Bearer ${session.access_token}` }
+          : {}),
+      },
       body: JSON.stringify({ profileId, value, visitorId }),
     });
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       setMessage(j?.error || "Impossible d’enregistrer le vote.");
+      return false;
     }
+    if (!isConnected) {
+      const next = readLocalInt(swipeCountKey) + 1;
+      writeLocalInt(swipeCountKey, next);
+      setFreeSwipesUsed(next);
+      if (next >= FREE_SWIPE_LIMIT) {
+        setBlockedByFreeLimit(true);
+      }
+    } else if (value === 1) {
+      const nextLikes = readLocalInt(likesDayKey) + 1;
+      writeLocalInt(likesDayKey, nextLikes);
+      setLikesToday(nextLikes);
+    }
+    return true;
   }
 
   const current = deck[0] ?? null;
@@ -109,9 +173,53 @@ export default function SwipePage() {
   const third = deck[2] ?? null;
 
   useEffect(() => {
+    let alive = true;
+    async function bootstrapAuth() {
+      const { data } = await supabase.auth.getSession();
+      if (!alive) return;
+      setSession(data.session ?? null);
+      setIsConnected(!!data.session?.access_token);
+      setAuthReady(true);
+    }
+    void bootstrapAuth();
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setIsConnected(!!session?.access_token);
+      setAuthReady(true);
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!authReady) return;
+    setDone(false);
     void prime();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authReady, isConnected, visitorId]);
+
+  useEffect(() => {
+    if (!session?.access_token) return;
+    const bearer = session.access_token;
+    let alive = true;
+    async function linkVisitor() {
+      await fetch("/api/account/link-visitor", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${bearer}`,
+        },
+        body: JSON.stringify({ visitorId }),
+      }).catch(() => null);
+      if (!alive) return;
+    }
+    void linkVisitor();
+    return () => {
+      alive = false;
+    };
+  }, [session?.access_token, visitorId]);
 
   // Lock page scroll on mobile to avoid accidental scrollbars while swiping.
   useEffect(() => {
@@ -129,10 +237,10 @@ export default function SwipePage() {
     function onKey(e: KeyboardEvent) {
       if (!current) return;
       if (e.key === "ArrowRight") {
-        commitSwipe(1, 1);
+        void commitSwipe(1, 1);
       }
       if (e.key === "ArrowLeft") {
-        commitSwipe(-1, -1);
+        void commitSwipe(-1, -1);
       }
     }
     window.addEventListener("keydown", onKey);
@@ -145,8 +253,10 @@ export default function SwipePage() {
   const overlay =
     dragX > 30 ? "like" : dragX < -30 ? "nope" : null;
 
-  function commitSwipe(dir: 1 | -1, value: 1 | -1) {
+  async function commitSwipe(dir: 1 | -1, value: 1 | -1) {
     if (!current || outgoing) return;
+    const voteOk = await sendVote(current.profile.id, value);
+    if (!voteOk) return;
     const x = window.innerWidth * 1.2 * dir;
     setOutgoing({
       item: current,
@@ -163,7 +273,6 @@ export default function SwipePage() {
       if (nextDeck.length === 0) setDone(true);
       return nextDeck;
     });
-    void sendVote(current.profile.id, value);
     window.setTimeout(() => setOutgoing(null), 220);
   }
 
@@ -183,13 +292,23 @@ export default function SwipePage() {
     if (!dragging) return;
     setDragging(false);
     if (dragX > threshold) {
-      commitSwipe(1, 1);
+      void commitSwipe(1, 1);
     } else if (dragX < -threshold) {
-      commitSwipe(-1, -1);
+      void commitSwipe(-1, -1);
     } else {
       setDragX(0);
     }
     startXRef.current = null;
+  }
+
+  if (!authReady) {
+    return (
+      <div className="relative h-[100svh] w-full overflow-hidden">
+        <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
+          Chargement…
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -207,6 +326,31 @@ export default function SwipePage() {
       {loading ? (
         <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
           Chargement…
+        </div>
+      ) : blockedByFreeLimit ? (
+        <div className="flex h-full items-center justify-center px-6">
+          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
+            <div className="text-lg font-black">
+              Créez un compte pour continuer à voter et débloquer les récompenses.
+            </div>
+            <p className="mt-2 text-sm text-zinc-700">
+              Tu as utilisé {freeSwipesUsed} swipes gratuits sur {FREE_SWIPE_LIMIT}.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href="/connexion"
+                className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+              >
+                Se connecter / créer un compte
+              </a>
+              <a
+                href="/mon-espace"
+                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+              >
+                Ouvrir mon espace
+              </a>
+            </div>
+          </div>
         </div>
       ) : done || !current ? (
         <div className="flex h-full items-center justify-center px-6">
@@ -368,7 +512,7 @@ export default function SwipePage() {
           <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
             <button
               onClick={() => {
-                commitSwipe(-1, -1);
+                void commitSwipe(-1, -1);
               }}
               className="rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-black text-zinc-900 hover:bg-zinc-100"
             >
@@ -376,13 +520,18 @@ export default function SwipePage() {
             </button>
             <button
               onClick={() => {
-                commitSwipe(1, 1);
+                void commitSwipe(1, 1);
               }}
               className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-black text-white hover:bg-zinc-800"
             >
               Like
             </button>
           </div>
+          {isConnected ? (
+            <div className="mt-2 text-center text-xs text-zinc-700">
+              Likes aujourd&apos;hui: {likesToday}/{AUTH_LIKES_PER_DAY}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

@@ -115,12 +115,19 @@ export default function MonProfilTokenPage({
 
       const [statsRes, historyRes] = await Promise.all([
         fetch(`/api/mon-profil/${encodeURIComponent(token)}`, { method: "GET" }),
-        fetch(`/api/mon-profil/${encodeURIComponent(token)}/history`, {
-          method: "GET",
-          headers: {
-            authorization: `Bearer ${bearer}`,
-          },
-        }),
+        linkStatus === "done"
+          ? fetch(`/api/mon-profil/${encodeURIComponent(token)}/history`, {
+              method: "GET",
+              headers: {
+                authorization: `Bearer ${bearer}`,
+              },
+            })
+          : Promise.resolve(
+              new Response(JSON.stringify({ error: "token_not_linked_yet" }), {
+                status: 403,
+                headers: { "content-type": "application/json" },
+              }),
+            ),
       ]);
       if (!alive) return;
 
