@@ -1212,7 +1212,7 @@ export default function SwipePage() {
 
       {!blockedByFreeLimit ? (
         <div className="fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
-          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-4 rounded-xl border border-zinc-200 bg-white/96 px-4 py-3 shadow-lg backdrop-blur-sm sm:gap-5 sm:px-5 sm:py-3.5">
+          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-3 rounded-xl border border-zinc-300/35 bg-white/15 px-3 py-2 shadow-none backdrop-blur-md sm:gap-4 sm:px-4 sm:py-2.5">
             <button
               data-stamp-source="declined"
               onMouseDown={(e) => {
@@ -1274,7 +1274,7 @@ export default function SwipePage() {
             left: 0,
             top: 0,
             transform: `translate(${stampDrag.x}px, ${stampDrag.y}px) ${
-              stampDrag.returning ? "scale(0.94)" : "scale(1.14)"
+              stampDrag.returning ? "scale(0.94)" : "scale(1.06)"
             }`,
             transformOrigin: "center center",
             transition: stampDrag.returning
