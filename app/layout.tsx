@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
@@ -27,8 +28,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portail — Recrute Stagiaire",
-  description: "Portail candidatures (MVP)",
+  metadataBase: new URL(siteUrl),
+  title: "Recrute Stagiaire — Portail",
+  description:
+    "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
+  applicationName: "Recrute Stagiaire",
+  openGraph: {
+    siteName: "Recrute Stagiaire",
+    locale: "fr_FR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -85,9 +94,9 @@ export default function RootLayout({
                       src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                       alt="Recrute Stagiaire"
                       width={76}
-                      height={56}
+                      height={44}
                       priority
-                      style={{ height: 56, width: "auto" }}
+                      style={{ height: 44, width: "auto" }}
                     />
                     <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
                   </a>

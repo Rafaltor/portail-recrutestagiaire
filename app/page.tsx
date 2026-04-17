@@ -1,4 +1,13 @@
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title:
+    "Recrute Stagiaire — Portail créatif Paris · Dépose ton CV, vote pour les meilleurs profils",
+  description:
+    "Label parisien fondé par 11 créatifs. Dépose ton CV créatif, la communauté vote, les meilleurs sont recrutés. Stage mode et créatif Paris.",
+  path: "/",
+});
 
 // Accueil volontairement "desktop sur mobile" (effet dézoom rétro)
 export const viewport: Viewport = {
