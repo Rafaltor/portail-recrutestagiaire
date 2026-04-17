@@ -90,9 +90,9 @@ function StampImprintVisual({ kind }: { kind: StampKind }) {
   );
 }
 
-/** Back / mid stack poses (must match prior deck visuals for smooth promote). */
-const STACK_DECK_BACK = "translate(-7px, 12px) rotate(-2deg) scale(0.91)";
-const STACK_DECK_MID = "translate(5px, 6px) rotate(1.2deg) scale(0.955)";
+/** Pile : même orientation, léger décalage bas-droite par couche (effet « une liasse »). */
+const STACK_DECK_BACK = "translate(10px, 12px) scale(0.94)";
+const STACK_DECK_MID = "translate(5px, 6px) scale(0.97)";
 
 export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
@@ -171,11 +171,12 @@ export default function SwipePage() {
 
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
-  const STAMP_DROP_DELAY_MS = 48;
+  const STAMP_DROP_DELAY_MS = 18;
   /** Durée de l’effet « coup de tampon » (ondes + écrasement) — laisse le temps de le percevoir. */
-  const STAMP_IMPACT_MS = 300;
-  const STAMP_IMPRINT_HOLD_MS = 280;
-  const CARD_TRANSITION_MS = 240;
+  const STAMP_IMPACT_MS = 240;
+  /** Pause après le vote avant la sortie (l’empreinte est déjà visible pendant l’appel réseau). */
+  const STAMP_IMPRINT_HOLD_MS = 72;
+  const CARD_TRANSITION_MS = 200;
   /** Swipe commit: snappier exit off-screen (full viewport). */
   const SWIPE_EXIT_MS = 200;
   const STAMP_RETURN_MS = 180;
@@ -1051,7 +1052,7 @@ export default function SwipePage() {
                     : `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
                 }
 
-                const transformOrigin = deckIdx === 0 ? "center center" : "50% 100%";
+                const transformOrigin = "center center";
 
                 const transitionDuration = isTop
                   ? dragging
@@ -1096,7 +1097,6 @@ export default function SwipePage() {
                         transitionTimingFunction: "ease-out",
                         filter: shellFilter,
                         touchAction: isTop ? "none" : undefined,
-                        opacity: isTop && outgoing ? 0 : 1,
                       }}
                     >
                       {isTop && cardImprint ? (
