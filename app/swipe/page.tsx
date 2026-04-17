@@ -58,7 +58,7 @@ function normHandle(h: string) {
 }
 
 function stampLabel(kind: StampKind) {
-  return kind === "approved" ? "APPROUVÉ" : "REFUSÉ";
+  return kind === "approved" ? "Approuvé" : "Refusé";
 }
 
 function StampVisual({
@@ -120,7 +120,6 @@ export default function SwipePage() {
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
     dir: 1 | -1;
-    overlay: "like" | "nope";
     imprint: StampImprint | null;
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
     exitStartX: number;
@@ -457,8 +456,6 @@ export default function SwipePage() {
 
   const threshold = 120;
   const tilt = Math.max(-12, Math.min(12, dragX / 18));
-  const overlay =
-    dragX > 30 ? "like" : dragX < -30 ? "nope" : null;
 
   function clearStampTimers() {
     if (stampReturnTimerRef.current) {
@@ -553,7 +550,6 @@ export default function SwipePage() {
       setOutgoing({
         item,
         dir: value,
-        overlay: value === 1 ? "like" : "nope",
         imprint: resolvedImprint,
         exitStartX: swipeRelease.x,
         exitStartTilt: swipeRelease.tilt,
@@ -618,7 +614,6 @@ export default function SwipePage() {
       setOutgoing({
         item: current,
         dir,
-        overlay: value === 1 ? "like" : "nope",
         imprint: resolvedImprint,
         exitStartX,
         exitStartTilt,
@@ -1104,26 +1099,12 @@ export default function SwipePage() {
                         opacity: isTop && outgoing ? 0 : 1,
                       }}
                     >
-                      {isTop && overlay ? (
-                        <div className="pointer-events-none absolute left-3 top-3">
-                          <div
-                            className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
-                              overlay === "like"
-                                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                                : "border-rose-300 bg-rose-50 text-rose-800"
-                            }`}
-                          >
-                            {overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
-                          </div>
-                        </div>
-                      ) : null}
-
                       {isTop && cardImprint ? (
                         <div
                           className="pointer-events-none absolute z-30"
                           style={{
-                            left: `${cardImprint.x * 100}%`,
-                            top: `${cardImprint.y * 100}%`,
+                            left: `${cardImprint.x}%`,
+                            top: `${cardImprint.y}%`,
                             transform: "translate(-50%, -50%)",
                           }}
                         >
@@ -1180,23 +1161,12 @@ export default function SwipePage() {
                   <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                     {normHandle(outgoing.item.profile.handle)}
                   </div>
-                  <div className="pointer-events-none absolute left-3 top-3">
-                    <div
-                      className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
-                        outgoing.overlay === "like"
-                          ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                          : "border-rose-300 bg-rose-50 text-rose-800"
-                      }`}
-                    >
-                      {outgoing.overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
-                    </div>
-                  </div>
                   {outgoing.imprint ? (
                     <div
                       className="pointer-events-none absolute z-30"
                       style={{
-                        left: `${outgoing.imprint.x * 100}%`,
-                        top: `${outgoing.imprint.y * 100}%`,
+                        left: `${outgoing.imprint.x}%`,
+                        top: `${outgoing.imprint.y}%`,
                         transform: "translate(-50%, -50%)",
                       }}
                     >
@@ -1211,8 +1181,8 @@ export default function SwipePage() {
       )}
 
       {!blockedByFreeLimit ? (
-        <div className="fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
-          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-3 rounded-xl border border-zinc-300/35 bg-white/15 px-3 py-2 shadow-none backdrop-blur-md sm:gap-4 sm:px-4 sm:py-2.5">
+        <div className="fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)] pointer-events-none">
+          <div className="mx-auto flex max-w-[980px] items-end justify-center gap-4 px-2 py-0 sm:gap-6 sm:px-3 pointer-events-auto">
             <button
               data-stamp-source="declined"
               onMouseDown={(e) => {
