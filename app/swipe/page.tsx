@@ -70,112 +70,94 @@ function StampVisual({
         muted ? "opacity-45" : "opacity-100"
       } ${floating ? "scale-[1.05]" : ""}`}
     >
-      <svg
-        width="124"
-        height="26"
-        viewBox="0 0 124 26"
-        className="drop-shadow-[0_4px_6px_rgba(0,0,0,0.35)]"
-        aria-hidden="true"
-      >
+      <svg width="172" height="118" viewBox="0 0 172 118" aria-hidden="true">
         <defs>
-          <linearGradient id={`rs-handle-${kind}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#5a5a5f" />
-            <stop offset="100%" stopColor="#2e2e31" />
+          <linearGradient id={`rs-wood-main-${kind}`} x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#bf8750" />
+            <stop offset="50%" stopColor="#956034" />
+            <stop offset="100%" stopColor="#6f4523" />
           </linearGradient>
-        </defs>
-        <rect
-          x="26"
-          y="5"
-          width="72"
-          height="16"
-          rx="6"
-          fill={`url(#rs-handle-${kind})`}
-        />
-      </svg>
-
-      <svg
-        width="164"
-        height="78"
-        viewBox="0 0 164 78"
-        className="-mt-3"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id={`rs-body-${kind}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#4f4f55" />
-            <stop offset="100%" stopColor="#242428" />
+          <linearGradient id={`rs-wood-side-${kind}`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#9d6739" />
+            <stop offset="100%" stopColor="#5e3a1e" />
           </linearGradient>
           <linearGradient id={`rs-rubber-${kind}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#1e1e22" />
-            <stop offset="100%" stopColor="#0f0f12" />
+            <stop offset="0%" stopColor="#1d1a18" />
+            <stop offset="100%" stopColor="#0d0b0a" />
           </linearGradient>
-          <filter id={`rs-inner-shadow-${kind}`} x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={`rs-wood-grain-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.84 0.03"
+              numOctaves="2"
+              seed={kind === "approved" ? "31" : "37"}
+              result="noise"
+            />
+            <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+            <feComponentTransfer in="mono" result="grain">
+              <feFuncA type="table" tableValues="0 0.15" />
+            </feComponentTransfer>
+            <feBlend mode="multiply" in="SourceGraphic" in2="grain" />
+          </filter>
+          <filter id={`rs-rubber-shadow-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
             <feOffset dx="0" dy="1" />
-            <feGaussianBlur stdDeviation="1.2" result="offset-blur" />
+            <feGaussianBlur stdDeviation="1.1" result="offset-blur" />
             <feComposite
               operator="out"
               in="SourceGraphic"
               in2="offset-blur"
               result="inverse"
             />
-            <feFlood floodColor="#000" floodOpacity="0.45" result="color" />
+            <feFlood floodColor="#000" floodOpacity="0.42" result="color" />
             <feComposite operator="in" in="color" in2="inverse" result="shadow" />
             <feComposite operator="over" in="shadow" in2="SourceGraphic" />
           </filter>
-          <filter id={`rs-rubber-noise-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.95"
-              numOctaves="2"
-              seed={kind === "approved" ? "4" : "7"}
-              result="noise"
-            />
-            <feColorMatrix
-              in="noise"
-              type="saturate"
-              values="0"
-              result="mono"
-            />
-            <feComponentTransfer in="mono" result="faded">
-              <feFuncA type="table" tableValues="0 0.08" />
-            </feComponentTransfer>
-            <feBlend mode="overlay" in="SourceGraphic" in2="faded" />
-          </filter>
         </defs>
+
+        <ellipse cx="86" cy="16" rx="15" ry="11" fill={`url(#rs-wood-main-${kind})`} />
         <rect
-          x="16"
-          y="7"
-          width="132"
-          height="45"
-          rx="11"
-          fill={`url(#rs-body-${kind})`}
-          filter={`url(#rs-inner-shadow-${kind})`}
+          x="80"
+          y="22"
+          width="12"
+          height="20"
+          rx="5"
+          fill={`url(#rs-wood-side-${kind})`}
         />
         <rect
-          x="10"
-          y="34"
-          width="144"
-          height="34"
-          rx="8"
-          fill={`url(#rs-rubber-${kind})`}
-          filter={`url(#rs-rubber-noise-${kind})`}
+          x="24"
+          y="40"
+          width="124"
+          height="38"
+          rx="7"
+          fill={`url(#rs-wood-main-${kind})`}
+          filter={`url(#rs-wood-grain-${kind})`}
+        />
+        <rect x="19" y="71" width="134" height="30" rx="6" fill={`url(#rs-rubber-${kind})`} />
+        <rect
+          x="19"
+          y="71"
+          width="134"
+          height="30"
+          rx="6"
+          fill="transparent"
+          filter={`url(#rs-rubber-shadow-${kind})`}
         />
       </svg>
 
       <div
-        className={`pointer-events-none absolute bottom-2 font-black tracking-[0.18em] ${tilt} ${stampInkClasses(
+        className={`pointer-events-none absolute bottom-[14px] font-black tracking-[0.16em] ${tilt} ${stampInkClasses(
           kind,
         )}`}
         style={{
-          fontFamily: "Arial Black, Arial, sans-serif",
+          fontFamily: "Arial Black, Impact, sans-serif",
           textShadow:
             kind === "approved"
-              ? "0 0 0.4px rgba(5,120,90,0.8), 0 0 1.4px rgba(5,120,90,0.55)"
-              : "0 0 0.4px rgba(170,28,44,0.85), 0 0 1.4px rgba(170,28,44,0.55)",
-          filter: "saturate(1.08) contrast(1.06)",
+              ? "0 0 0.4px rgba(5,120,90,0.9), 0 0 2px rgba(5,120,90,0.68)"
+              : "0 0 0.4px rgba(170,28,44,0.92), 0 0 2px rgba(170,28,44,0.66)",
+          filter: "saturate(1.1) contrast(1.12)",
         }}
       >
-        <span className="inline-block text-[13px] opacity-[0.96]">{label}</span>
+        <span className="inline-block text-[14px] opacity-[0.98]">{label}</span>
       </div>
     </div>
   );
@@ -186,44 +168,46 @@ function StampImprintVisual({ kind }: { kind: StampKind }) {
   const tilt = kind === "approved" ? "-rotate-[15deg]" : "rotate-[15deg]";
   return (
     <div className="relative inline-flex select-none flex-col items-center opacity-[0.85]">
-      <svg width="170" height="72" viewBox="0 0 170 72" aria-hidden="true">
+      <svg width="184" height="78" viewBox="0 0 184 78" aria-hidden="true">
         <defs>
           <filter id={`rs-imprint-noise-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
             <feTurbulence
               type="fractalNoise"
-              baseFrequency="0.95"
+              baseFrequency="0.92"
               numOctaves="2"
               seed={kind === "approved" ? "12" : "17"}
               result="noise"
             />
             <feColorMatrix in="noise" type="saturate" values="0" />
             <feComponentTransfer>
-              <feFuncA type="table" tableValues="0 0.18" />
+              <feFuncA type="table" tableValues="0 0.24" />
             </feComponentTransfer>
           </filter>
         </defs>
         <rect
-          x="11"
-          y="13"
-          width="148"
-          height="46"
-          rx="8"
-          fill={kind === "approved" ? "rgba(6,120,86,0.12)" : "rgba(170,28,44,0.12)"}
+          x="13"
+          y="14"
+          width="158"
+          height="48"
+          rx="9"
+          fill={kind === "approved" ? "rgba(6,120,86,0.16)" : "rgba(170,28,44,0.16)"}
+          stroke={kind === "approved" ? "rgba(6,120,86,0.55)" : "rgba(170,28,44,0.55)"}
+          strokeWidth="2.4"
           filter={`url(#rs-imprint-noise-${kind})`}
         />
       </svg>
       <div
-        className={`pointer-events-none absolute top-6 font-black tracking-[0.18em] ${tilt} ${stampInkClasses(kind)}`}
+        className={`pointer-events-none absolute top-[26px] font-black tracking-[0.18em] ${tilt} ${stampInkClasses(kind)}`}
         style={{
-          fontFamily: "Arial Black, Arial, sans-serif",
+          fontFamily: "Arial Black, Impact, sans-serif",
           textShadow:
             kind === "approved"
-              ? "0 0 0.4px rgba(5,120,90,0.84), 0 0 1.4px rgba(5,120,90,0.52)"
-              : "0 0 0.4px rgba(170,28,44,0.84), 0 0 1.4px rgba(170,28,44,0.52)",
-          filter: "saturate(1.08) contrast(1.03)",
+              ? "0 0 0.4px rgba(5,120,90,0.9), 0 0 2px rgba(5,120,90,0.62)"
+              : "0 0 0.4px rgba(170,28,44,0.9), 0 0 2px rgba(170,28,44,0.62)",
+          filter: "saturate(1.1) contrast(1.08)",
         }}
       >
-        <span className="inline-block text-[14px]">{label}</span>
+        <span className="inline-block text-[15px]">{label}</span>
       </div>
     </div>
   );
