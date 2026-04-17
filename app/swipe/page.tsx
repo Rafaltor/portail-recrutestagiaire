@@ -57,9 +57,11 @@ function normHandle(h: string) {
   return s ? `@${s}` : "@—";
 }
 
-function stampLabel(kind: StampKind) {
-  return kind === "approved" ? "Approuvé" : "Refusé";
-}
+/** Fichiers attendus : `public/swipe-stamps/approved.png` et `declined.png` */
+const STAMP_IMAGE: Record<StampKind, { src: string; alt: string }> = {
+  approved: { src: "/swipe-stamps/approved.png", alt: "Tampon approuvé" },
+  declined: { src: "/swipe-stamps/declined.png", alt: "Tampon refusé" },
+};
 
 function StampVisual({
   kind,
@@ -70,22 +72,38 @@ function StampVisual({
   floating?: boolean;
   muted?: boolean;
 }) {
-  const label = stampLabel(kind);
-  const kindClass = kind === "approved" ? "rs-stamp--approved" : "rs-stamp--declined";
+  const { src, alt } = STAMP_IMAGE[kind];
   return (
-    <div className={`rs-stamp ${kindClass} ${floating ? "rs-stamp--floating" : ""} ${muted ? "opacity-45" : ""}`}>
-      <span className="rs-stamp__label">{label}</span>
-    </div>
+    <span
+      className={`rs-stamp-art inline-flex items-center justify-center ${floating ? "rs-stamp-art--floating" : ""} ${muted ? "opacity-45" : ""}`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- assets statiques locaux */}
+      <img
+        src={src}
+        alt={alt}
+        width={320}
+        height={140}
+        draggable={false}
+        className="rs-stamp-art__img block h-auto max-h-[72px] w-[168px] max-w-[42vw] select-none object-contain sm:max-h-[76px] sm:w-[182px]"
+      />
+    </span>
   );
 }
 
 function StampImprintVisual({ kind }: { kind: StampKind }) {
-  const label = stampLabel(kind);
-  const kindClass = kind === "approved" ? "rs-imprint--approved" : "rs-imprint--declined";
-  const animClass = kind === "approved" ? "rs-imprint--land-approved" : "rs-imprint--land-declined";
+  const { src } = STAMP_IMAGE[kind];
+  const animClass = kind === "approved" ? "rs-imprint-art--land-approved" : "rs-imprint-art--land-declined";
   return (
-    <div className={`rs-imprint ${kindClass} ${animClass}`}>
-      <span className="rs-imprint__text">{label}</span>
+    <div className={`rs-imprint-art ${animClass}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        width={320}
+        height={140}
+        draggable={false}
+        className="rs-imprint-art__img block h-auto w-[min(220px,50vw)] max-w-none object-contain"
+      />
     </div>
   );
 }
@@ -1099,6 +1117,15 @@ export default function SwipePage() {
                         touchAction: isTop ? "none" : undefined,
                       }}
                     >
+                      <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                        <PdfPreview
+                          key={item.profile.id}
+                          url={item.cvUrl}
+                          mode={swipePdfMode}
+                          immersive
+                        />
+                      </div>
+
                       {isTop && cardImprint ? (
                         <div
                           className="pointer-events-none absolute z-30"
@@ -1111,15 +1138,6 @@ export default function SwipePage() {
                           <StampImprintVisual kind={cardImprint.kind} />
                         </div>
                       ) : null}
-
-                      <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                        <PdfPreview
-                          key={item.profile.id}
-                          url={item.cvUrl}
-                          mode={swipePdfMode}
-                          immersive
-                        />
-                      </div>
 
                       {isTop ? (
                         <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
