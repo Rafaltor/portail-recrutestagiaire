@@ -81,12 +81,17 @@ function StampVisual({
 function StampImprintVisual({ kind }: { kind: StampKind }) {
   const label = stampLabel(kind);
   const kindClass = kind === "approved" ? "rs-imprint--approved" : "rs-imprint--declined";
+  const animClass = kind === "approved" ? "rs-imprint--land-approved" : "rs-imprint--land-declined";
   return (
-    <div className={`rs-imprint ${kindClass}`}>
+    <div className={`rs-imprint ${kindClass} ${animClass}`}>
       <span className="rs-imprint__text">{label}</span>
     </div>
   );
 }
+
+/** Back / mid stack poses (must match prior deck visuals for smooth promote). */
+const STACK_DECK_BACK = "translate(-7px, 12px) rotate(-2deg) scale(0.91)";
+const STACK_DECK_MID = "translate(5px, 6px) rotate(1.2deg) scale(0.955)";
 
 export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
@@ -100,7 +105,8 @@ export default function SwipePage() {
   const [done, setDone] = useState(false);
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
   const [nextCardLoading, setNextCardLoading] = useState(false);
-  const [nextAppearing, setNextAppearing] = useState(false);
+  /** After outgoing unmounts: one frame stacked, then CSS transition to front (smooth promote). */
+  const [arriveFromStack, setArriveFromStack] = useState(false);
   const [blockedByFreeLimit, setBlockedByFreeLimit] = useState(false);
   const [freeSwipesUsed, setFreeSwipesUsed] = useState(0);
   const [likesToday, setLikesToday] = useState(0);
@@ -166,7 +172,8 @@ export default function SwipePage() {
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
   const STAMP_DROP_DELAY_MS = 48;
-  const STAMP_IMPACT_MS = 140;
+  /** Durée de l’effet « coup de tampon » (ondes + écrasement) — laisse le temps de le percevoir. */
+  const STAMP_IMPACT_MS = 300;
   const STAMP_IMPRINT_HOLD_MS = 280;
   const CARD_TRANSITION_MS = 240;
   /** Swipe commit: snappier exit off-screen (full viewport). */
@@ -213,7 +220,7 @@ export default function SwipePage() {
     setMessage("");
     setLoadError("");
     setNextCardLoading(false);
-    setNextAppearing(false);
+    setArriveFromStack(false);
     if (!isConnected) {
       const used = readLocalInt(swipeCountKey);
       setFreeSwipesUsed(used);
@@ -321,9 +328,7 @@ export default function SwipePage() {
   }
 
   const current = deck[0] ?? null;
-  const second = deck[1] ?? null;
-  const third = deck[2] ?? null;
-  const showNextLoader = !!current && !second && nextCardLoading;
+  const showNextLoader = !!current && deck[1] == null && nextCardLoading;
 
   useEffect(() => {
     let alive = true;
@@ -500,6 +505,24 @@ export default function SwipePage() {
     });
   }
 
+  function triggerStackLift() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setArriveFromStack(false);
+      });
+    });
+  }
+
+  function completeOutgoingCleanup() {
+    setArriveFromStack(true);
+    setOutgoing(null);
+    setPendingTransition(null);
+    setCardImprint(null);
+    setStampDropping(false);
+    transitionInFlightRef.current = false;
+    triggerStackLift();
+  }
+
   async function applyTransitionVote(
     kind: StampKind,
     value: 1 | -1,
@@ -526,7 +549,6 @@ export default function SwipePage() {
 
       setPendingTransition({ kind, imprint: resolvedImprint });
       setCardImprint(resolvedImprint);
-      setNextAppearing(true);
       setOutgoing({
         item,
         dir: value,
@@ -555,19 +577,13 @@ export default function SwipePage() {
         setOutgoing(null);
         setPendingTransition(null);
         setCardImprint(null);
-        setNextAppearing(false);
         transitionInFlightRef.current = false;
         return;
       }
 
       consumeTopAndRefill();
       window.setTimeout(() => {
-        setOutgoing(null);
-        setPendingTransition(null);
-        setCardImprint(null);
-        setStampDropping(false);
-        setNextAppearing(false);
-        transitionInFlightRef.current = false;
+        completeOutgoingCleanup();
       }, SWIPE_EXIT_MS + 40);
       return;
     }
@@ -588,8 +604,6 @@ export default function SwipePage() {
       setDragX(0);
       startXRef.current = null;
     }
-    setNextAppearing(true);
-
     if (imprintHoldTimerRef.current) {
       window.clearTimeout(imprintHoldTimerRef.current);
       imprintHoldTimerRef.current = null;
@@ -625,12 +639,7 @@ export default function SwipePage() {
         });
       });
       window.setTimeout(() => {
-        setOutgoing(null);
-        setPendingTransition(null);
-        setCardImprint(null);
-        setStampDropping(false);
-        setNextAppearing(false);
-        transitionInFlightRef.current = false;
+        completeOutgoingCleanup();
       }, CARD_TRANSITION_MS + 48);
     }, holdImprintMs);
   }
@@ -1024,61 +1033,124 @@ export default function SwipePage() {
                   <div className="h-7 w-7 rounded-full border-2 border-zinc-300 border-t-zinc-700 opacity-80 animate-spin" />
                 </div>
               ) : null}
-              {/* 3rd sheet (bottom of stack) */}
-              {third ? (
-                <div className="pointer-events-none absolute inset-0">
-                  <div
-                    className="h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fbfbf9] shadow-[0_1px_0_rgba(0,0,0,0.05),0_14px_28px_-10px_rgba(0,0,0,0.2)]"
-                    style={{
-                      transform: "translate(-7px, 12px) rotate(-2deg) scale(0.91)",
-                      transformOrigin: "50% 100%",
-                      filter: "brightness(0.96)",
-                    }}
-                  >
-                    <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                      <PdfPreview
-                        key={third.profile.id}
-                        url={third.cvUrl}
-                        mode={swipePdfMode}
-                        immersive
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
+              {([2, 1, 0] as const).map((deckIdx) => {
+                const item = deck[deckIdx];
+                if (!item) return null;
 
-              {/* 2nd sheet */}
-              {second ? (
-                <div className="pointer-events-none absolute inset-0">
+                const isTop = deckIdx === 0;
+                const zOuter = isTop ? 20 : 5 + (2 - deckIdx) * 6;
+
+                let transform: string;
+                if (deckIdx === 2) {
+                  transform = STACK_DECK_BACK;
+                } else if (deckIdx === 1) {
+                  transform =
+                    pendingTransition && !outgoing
+                      ? "translate(0px, 0px) rotate(0deg) scale(1)"
+                      : STACK_DECK_MID;
+                } else {
+                  transform = arriveFromStack
+                    ? STACK_DECK_MID
+                    : `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
+                }
+
+                const transformOrigin = deckIdx === 0 ? "center center" : "50% 100%";
+
+                const transitionDuration = isTop
+                  ? dragging
+                    ? "200ms"
+                    : arriveFromStack
+                      ? "0ms"
+                      : `${CARD_TRANSITION_MS}ms`
+                  : `${CARD_TRANSITION_MS}ms`;
+
+                const shellClass =
+                  deckIdx === 2
+                    ? "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fbfbf9] shadow-[0_1px_0_rgba(0,0,0,0.05),0_14px_28px_-10px_rgba(0,0,0,0.2)]"
+                    : deckIdx === 1
+                      ? "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fcfcfa] shadow-[0_1px_0_rgba(0,0,0,0.05),0_18px_36px_-12px_rgba(0,0,0,0.22)]"
+                      : "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]";
+
+                const shellFilter =
+                  deckIdx === 2 ? "brightness(0.96)" : deckIdx === 1 ? "brightness(0.98)" : undefined;
+
+                return (
                   <div
-                    className="h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fcfcfa] shadow-[0_1px_0_rgba(0,0,0,0.05),0_18px_36px_-12px_rgba(0,0,0,0.22)]"
+                    key={item.profile.id}
+                    className="absolute inset-0"
                     style={{
-                      transform:
-                        pendingTransition && !outgoing
-                          ? "translate(0px, 0px) rotate(0deg) scale(1)"
-                          : "translate(5px, 6px) rotate(1.2deg) scale(0.955)",
-                      transformOrigin: "50% 100%",
-                      transitionProperty: "transform",
-                      transitionDuration: `${CARD_TRANSITION_MS}ms`,
-                      transitionTimingFunction: "ease-out",
-                      filter: "brightness(0.98)",
+                      zIndex: zOuter,
+                      pointerEvents: isTop && !outgoing ? "auto" : "none",
                     }}
                   >
-                    <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                      <PdfPreview
-                        key={second.profile.id}
-                        url={second.cvUrl}
-                        mode={swipePdfMode}
-                        immersive
-                      />
+                    <div
+                      ref={isTop ? cardDropRef : undefined}
+                      onPointerDown={isTop && !outgoing ? onPointerDown : undefined}
+                      onPointerMove={isTop && !outgoing ? onPointerMove : undefined}
+                      onPointerUp={isTop && !outgoing ? onPointerUp : undefined}
+                      onPointerCancel={isTop && !outgoing ? onPointerUp : undefined}
+                      data-stamp-dropzone={isTop && !outgoing ? "1" : undefined}
+                      className={shellClass}
+                      style={{
+                        transform,
+                        transformOrigin,
+                        transitionProperty: "transform",
+                        transitionDuration,
+                        transitionTimingFunction: "ease-out",
+                        filter: shellFilter,
+                        touchAction: isTop ? "none" : undefined,
+                        opacity: isTop && outgoing ? 0 : 1,
+                      }}
+                    >
+                      {isTop && overlay ? (
+                        <div className="pointer-events-none absolute left-3 top-3">
+                          <div
+                            className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
+                              overlay === "like"
+                                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                                : "border-rose-300 bg-rose-50 text-rose-800"
+                            }`}
+                          >
+                            {overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {isTop && cardImprint ? (
+                        <div
+                          className="pointer-events-none absolute z-30"
+                          style={{
+                            left: `${cardImprint.x * 100}%`,
+                            top: `${cardImprint.y * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                          }}
+                        >
+                          <StampImprintVisual kind={cardImprint.kind} />
+                        </div>
+                      ) : null}
+
+                      <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                        <PdfPreview
+                          key={item.profile.id}
+                          url={item.cvUrl}
+                          mode={swipePdfMode}
+                          immersive
+                        />
+                      </div>
+
+                      {isTop ? (
+                        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                          {normHandle(item.profile.handle)}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
-                </div>
-              ) : null}
+                );
+              })}
 
               {outgoing ? (
                 <div
-                  className="absolute inset-0 z-[15] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
+                  className="absolute inset-0 z-[26] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
                     transform: outgoing.slideOut
                       ? `translateX(${
@@ -1131,66 +1203,6 @@ export default function SwipePage() {
                   ) : null}
                 </div>
               ) : null}
-
-              <div
-                ref={cardDropRef}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onPointerCancel={onPointerUp}
-                data-stamp-dropzone="1"
-                className="absolute inset-0 z-[20] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]"
-                style={{
-                  transform: `translateX(${dragX}px) rotate(${tilt}deg) scale(${
-                    outgoing ? 1 : nextAppearing && !dragging ? 0.97 : 1
-                  })`,
-                  transitionProperty: "transform",
-                  transitionDuration: dragging ? "200ms" : `${CARD_TRANSITION_MS}ms`,
-                  transitionTimingFunction: "ease-out",
-                  touchAction: "none",
-                  opacity: outgoing ? 0 : 1,
-                  transformOrigin: "center center",
-                }}
-              >
-                {overlay ? (
-                  <div className="pointer-events-none absolute left-3 top-3">
-                    <div
-                      className={`rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider ${
-                        overlay === "like"
-                          ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                          : "border-rose-300 bg-rose-50 text-rose-800"
-                      }`}
-                    >
-                      {overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
-                    </div>
-                  </div>
-                ) : null}
-
-                {cardImprint ? (
-                  <div
-                    className="pointer-events-none absolute z-30"
-                    style={{
-                      left: `${cardImprint.x * 100}%`,
-                      top: `${cardImprint.y * 100}%`,
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    <StampImprintVisual kind={cardImprint.kind} />
-                  </div>
-                ) : null}
-
-                <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                  <PdfPreview
-                    key={current.profile.id}
-                    url={current.cvUrl}
-                    mode={swipePdfMode}
-                    immersive
-                  />
-                </div>
-                <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
-                  {normHandle(current.profile.handle)}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1198,7 +1210,7 @@ export default function SwipePage() {
 
       {!blockedByFreeLimit ? (
         <div className="fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
-          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white/96 px-3 py-2 shadow-lg backdrop-blur-sm">
+          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-4 rounded-xl border border-zinc-200 bg-white/96 px-4 py-3 shadow-lg backdrop-blur-sm sm:gap-5 sm:px-5 sm:py-3.5">
             <button
               data-stamp-source="declined"
               onMouseDown={(e) => {
@@ -1260,15 +1272,15 @@ export default function SwipePage() {
             left: 0,
             top: 0,
             transform: `translate(${stampDrag.x}px, ${stampDrag.y}px) ${
-              stampDrag.returning ? "scale(0.95)" : "scale(1.06)"
+              stampDrag.returning ? "scale(0.94)" : "scale(1.14)"
             }`,
             transformOrigin: "center center",
             transition: stampDrag.returning
               ? `transform ${STAMP_RETURN_MS}ms cubic-bezier(0.18, 0.88, 0.3, 1)`
               : "none",
             filter: stampDrag.returning
-              ? "drop-shadow(0 12px 24px rgba(0,0,0,0.14))"
-              : "drop-shadow(0 18px 30px rgba(0,0,0,0.24))",
+              ? "drop-shadow(0 12px 24px rgba(0,0,0,0.16))"
+              : "drop-shadow(0 22px 36px rgba(0,0,0,0.32)) drop-shadow(0 4px 8px rgba(0,0,0,0.2))",
           }}
         >
           <StampVisual kind={stampDrag.kind} floating />
@@ -1277,135 +1289,323 @@ export default function SwipePage() {
 
       {stampImpact ? (
         <div
-          className="pointer-events-none fixed z-[9650]"
+          className={`pointer-events-none fixed z-[9650] rs-stamp-impact-wrap rs-stamp-impact-wrap--${stampImpact.kind}`}
           style={{
             left: `${stampImpact.x}px`,
             top: `${stampImpact.y}px`,
             transform: "translate(-50%, -50%)",
           }}
         >
-          <div style={{ animation: "stampDrop 240ms cubic-bezier(0.2, 1.15, 0.35, 1)" }}>
-            <StampVisual kind={stampImpact.kind} />
+          <div className="rs-stamp-impact-flash" aria-hidden="true" />
+          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--1" aria-hidden="true" />
+          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--2" aria-hidden="true" />
+          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--3" aria-hidden="true" />
+          <div className="rs-stamp-impact-body">
+            <div className={`rs-stamp-impact-drop rs-stamp-impact-drop--${stampImpact.kind}`}>
+              <StampVisual kind={stampImpact.kind} />
+            </div>
           </div>
-          <div
-            className={`pointer-events-none absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full ${
-              stampImpact.kind === "approved"
-                ? "bg-emerald-400/25"
-                : "bg-rose-400/25"
-            }`}
-            style={{ animation: "stampInk 260ms ease-out" }}
-          />
         </div>
       ) : null}
 
       <style jsx>{`
+        /* Tampons (dock + drag) : forme « caoutchouc », couleurs franches */
         .rs-stamp {
           position: relative;
-          width: 150px;
-          height: 74px;
+          width: 168px;
+          height: 84px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           user-select: none;
-          border-radius: 999px;
-          border: 2px solid #27272a;
-          background: linear-gradient(180deg, #fafafa 0%, #d4d4d8 100%);
+          border-radius: 10px;
+          border: 3px solid #18181b;
+          background: linear-gradient(165deg, #f4f4f5 0%, #d4d4d8 42%, #a1a1aa 100%);
           box-shadow:
-            inset 0 2px 0 rgba(255, 255, 255, 0.9),
-            inset 0 -3px 6px rgba(0, 0, 0, 0.18),
-            0 10px 22px rgba(0, 0, 0, 0.12);
+            inset 0 2px 0 rgba(255, 255, 255, 0.95),
+            inset 0 -4px 10px rgba(0, 0, 0, 0.22),
+            0 12px 28px rgba(0, 0, 0, 0.2),
+            0 2px 0 rgba(255, 255, 255, 0.5);
         }
         .rs-stamp__label {
           display: inline-block;
-          border: 2px solid currentColor;
-          border-radius: 10px;
-          padding: 6px 12px;
-          font-size: 14px;
-          font-family: "Arial Black", Impact, sans-serif;
+          border-radius: 6px;
+          padding: 8px 14px;
+          font-size: 15px;
+          font-family: "Arial Black", Impact, "Franklin Gothic Heavy", sans-serif;
           font-weight: 900;
-          letter-spacing: 0.14em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
-          opacity: 0.98;
+          line-height: 1.05;
+          border: 3px solid currentColor;
+          background: rgba(255, 255, 255, 0.97);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 1),
+            0 2px 0 rgba(0, 0, 0, 0.12);
         }
         .rs-stamp--approved {
-          color: #047857;
+          color: #065f46;
+          border-color: #064e3b;
+          background: linear-gradient(165deg, #ecfdf5 0%, #6ee7b7 38%, #34d399 100%);
+          box-shadow:
+            inset 0 2px 0 rgba(255, 255, 255, 0.85),
+            inset 0 -5px 14px rgba(5, 80, 60, 0.35),
+            0 0 0 1px rgba(6, 95, 70, 0.35),
+            0 14px 32px rgba(6, 95, 70, 0.35);
         }
         .rs-stamp--approved .rs-stamp__label {
-          transform: rotate(-14deg);
-          text-shadow: 0 0 0.4px rgba(5, 120, 90, 0.9), 0 0 2px rgba(5, 120, 90, 0.68);
+          transform: rotate(-11deg);
+          color: #fff;
+          background: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
+          border-color: #064e3b;
+          text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
         }
         .rs-stamp--declined {
-          color: #be123c;
+          color: #9f1239;
+          border-color: #881337;
+          background: linear-gradient(165deg, #fff1f2 0%, #fda4af 40%, #fb7185 100%);
+          box-shadow:
+            inset 0 2px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -5px 14px rgba(136, 19, 55, 0.35),
+            0 0 0 1px rgba(159, 18, 57, 0.3),
+            0 14px 32px rgba(159, 18, 57, 0.32);
         }
         .rs-stamp--declined .rs-stamp__label {
-          transform: rotate(14deg);
-          text-shadow: 0 0 0.4px rgba(170, 28, 44, 0.92), 0 0 2px rgba(170, 28, 44, 0.66);
+          transform: rotate(11deg);
+          color: #fff;
+          background: linear-gradient(180deg, #e11d48 0%, #be123c 50%, #9f1239 100%);
+          border-color: #881337;
+          text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
         }
         .rs-stamp--floating {
-          transform: scale(1.05);
+          transform: scale(1.02);
+          filter: saturate(1.08) contrast(1.05);
         }
 
+        /* Empreinte sur le CV : forte lisibilité + animation d’atterrissage */
         .rs-imprint {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 2px solid currentColor;
-          border-radius: 8px;
-          padding: 6px 14px;
-          background: rgba(255, 255, 255, 0.25);
-          opacity: 0.85;
+          border-radius: 6px;
+          padding: 10px 18px;
           pointer-events: none;
           user-select: none;
+          box-shadow:
+            0 0 0 1px rgba(0, 0, 0, 0.12),
+            0 6px 20px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
         }
         .rs-imprint__text {
-          font-family: "Arial Black", Impact, sans-serif;
+          font-family: "Arial Black", Impact, "Franklin Gothic Heavy", sans-serif;
           font-weight: 900;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          font-size: 15px;
+          font-size: 16px;
           line-height: 1;
         }
         .rs-imprint--approved {
-          color: #047857;
-          background: rgba(6, 120, 86, 0.16);
-          transform: rotate(-12deg);
-          text-shadow: 0 0 0.4px rgba(5, 120, 90, 0.9), 0 0 2px rgba(5, 120, 90, 0.62);
+          color: #fff;
+          border: 3px solid #064e3b;
+          background: linear-gradient(165deg, #10b981 0%, #059669 45%, #047857 100%);
+          transform: rotate(-10deg);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
         }
         .rs-imprint--declined {
-          color: #be123c;
-          background: rgba(170, 28, 44, 0.16);
-          transform: rotate(12deg);
-          text-shadow: 0 0 0.4px rgba(170, 28, 44, 0.9), 0 0 2px rgba(170, 28, 44, 0.62);
+          color: #fff;
+          border: 3px solid #881337;
+          background: linear-gradient(165deg, #fb7185 0%, #e11d48 45%, #be123c 100%);
+          transform: rotate(10deg);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+        }
+        .rs-imprint--land-approved {
+          animation: imprintLandApproved 0.42s cubic-bezier(0.22, 1.24, 0.32, 1) both;
+        }
+        .rs-imprint--land-declined {
+          animation: imprintLandDeclined 0.42s cubic-bezier(0.22, 1.24, 0.32, 1) both;
+        }
+        @keyframes imprintLandApproved {
+          0% {
+            transform: rotate(-10deg) scale(2.1);
+            opacity: 0;
+            filter: blur(3px);
+          }
+          55% {
+            transform: rotate(-10deg) scale(0.88);
+            opacity: 1;
+            filter: blur(0);
+          }
+          78% {
+            transform: rotate(-10deg) scale(1.08);
+          }
+          100% {
+            transform: rotate(-10deg) scale(1);
+            opacity: 1;
+          }
+        }
+        @keyframes imprintLandDeclined {
+          0% {
+            transform: rotate(10deg) scale(2.1);
+            opacity: 0;
+            filter: blur(3px);
+          }
+          55% {
+            transform: rotate(10deg) scale(0.88);
+            opacity: 1;
+            filter: blur(0);
+          }
+          78% {
+            transform: rotate(10deg) scale(1.08);
+          }
+          100% {
+            transform: rotate(10deg) scale(1);
+            opacity: 1;
+          }
+        }
+
+        /* Impact au posé : flash + ondes + tampon qui « tape » */
+        .rs-stamp-impact-wrap {
+          position: relative;
+          width: 1px;
+          height: 1px;
+        }
+        .rs-stamp-impact-wrap--approved {
+          --rs-ring: rgba(16, 185, 129, 0.75);
+          --rs-ring-soft: rgba(52, 211, 153, 0.45);
+          --rs-flash: rgba(167, 243, 208, 0.95);
+        }
+        .rs-stamp-impact-wrap--declined {
+          --rs-ring: rgba(244, 63, 94, 0.78);
+          --rs-ring-soft: rgba(251, 113, 133, 0.5);
+          --rs-flash: rgba(254, 205, 211, 0.95);
+        }
+        .rs-stamp-impact-flash {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 120px;
+          height: 120px;
+          margin: -60px 0 0 -60px;
+          border-radius: 50%;
+          background: radial-gradient(circle, var(--rs-flash) 0%, transparent 68%);
+          animation: stampFlash 0.32s ease-out both;
+          pointer-events: none;
+        }
+        .rs-stamp-impact-ring {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          border-radius: 50%;
+          border: 3px solid var(--rs-ring);
+          pointer-events: none;
+          opacity: 0;
+        }
+        .rs-stamp-impact-ring--1 {
+          width: 56px;
+          height: 56px;
+          margin: -28px 0 0 -28px;
+          animation: stampRingOut 0.38s cubic-bezier(0.2, 0.9, 0.3, 1) 0.02s both;
+        }
+        .rs-stamp-impact-ring--2 {
+          width: 56px;
+          height: 56px;
+          margin: -28px 0 0 -28px;
+          border-color: var(--rs-ring-soft);
+          animation: stampRingOut 0.45s cubic-bezier(0.15, 0.85, 0.25, 1) 0.08s both;
+        }
+        .rs-stamp-impact-ring--3 {
+          width: 56px;
+          height: 56px;
+          margin: -28px 0 0 -28px;
+          border-width: 2px;
+          border-color: var(--rs-ring);
+          animation: stampRingOut 0.52s cubic-bezier(0.12, 0.8, 0.2, 1) 0.14s both;
+        }
+        .rs-stamp-impact-body {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
+        .rs-stamp-impact-drop--approved {
+          animation: stampDropThudApproved 0.34s cubic-bezier(0.2, 1.35, 0.36, 1) both;
+        }
+        .rs-stamp-impact-drop--declined {
+          animation: stampDropThudDeclined 0.34s cubic-bezier(0.2, 1.35, 0.36, 1) both;
         }
 
         @keyframes stampWobble {
           0%,
           100% {
-            transform: rotate(-2.5deg);
+            transform: rotate(-3deg);
           }
           50% {
-            transform: rotate(2.5deg);
+            transform: rotate(3deg);
           }
         }
-        @keyframes stampDrop {
+        @keyframes stampDropThudApproved {
           0% {
-            transform: translateY(-44px) scale(1.04);
+            transform: translateY(-52px) scale(1.18) rotate(-5deg);
+            filter: brightness(1.12);
           }
-          55% {
-            transform: translateY(0px) scale(1.0, 0.92);
+          52% {
+            transform: translateY(6px) scale(0.88, 0.8) rotate(0deg);
+            filter: brightness(1);
+          }
+          72% {
+            transform: translateY(-3px) scale(1.06, 1.03);
           }
           100% {
-            transform: translateY(0px) scale(1, 1);
+            transform: translateY(0) scale(1, 1);
           }
         }
-        @keyframes stampInk {
+        @keyframes stampDropThudDeclined {
           0% {
-            opacity: 0.45;
-            transform: translate(-50%, -50%) scale(0.2);
+            transform: translateY(-52px) scale(1.18) rotate(5deg);
+            filter: brightness(1.12);
+          }
+          52% {
+            transform: translateY(6px) scale(0.88, 0.8) rotate(0deg);
+            filter: brightness(1);
+          }
+          72% {
+            transform: translateY(-3px) scale(1.06, 1.03);
+          }
+          100% {
+            transform: translateY(0) scale(1, 1);
+          }
+        }
+        @keyframes stampFlash {
+          0% {
+            opacity: 0;
+            transform: scale(0.35);
+          }
+          35% {
+            opacity: 1;
           }
           100% {
             opacity: 0;
-            transform: translate(-50%, -50%) scale(1.35);
+            transform: scale(1.65);
+          }
+        }
+        @keyframes stampRingOut {
+          0% {
+            opacity: 0.95;
+            transform: scale(0.25);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(4.2);
+          }
+        }
+        @media (max-width: 380px) {
+          .rs-stamp {
+            width: 148px;
+            height: 76px;
+          }
+          .rs-stamp__label {
+            font-size: 13px;
+            padding: 7px 11px;
           }
         }
         @keyframes swipeLoading {
