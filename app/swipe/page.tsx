@@ -61,6 +61,7 @@ export default function SwipePage() {
   const cardDropRef = useRef<HTMLDivElement | null>(null);
 
   const DECK_SIZE = 7;
+  const CONTROL_BAR_HEIGHT = 92;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
   const likesDayKey = useMemo(
     () => getLikesDayKey(visitorId, dayKeyUTC()),
@@ -227,6 +228,14 @@ export default function SwipePage() {
     };
   }, [session?.access_token, visitorId]);
 
+  // Route-scoped header/layout overrides for swipe only.
+  useEffect(() => {
+    document.documentElement.setAttribute("data-rs-swipe", "1");
+    return () => {
+      document.documentElement.removeAttribute("data-rs-swipe");
+    };
+  }, []);
+
   // Lock page scroll on mobile to avoid accidental scrollbars while swiping.
   useEffect(() => {
     const prevOverflow = document.documentElement.style.overflow;
@@ -317,7 +326,6 @@ export default function SwipePage() {
 
   function onPointerDown(e: React.PointerEvent) {
     if (!current || outgoing) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     startXRef.current = e.clientX;
     setDragging(true);
   }
@@ -342,7 +350,7 @@ export default function SwipePage() {
 
   if (!authReady) {
     return (
-      <div className="relative h-[calc(100dvh-4px)] w-full overflow-hidden">
+      <div className="relative h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full overflow-hidden">
         <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
           Chargement…
         </div>
@@ -351,7 +359,7 @@ export default function SwipePage() {
   }
 
   return (
-    <div className="relative h-[calc(100dvh-4px)] w-full overflow-hidden">
+    <div className="relative h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full overflow-hidden">
       {message ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
@@ -415,9 +423,12 @@ export default function SwipePage() {
           </div>
         </div>
       ) : (
-        <div className="flex h-full items-start justify-center px-0 pb-24 pt-0">
+        <div className="flex h-full items-start justify-center px-0 pb-0 pt-0">
           <div className="w-full">
-            <div className="relative h-[calc(100dvh-10.25rem)] min-h-[420px] sm:min-h-[520px]">
+            <div
+              className="relative min-h-[360px] sm:min-h-[480px]"
+              style={{ height: `calc(100% - ${CONTROL_BAR_HEIGHT}px)` }}
+            >
               {/* 3rd card (deepest) */}
               {third ? (
                 <div className="absolute inset-0">
@@ -428,8 +439,8 @@ export default function SwipePage() {
                       filter: "brightness(0.99)",
                     }}
                   >
-                    <div className="h-full overflow-hidden rounded-2xl p-0">
-                      <PdfPreview url={third.cvUrl} mode="cover-height" immersive />
+                    <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
+                      <PdfPreview url={third.cvUrl} mode="fit-width" immersive />
                     </div>
                   </div>
                 </div>
@@ -445,8 +456,8 @@ export default function SwipePage() {
                       filter: "brightness(0.995)",
                     }}
                   >
-                    <div className="h-full overflow-hidden rounded-2xl p-0">
-                      <PdfPreview url={second.cvUrl} mode="cover-height" immersive />
+                    <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
+                      <PdfPreview url={second.cvUrl} mode="fit-width" immersive />
                     </div>
                   </div>
                 </div>
@@ -463,10 +474,10 @@ export default function SwipePage() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div className="h-full overflow-hidden rounded-2xl p-0">
+                  <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
                     <PdfPreview
                       url={outgoing.item.cvUrl}
-                      mode="cover-height"
+                      mode="fit-width"
                       immersive
                     />
                   </div>
@@ -499,7 +510,7 @@ export default function SwipePage() {
                   transitionProperty: "transform",
                   transitionDuration: dragging ? "200ms" : "160ms",
                   transitionTimingFunction: "ease-out",
-                  touchAction: "none",
+                  touchAction: "pan-y",
                   opacity: outgoing ? 0 : 1,
                 }}
               >
@@ -517,8 +528,8 @@ export default function SwipePage() {
                   </div>
                 ) : null}
 
-                <div className="h-full overflow-hidden rounded-2xl p-0">
-                  <PdfPreview url={current.cvUrl} mode="cover-height" immersive />
+                <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
+                  <PdfPreview url={current.cvUrl} mode="fit-width" immersive />
                 </div>
                 <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-3 py-1 text-xs font-black tracking-wide text-zinc-900 shadow-sm">
                   {normHandle(current.profile.handle)}
@@ -530,8 +541,8 @@ export default function SwipePage() {
       )}
 
       {!loading && !done && current ? (
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-3 pb-3">
-          <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
+        <div className="fixed bottom-2 left-0 right-0 z-[10020] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
+          <div className="mx-auto flex max-w-[980px] items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white/96 px-3 py-2 shadow-lg backdrop-blur-sm">
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -544,7 +555,7 @@ export default function SwipePage() {
               onClick={() => {
                 void commitSwipe(-1, -1);
               }}
-              className="rounded-lg border-2 border-rose-300 bg-rose-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-rose-800 shadow-sm hover:bg-rose-100"
+              className="rounded-lg border-2 border-rose-300 bg-rose-50 px-4 py-2 text-[12px] font-black uppercase tracking-wider text-rose-800 shadow-sm hover:bg-rose-100"
             >
               Refusé
             </button>
@@ -560,7 +571,7 @@ export default function SwipePage() {
               onClick={() => {
                 void commitSwipe(1, 1);
               }}
-              className="rounded-lg border-2 border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-emerald-800 shadow-sm hover:bg-emerald-100"
+              className="rounded-lg border-2 border-emerald-300 bg-emerald-50 px-4 py-2 text-[12px] font-black uppercase tracking-wider text-emerald-800 shadow-sm hover:bg-emerald-100"
             >
               Approuvé
             </button>
@@ -578,7 +589,7 @@ export default function SwipePage() {
 
       {stampDrag ? (
         <div
-          className={`pointer-events-none absolute z-30 rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider shadow-lg ${
+          className={`pointer-events-none fixed z-[10030] rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider shadow-lg ${
             stampDrag.kind === "approved"
               ? "border-emerald-300 bg-emerald-50 text-emerald-800"
               : "border-rose-300 bg-rose-50 text-rose-800"
