@@ -62,7 +62,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 6px 0 8px;
+  padding: 2px 0 0;
 }
 
 /* Boutique / portail : rangée 1 = marque | actions ; rangée 2 = onglets pleine largeur (DOM : marque, nav, actions) */
@@ -77,8 +77,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
-  padding: 4px 0 8px;
+  gap: 8px;
+  padding: 2px 0 5px;
   border-bottom: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.12);
 }
 
@@ -91,10 +91,11 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
-    align-items: center;
-    column-gap: 20px;
+    /* Rangée onglets alignée sur le bas du bloc header (sous logo / actions) */
+    align-items: end;
+    column-gap: 16px;
     row-gap: 0;
-    padding: 6px 0 0;
+    padding: 2px 0 0;
     border-bottom: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.12);
     box-sizing: border-box;
   }
@@ -103,8 +104,8 @@
     grid-column: 1;
     grid-row: 1;
     justify-self: start;
-    align-self: center;
-    padding: 4px 0 8px;
+    align-self: end;
+    padding: 0 0 3px;
     margin: 0;
   }
 
@@ -112,16 +113,16 @@
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
-    align-self: center;
+    align-self: end;
     margin-left: 0;
-    padding: 4px 0 8px;
+    padding: 0 0 3px;
   }
 
   .header-wrap .rs-header-main-row > .rs-banner-nav.rs-header-pole-tabs {
     grid-column: 1 / -1;
     grid-row: 2;
     justify-self: stretch;
-    align-self: stretch;
+    align-self: end;
     width: 100%;
     max-width: none;
     margin-top: 0;
@@ -132,8 +133,17 @@
     width: 100%;
     max-width: none;
     min-width: 0;
-    gap: 10px;
-    padding: 0 12px;
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-nav-brand__img {
+    max-height: 40px !important;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-nav-brand__name.logo {
+    font-size: 16px !important;
+    line-height: 1.1 !important;
   }
 }
 
@@ -142,15 +152,15 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
-    align-items: center;
-    column-gap: 10px;
-    row-gap: 4px;
+    align-items: end;
+    column-gap: 8px;
+    row-gap: 0;
   }
 
   .header-wrap .rs-header-main-row > .rs-banner-top.rs-header-pole-brand {
     grid-column: 1;
     grid-row: 1;
-    padding: 8px 0 6px;
+    padding: 6px 0 2px;
     min-width: 0;
     border-bottom: none;
   }
@@ -159,10 +169,10 @@
     grid-column: 2;
     grid-row: 1;
     margin-left: 0;
-    padding: 8px 0 6px;
+    padding: 6px 0 2px;
     justify-self: end;
-    align-self: center;
-    gap: 8px;
+    align-self: end;
+    gap: 6px;
   }
 
   .header-wrap .rs-header-main-row > .rs-banner-nav.rs-header-pole-tabs {
@@ -173,7 +183,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    padding: 4px 6px 0;
+    padding: 0 4px 0;
     box-sizing: border-box;
   }
 
@@ -254,7 +264,7 @@
   max-width: none;
   margin-top: 0;
   margin-left: 0;
-  padding: 6px 6px 0;
+  padding: 2px 6px 0;
   overflow: visible;
   background: var(--rs-pole-tab-bg, #c8d4f5);
   border-top: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.1);
@@ -295,12 +305,12 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 42px;
+  min-height: 34px;
   height: 100%;
   margin: 0;
-  padding: 8px 12px;
+  padding: 5px 10px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--rs-pole-blue) !important;
   text-align: center;
@@ -355,13 +365,14 @@
 
 @media (max-width: 991.98px) {
   .header-wrap .rs-banner-nav.rs-header-pole-tabs {
-    padding: 4px 4px 0;
+    padding: 1px 4px 0;
   }
 
   .header-wrap .rs-subnav__trigger {
     white-space: normal;
     line-height: 1.25;
-    padding: 10px 6px;
+    padding: 6px 5px;
+    min-height: 36px;
     font-size: 10px;
     border-radius: 6px 6px 0 0;
   }
@@ -534,6 +545,10 @@ body.rs-nav-open {
   animation: rs-kitsch-brand-bg 11s ease-in-out infinite;
 }
 
+html:not([data-rs-swipe="1"]) .rs-header-kitsch-pop--brand {
+  padding: 3px 0;
+}
+
 @supports not (color: color-mix(in srgb, red, blue)) {
   .rs-header-kitsch-pop--brand {
     background: linear-gradient(
@@ -666,7 +681,7 @@ body.rs-nav-open {
 
 /* ===== Swipe: compact two-row header + nav, reserved chrome, no footer ===== */
 html[data-rs-swipe="1"] {
-  --rs-swipe-top-offset: calc(96px + env(safe-area-inset-top, 0px));
+  --rs-swipe-top-offset: calc(84px + env(safe-area-inset-top, 0px));
   --rs-swipe-bottom-chrome: calc(128px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -723,7 +738,7 @@ html[data-rs-swipe="1"] .header-wrap .rs-header-main-row {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
   grid-template-rows: auto auto !important;
-  align-items: center !important;
+  align-items: end !important;
   column-gap: 8px !important;
   row-gap: 0 !important;
 }
@@ -775,15 +790,19 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
 @media (min-width: 992px) {
   /* Swipe desktop : une ligne — marque | onglets centrés | Mon dossier (Mon espace masqué ici) */
   html[data-rs-swipe="1"] {
-    --rs-swipe-top-offset: calc(72px + env(safe-area-inset-top, 0px));
+    --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .container {
+    padding: 2px 10px 4px !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-header-main-row {
     grid-template-columns: auto minmax(0, 1fr) auto !important;
     grid-template-rows: auto !important;
-    column-gap: 12px !important;
-    align-items: center !important;
-    padding: 4px 0 !important;
+    column-gap: 10px !important;
+    align-items: end !important;
+    padding: 2px 0 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-banner-top.rs-header-pole-brand {
@@ -791,17 +810,19 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     grid-row: 1 !important;
     width: auto !important;
     justify-self: start !important;
+    align-self: end !important;
+    padding: 0 0 1px !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-banner-nav.rs-header-pole-tabs {
     grid-column: 2 !important;
     grid-row: 1 !important;
     justify-self: center !important;
-    align-self: center !important;
+    align-self: end !important;
     width: auto !important;
     max-width: min(640px, 58vw) !important;
     margin: 0 auto !important;
-    padding: 0 !important;
+    padding: 0 0 1px !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -811,7 +832,8 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     grid-column: 3 !important;
     grid-row: 1 !important;
     justify-self: end !important;
-    align-self: center !important;
+    align-self: end !important;
+    padding: 0 0 1px !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-banner-top__account {
@@ -822,12 +844,30 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     display: flex !important;
     flex-wrap: nowrap !important;
     justify-content: center !important;
-    align-items: center !important;
-    gap: 6px !important;
+    align-items: flex-end !important;
+    gap: 4px !important;
     width: auto !important;
     max-width: 100% !important;
     margin: 0 auto !important;
     padding: 0 !important;
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .rs-subnav__trigger {
+    min-height: 28px !important;
+    padding: 3px 8px !important;
+    font-size: 10px !important;
+    border-radius: 6px 6px 0 0 !important;
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .rs-nav-brand__img {
+    width: 36px !important;
+    height: 36px !important;
+    max-height: 36px !important;
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .rs-nav-brand__name.logo {
+    font-size: 13px !important;
+    line-height: 1.05 !important;
   }
 }
 
@@ -954,7 +994,7 @@ html[data-rs-swipe="1"] main.mx-auto {
 
 @media (max-width: 520px) {
   html[data-rs-swipe="1"] {
-    --rs-swipe-top-offset: calc(88px + env(safe-area-inset-top, 0px));
+    --rs-swipe-top-offset: calc(78px + env(safe-area-inset-top, 0px));
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-nav-brand__name.logo {
