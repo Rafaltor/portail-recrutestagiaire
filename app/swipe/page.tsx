@@ -187,6 +187,8 @@ export default function SwipePage() {
     setLoading(true);
     setMessage("");
     setLoadError("");
+    setNextCardLoading(false);
+    setNextAppearing(false);
     if (!isConnected) {
       const used = readLocalInt(swipeCountKey);
       setFreeSwipesUsed(used);
@@ -200,16 +202,19 @@ export default function SwipePage() {
       setBlockedByFreeLimit(false);
     }
     try {
-      const res = await fetchBatch([], DECK_SIZE);
-      if (!res.items.length) {
+      const firstBatch = await fetchBatch([], 1);
+      const first = firstBatch.items[0] ?? null;
+      if (!first) {
         setDone(true);
         setDeck([]);
         setHasLoadedProfiles(false);
         return;
       }
-      setDeck(res.items);
-      setDone(res.done);
+      setDeck([first]);
+      setDone(false);
       setHasLoadedProfiles(true);
+      setLoading(false);
+      void refillIfNeeded([first]);
     } catch (e: unknown) {
       const errMsg = e instanceof Error ? e.message : "Erreur inconnue";
       setLoadError(errMsg);
