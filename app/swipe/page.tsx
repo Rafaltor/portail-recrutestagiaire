@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import PdfPreview from "@/components/PdfPreview";
 import { getOrCreateVisitorId } from "@/lib/visitor";
 import type { Session } from "@supabase/supabase-js";
@@ -138,6 +145,18 @@ export default function SwipePage() {
   const transitionInFlightRef = useRef(false);
   const sheetMeasureRef = useRef<HTMLDivElement | null>(null);
   const [sheetSize, setSheetSize] = useState({ w: 320, h: 453 });
+
+  const desktopSwipeLayout = useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === "undefined") return () => {};
+      const mq = window.matchMedia("(min-width: 768px)");
+      mq.addEventListener("change", onStoreChange);
+      return () => mq.removeEventListener("change", onStoreChange);
+    },
+    () =>
+      typeof window !== "undefined" ? window.matchMedia("(min-width: 768px)").matches : false,
+    () => false,
+  );
 
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
@@ -385,12 +404,29 @@ export default function SwipePage() {
   useLayoutEffect(() => {
     const el = sheetMeasureRef.current;
     if (!el) return undefined;
-    const padX = 6;
-    const padY = 8;
     function measure() {
       const node = sheetMeasureRef.current;
       if (!node) return;
       const r = node.getBoundingClientRect();
+      const desktop =
+        typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+
+      if (desktop) {
+        const padX = 16;
+        const padY = 12;
+        const availW = Math.max(0, r.width - padX * 2);
+        const availH = Math.max(0, r.height - padY * 2);
+        const vw = window.innerWidth || r.width;
+        const halfScreen = Math.floor(vw * 0.5);
+        const w = Math.min(availW, halfScreen);
+        const nw = Math.max(320, Math.floor(w));
+        const nh = nw;
+        setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
+        return;
+      }
+
+      const padX = 0;
+      const padY = 8;
       const availW = Math.max(0, r.width - padX * 2);
       const availH = Math.max(0, r.height - padY * 2);
       const a = 210;
@@ -406,7 +442,7 @@ export default function SwipePage() {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [desktopSwipeLayout]);
 
   const threshold = 120;
   const tilt = Math.max(-12, Math.min(12, dragX / 18));
@@ -844,14 +880,20 @@ export default function SwipePage() {
     startXRef.current = null;
   }
 
+  const swipeChromeHeight =
+    "calc(100dvh - var(--rs-swipe-top-offset, 96px) - var(--rs-swipe-bottom-chrome, 128px))";
+
   return (
     <div
       ref={sheetMeasureRef}
-      className="relative flex w-full flex-col overflow-hidden overscroll-y-contain"
-      style={{
-        height:
-          "calc(100dvh - var(--rs-swipe-top-offset, 96px) - var(--rs-swipe-bottom-chrome, 128px))",
-      }}
+      className={`rs-swipe-page-root relative flex w-full flex-col overscroll-y-contain ${
+        desktopSwipeLayout ? "min-h-0 overflow-x-visible overflow-y-visible" : "overflow-hidden"
+      }`}
+      style={
+        desktopSwipeLayout
+          ? { minHeight: swipeChromeHeight }
+          : { height: swipeChromeHeight }
+      }
     >
       {message ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
@@ -954,10 +996,16 @@ export default function SwipePage() {
           </div>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col items-stretch justify-stretch px-0 pb-0 pt-0">
+        <div
+          className={`flex flex-col items-stretch justify-stretch px-0 pb-0 pt-0 ${
+            desktopSwipeLayout ? "shrink-0 py-3" : "min-h-0 flex-1"
+          }`}
+        >
           <div
             dir="ltr"
-            className="flex min-h-0 flex-1 items-center justify-center px-1 py-2 sm:px-2 sm:py-3"
+            className={`flex items-center justify-center py-2 max-md:px-0 md:px-4 md:py-4 ${
+              desktopSwipeLayout ? "min-h-0" : "min-h-0 flex-1"
+            }`}
           >
             <div
               className="relative shrink-0"
