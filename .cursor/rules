@@ -97,3 +97,9 @@ Le portail est une plateforme communautaire gratuite où :
 - Toujours afficher un état de chargement explicite
 - Animations fluides sur le tampon APPROUVÉ/REFUSÉ
 - Le swipe doit fonctionner au touch sur mobile
+
+## Tests et validation
+- Ne pas faire de screen recording ni de vidéo de démonstration
+- Les tests curl, lint et build suffisent comme validation
+- Pas de test manuel UI via navigateur
+
