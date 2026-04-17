@@ -5,9 +5,14 @@ import { useEffect, useRef, useState } from "react";
 type Props = {
   url: string;
   mode?: "cover-height" | "fit-width";
+  immersive?: boolean;
 };
 
-export default function PdfPreview({ url, mode = "cover-height" }: Props) {
+export default function PdfPreview({
+  url,
+  mode = "cover-height",
+  immersive = false,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -112,11 +117,17 @@ export default function PdfPreview({ url, mode = "cover-height" }: Props) {
   }, [url, mode]);
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white">
+    <div
+      className={
+        immersive
+          ? "h-full overflow-hidden rounded-2xl bg-zinc-50"
+          : "rounded-lg border border-zinc-200 bg-white"
+      }
+    >
       {error ? (
         <div className="px-3 py-3 text-sm text-red-700">{error}</div>
       ) : (
-        <div className="relative overflow-hidden bg-zinc-50 p-2">
+        <div className={`relative overflow-hidden bg-zinc-50 ${immersive ? "h-full p-0" : "p-2"}`}>
           {loading ? (
             <div className="absolute inset-x-0 top-2 text-center text-xs font-semibold text-zinc-500">
               Chargement…

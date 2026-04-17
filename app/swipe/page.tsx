@@ -51,8 +51,14 @@ export default function SwipePage() {
     tilt: number;
     overlay: "like" | "nope";
   } | null>(null);
+  const [stampDrag, setStampDrag] = useState<{
+    kind: "approved" | "declined";
+    x: number;
+    y: number;
+  } | null>(null);
 
   const startXRef = useRef<number | null>(null);
+  const cardDropRef = useRef<HTMLDivElement | null>(null);
 
   const DECK_SIZE = 7;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
@@ -253,6 +259,39 @@ export default function SwipePage() {
   const overlay =
     dragX > 30 ? "like" : dragX < -30 ? "nope" : null;
 
+  useEffect(() => {
+    if (!stampDrag) return;
+    function onMove(e: PointerEvent) {
+      setStampDrag((s) => (s ? { ...s, x: e.clientX, y: e.clientY } : s));
+    }
+    function onUp(e: PointerEvent) {
+      const dropRect = cardDropRef.current?.getBoundingClientRect();
+      const insideCard = dropRect
+        ? e.clientX >= dropRect.left &&
+          e.clientX <= dropRect.right &&
+          e.clientY >= dropRect.top &&
+          e.clientY <= dropRect.bottom
+        : false;
+      const dragged = stampDrag;
+      setStampDrag(null);
+      if (!dragged) return;
+      if (!insideCard) return;
+      if (!current || outgoing) return;
+      if (dragged.kind === "approved") {
+        void commitSwipe(1, 1);
+      } else {
+        void commitSwipe(-1, -1);
+      }
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stampDrag, current, outgoing]);
+
   async function commitSwipe(dir: 1 | -1, value: 1 | -1) {
     if (!current || outgoing) return;
     const voteOk = await sendVote(current.profile.id, value);
@@ -303,7 +342,7 @@ export default function SwipePage() {
 
   if (!authReady) {
     return (
-      <div className="relative h-[100svh] w-full overflow-hidden">
+      <div className="relative h-[calc(100dvh-4px)] w-full overflow-hidden">
         <div className="flex h-full items-center justify-center px-6 text-sm text-zinc-700">
           Chargement…
         </div>
@@ -312,9 +351,9 @@ export default function SwipePage() {
   }
 
   return (
-    <div className="relative h-[100svh] w-full overflow-hidden">
+    <div className="relative h-[calc(100dvh-4px)] w-full overflow-hidden">
       {message ? (
-        <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 px-3 pt-3">
+        <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
             <div className="pointer-events-auto rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-800">
               {message}
@@ -376,28 +415,21 @@ export default function SwipePage() {
           </div>
         </div>
       ) : (
-        <div className="flex h-full items-center justify-center px-2 pb-24 pt-3">
-          <div className="w-full max-w-xl">
-            <div className="relative h-[72svh] md:h-[78svh]">
+        <div className="flex h-full items-start justify-center px-0 pb-24 pt-0">
+          <div className="w-full">
+            <div className="relative h-[calc(100dvh-10.25rem)] min-h-[420px] sm:min-h-[520px]">
               {/* 3rd card (deepest) */}
               {third ? (
                 <div className="absolute inset-0">
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                     style={{
-                      transform: "scale(0.965) translateY(14px)",
+                      transform: "scale(0.97) translateY(12px)",
                       filter: "brightness(0.99)",
                     }}
                   >
-                    <div className="flex h-full flex-col overflow-hidden">
-                      <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                        <div className="text-sm font-black text-zinc-900 opacity-0">
-                          @placeholder
-                        </div>
-                      </div>
-                      <div className="min-h-0 flex-1 p-2">
-                        <PdfPreview url={third.cvUrl} />
-                      </div>
+                    <div className="h-full overflow-hidden rounded-2xl p-0">
+                      <PdfPreview url={third.cvUrl} mode="cover-height" immersive />
                     </div>
                   </div>
                 </div>
@@ -409,19 +441,12 @@ export default function SwipePage() {
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                     style={{
-                      transform: "scale(0.985) translateY(6px)",
+                      transform: "scale(0.988) translateY(5px)",
                       filter: "brightness(0.995)",
                     }}
                   >
-                    <div className="flex h-full flex-col overflow-hidden">
-                      <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                        <div className="text-sm font-black text-zinc-900 opacity-0">
-                          @placeholder
-                        </div>
-                      </div>
-                      <div className="min-h-0 flex-1 p-2">
-                        <PdfPreview url={second.cvUrl} />
-                      </div>
+                    <div className="h-full overflow-hidden rounded-2xl p-0">
+                      <PdfPreview url={second.cvUrl} mode="cover-height" immersive />
                     </div>
                   </div>
                 </div>
@@ -438,15 +463,15 @@ export default function SwipePage() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div className="flex h-full flex-col overflow-hidden">
-                    <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                      <div className="text-sm font-black text-zinc-900">
-                        {normHandle(outgoing.item.profile.handle)}
-                      </div>
-                    </div>
-                    <div className="min-h-0 flex-1 p-2">
-                      <PdfPreview url={outgoing.item.cvUrl} />
-                    </div>
+                  <div className="h-full overflow-hidden rounded-2xl p-0">
+                    <PdfPreview
+                      url={outgoing.item.cvUrl}
+                      mode="cover-height"
+                      immersive
+                    />
+                  </div>
+                  <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-3 py-1 text-xs font-black tracking-wide text-zinc-900 shadow-sm">
+                    {normHandle(outgoing.item.profile.handle)}
                   </div>
                   <div className="pointer-events-none absolute left-3 top-3">
                     <div
@@ -456,13 +481,14 @@ export default function SwipePage() {
                           : "border-rose-300 bg-rose-50 text-rose-800"
                       }`}
                     >
-                      {outgoing.overlay === "like" ? "LIKE" : "NOPE"}
+                      {outgoing.overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
                     </div>
                   </div>
                 </div>
               ) : null}
 
               <div
+                ref={cardDropRef}
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
@@ -486,20 +512,16 @@ export default function SwipePage() {
                           : "border-rose-300 bg-rose-50 text-rose-800"
                       }`}
                     >
-                      {overlay === "like" ? "LIKE" : "NOPE"}
+                      {overlay === "like" ? "APPROUVÉ" : "REFUSÉ"}
                     </div>
                   </div>
                 ) : null}
 
-                <div className="flex h-full flex-col overflow-hidden">
-                  <div className="flex items-center justify-center border-b border-zinc-200 px-4 py-3">
-                    <div className="text-sm font-black text-zinc-900">
-                      {normHandle(current.profile.handle)}
-                    </div>
-                  </div>
-                  <div className="min-h-0 flex-1 p-2">
-                    <PdfPreview url={current.cvUrl} />
-                  </div>
+                <div className="h-full overflow-hidden rounded-2xl p-0">
+                  <PdfPreview url={current.cvUrl} mode="cover-height" immersive />
+                </div>
+                <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-3 py-1 text-xs font-black tracking-wide text-zinc-900 shadow-sm">
+                  {normHandle(current.profile.handle)}
                 </div>
               </div>
             </div>
@@ -508,30 +530,64 @@ export default function SwipePage() {
       )}
 
       {!loading && !done && current ? (
-        <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-5">
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-3 pb-3">
           <div className="mx-auto flex max-w-xl items-center justify-center gap-3">
             <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                setStampDrag({
+                  kind: "declined",
+                  x: e.clientX,
+                  y: e.clientY,
+                });
+              }}
               onClick={() => {
                 void commitSwipe(-1, -1);
               }}
-              className="rounded-md border border-zinc-300 bg-white px-5 py-3 text-sm font-black text-zinc-900 hover:bg-zinc-100"
+              className="rounded-lg border-2 border-rose-300 bg-rose-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-rose-800 shadow-sm hover:bg-rose-100"
             >
-              Dislike
+              Refusé
             </button>
             <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                setStampDrag({
+                  kind: "approved",
+                  x: e.clientX,
+                  y: e.clientY,
+                });
+              }}
               onClick={() => {
                 void commitSwipe(1, 1);
               }}
-              className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-black text-white hover:bg-zinc-800"
+              className="rounded-lg border-2 border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-emerald-800 shadow-sm hover:bg-emerald-100"
             >
-              Like
+              Approuvé
             </button>
           </div>
+          <div className="mt-1 text-center text-[11px] font-semibold text-zinc-600">
+            Glisse un tampon sur la carte ou swipe gauche/droite.
+          </div>
           {isConnected ? (
-            <div className="mt-2 text-center text-xs text-zinc-700">
+            <div className="mt-1 text-center text-xs text-zinc-700">
               Likes aujourd&apos;hui: {likesToday}/{AUTH_LIKES_PER_DAY}
             </div>
           ) : null}
+        </div>
+      ) : null}
+
+      {stampDrag ? (
+        <div
+          className={`pointer-events-none absolute z-30 rounded-lg border px-3 py-2 text-sm font-black uppercase tracking-wider shadow-lg ${
+            stampDrag.kind === "approved"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              : "border-rose-300 bg-rose-50 text-rose-800"
+          }`}
+          style={{
+            transform: `translate(${stampDrag.x - 54}px, ${stampDrag.y - 22}px)`,
+          }}
+        >
+          {stampDrag.kind === "approved" ? "APPROUVÉ" : "REFUSÉ"}
         </div>
       ) : null}
     </div>
