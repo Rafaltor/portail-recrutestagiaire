@@ -23,6 +23,10 @@ type SwipeItem = {
 type ApiBatch = { done: boolean; items: SwipeItem[] };
 type StampKind = "approved" | "declined";
 type StampImprint = { kind: StampKind; x: number; y: number };
+type PendingTransition = {
+  kind: StampKind;
+  imprint: StampImprint;
+};
 type StampDragState = {
   kind: StampKind;
   pointerType: "mouse" | "touch";
@@ -47,12 +51,6 @@ function stampLabel(kind: StampKind) {
   return kind === "approved" ? "APPROUVÉ" : "REFUSÉ";
 }
 
-function stampInkClasses(kind: StampKind) {
-  return kind === "approved"
-    ? "text-emerald-700"
-    : "text-rose-700";
-}
-
 function StampVisual({
   kind,
   floating = false,
@@ -63,101 +61,19 @@ function StampVisual({
   muted?: boolean;
 }) {
   const label = stampLabel(kind);
-  const tilt = kind === "approved" ? "-rotate-[15deg]" : "rotate-[15deg]";
+  const kindClass = kind === "approved" ? "rs-stamp--approved" : "rs-stamp--declined";
   return (
     <div
-      className={`relative inline-flex select-none flex-col items-center ${
-        muted ? "opacity-45" : "opacity-100"
-      } ${floating ? "scale-[1.05]" : ""}`}
+      className={`rs-stamp ${kindClass} ${floating ? "rs-stamp--floating" : ""} ${
+        muted ? "opacity-45" : ""
+      }`}
     >
-      <svg width="172" height="118" viewBox="0 0 172 118" aria-hidden="true">
-        <defs>
-          <linearGradient id={`rs-wood-main-${kind}`} x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#bf8750" />
-            <stop offset="50%" stopColor="#956034" />
-            <stop offset="100%" stopColor="#6f4523" />
-          </linearGradient>
-          <linearGradient id={`rs-wood-side-${kind}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#9d6739" />
-            <stop offset="100%" stopColor="#5e3a1e" />
-          </linearGradient>
-          <linearGradient id={`rs-rubber-${kind}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#1d1a18" />
-            <stop offset="100%" stopColor="#0d0b0a" />
-          </linearGradient>
-          <filter id={`rs-wood-grain-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.84 0.03"
-              numOctaves="2"
-              seed={kind === "approved" ? "31" : "37"}
-              result="noise"
-            />
-            <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
-            <feComponentTransfer in="mono" result="grain">
-              <feFuncA type="table" tableValues="0 0.15" />
-            </feComponentTransfer>
-            <feBlend mode="multiply" in="SourceGraphic" in2="grain" />
-          </filter>
-          <filter id={`rs-rubber-shadow-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feOffset dx="0" dy="1" />
-            <feGaussianBlur stdDeviation="1.1" result="offset-blur" />
-            <feComposite
-              operator="out"
-              in="SourceGraphic"
-              in2="offset-blur"
-              result="inverse"
-            />
-            <feFlood floodColor="#000" floodOpacity="0.42" result="color" />
-            <feComposite operator="in" in="color" in2="inverse" result="shadow" />
-            <feComposite operator="over" in="shadow" in2="SourceGraphic" />
-          </filter>
-        </defs>
-
-        <ellipse cx="86" cy="16" rx="15" ry="11" fill={`url(#rs-wood-main-${kind})`} />
-        <rect
-          x="80"
-          y="22"
-          width="12"
-          height="20"
-          rx="5"
-          fill={`url(#rs-wood-side-${kind})`}
-        />
-        <rect
-          x="24"
-          y="40"
-          width="124"
-          height="38"
-          rx="7"
-          fill={`url(#rs-wood-main-${kind})`}
-          filter={`url(#rs-wood-grain-${kind})`}
-        />
-        <rect x="19" y="71" width="134" height="30" rx="6" fill={`url(#rs-rubber-${kind})`} />
-        <rect
-          x="19"
-          y="71"
-          width="134"
-          height="30"
-          rx="6"
-          fill="transparent"
-          filter={`url(#rs-rubber-shadow-${kind})`}
-        />
-      </svg>
-
-      <div
-        className={`pointer-events-none absolute bottom-[14px] font-black tracking-[0.16em] ${tilt} ${stampInkClasses(
-          kind,
-        )}`}
-        style={{
-          fontFamily: "Arial Black, Impact, sans-serif",
-          textShadow:
-            kind === "approved"
-              ? "0 0 0.4px rgba(5,120,90,0.9), 0 0 2px rgba(5,120,90,0.68)"
-              : "0 0 0.4px rgba(170,28,44,0.92), 0 0 2px rgba(170,28,44,0.66)",
-          filter: "saturate(1.1) contrast(1.12)",
-        }}
-      >
-        <span className="inline-block text-[14px] opacity-[0.98]">{label}</span>
+      <div className="rs-stamp__handle-cap" />
+      <div className="rs-stamp__handle-neck" />
+      <div className="rs-stamp__body" />
+      <div className="rs-stamp__rubber" />
+      <div className="rs-stamp__ink">
+        <span className="rs-stamp__ink-text">{label}</span>
       </div>
     </div>
   );
@@ -165,50 +81,10 @@ function StampVisual({
 
 function StampImprintVisual({ kind }: { kind: StampKind }) {
   const label = stampLabel(kind);
-  const tilt = kind === "approved" ? "-rotate-[15deg]" : "rotate-[15deg]";
+  const kindClass = kind === "approved" ? "rs-imprint--approved" : "rs-imprint--declined";
   return (
-    <div className="relative inline-flex select-none flex-col items-center opacity-[0.85]">
-      <svg width="184" height="78" viewBox="0 0 184 78" aria-hidden="true">
-        <defs>
-          <filter id={`rs-imprint-noise-${kind}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.92"
-              numOctaves="2"
-              seed={kind === "approved" ? "12" : "17"}
-              result="noise"
-            />
-            <feColorMatrix in="noise" type="saturate" values="0" />
-            <feComponentTransfer>
-              <feFuncA type="table" tableValues="0 0.24" />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-        <rect
-          x="13"
-          y="14"
-          width="158"
-          height="48"
-          rx="9"
-          fill={kind === "approved" ? "rgba(6,120,86,0.16)" : "rgba(170,28,44,0.16)"}
-          stroke={kind === "approved" ? "rgba(6,120,86,0.55)" : "rgba(170,28,44,0.55)"}
-          strokeWidth="2.4"
-          filter={`url(#rs-imprint-noise-${kind})`}
-        />
-      </svg>
-      <div
-        className={`pointer-events-none absolute top-[26px] font-black tracking-[0.18em] ${tilt} ${stampInkClasses(kind)}`}
-        style={{
-          fontFamily: "Arial Black, Impact, sans-serif",
-          textShadow:
-            kind === "approved"
-              ? "0 0 0.4px rgba(5,120,90,0.9), 0 0 2px rgba(5,120,90,0.62)"
-              : "0 0 0.4px rgba(170,28,44,0.9), 0 0 2px rgba(170,28,44,0.62)",
-          filter: "saturate(1.1) contrast(1.08)",
-        }}
-      >
-        <span className="inline-block text-[15px]">{label}</span>
-      </div>
+    <div className={`rs-imprint ${kindClass}`}>
+      <span className="rs-imprint__text">{label}</span>
     </div>
   );
 }
@@ -224,6 +100,8 @@ export default function SwipePage() {
   const [deck, setDeck] = useState<SwipeItem[]>([]);
   const [done, setDone] = useState(false);
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
+  const [nextCardLoading, setNextCardLoading] = useState(false);
+  const [nextAppearing, setNextAppearing] = useState(false);
   const [blockedByFreeLimit, setBlockedByFreeLimit] = useState(false);
   const [freeSwipesUsed, setFreeSwipesUsed] = useState(0);
   const [likesToday, setLikesToday] = useState(0);
@@ -235,8 +113,7 @@ export default function SwipePage() {
   // while we immediately reveal the next card underneath.
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
-    x: number;
-    tilt: number;
+    dir: 1 | -1;
     overlay: "like" | "nope";
     imprint: StampImprint | null;
   } | null>(null);
@@ -247,6 +124,7 @@ export default function SwipePage() {
     y: number;
   } | null>(null);
   const [cardImprint, setCardImprint] = useState<StampImprint | null>(null);
+  const [pendingTransition, setPendingTransition] = useState<PendingTransition | null>(null);
   const [activeStampKind, setActiveStampKind] = useState<StampKind | null>(null);
   const [stampDropping, setStampDropping] = useState(false);
 
@@ -256,13 +134,18 @@ export default function SwipePage() {
   const stampReturnTimerRef = useRef<number | null>(null);
   const stampImpactTimerRef = useRef<number | null>(null);
   const stampCommitTimerRef = useRef<number | null>(null);
+  const imprintHoldTimerRef = useRef<number | null>(null);
   const suppressClickUntilRef = useRef(0);
+  const refillInFlightRef = useRef(false);
+  const transitionInFlightRef = useRef(false);
 
   const DECK_SIZE = 7;
   const CONTROL_BAR_HEIGHT = 92;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
-  const STAMP_DROP_DELAY_MS = 170;
-  const STAMP_IMPACT_MS = 280;
+  const STAMP_DROP_DELAY_MS = 90;
+  const STAMP_IMPACT_MS = 190;
+  const STAMP_IMPRINT_HOLD_MS = 600;
+  const CARD_TRANSITION_MS = 280;
   const STAMP_RETURN_MS = 180;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
   const likesDayKey = useMemo(
@@ -339,8 +222,11 @@ export default function SwipePage() {
   }
 
   async function refillIfNeeded(nextDeck: SwipeItem[]) {
+    if (refillInFlightRef.current) return;
     if (done) return;
     if (nextDeck.length >= DECK_SIZE) return;
+    refillInFlightRef.current = true;
+    setNextCardLoading(true);
     try {
       const excludeIds = nextDeck.map((i) => i.profile.id);
       const res = await fetchBatch(excludeIds, DECK_SIZE - nextDeck.length);
@@ -356,6 +242,9 @@ export default function SwipePage() {
       });
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "Erreur inconnue");
+    } finally {
+      refillInFlightRef.current = false;
+      setNextCardLoading(false);
     }
   }
 
@@ -404,6 +293,7 @@ export default function SwipePage() {
   const current = deck[0] ?? null;
   const second = deck[1] ?? null;
   const third = deck[2] ?? null;
+  const showNextLoader = !!current && !second && nextCardLoading;
 
   useEffect(() => {
     let alive = true;
@@ -530,12 +420,6 @@ export default function SwipePage() {
     };
   }, []);
 
-  function kindToVote(kind: StampKind) {
-    return kind === "approved"
-      ? ({ dir: 1 as const, value: 1 as const })
-      : ({ dir: -1 as const, value: -1 as const });
-  }
-
   function buildImprint(kind: StampKind, clientX: number, clientY: number) {
     const rect = cardDropRef.current?.getBoundingClientRect();
     if (!rect || rect.width <= 0 || rect.height <= 0) return null;
@@ -546,42 +430,68 @@ export default function SwipePage() {
     return { kind, x, y } as StampImprint;
   }
 
-  async function commitSwipe(
-    dir: 1 | -1,
-    value: 1 | -1,
-    imprint: StampImprint | null = null,
-  ) {
-    if (!current || outgoing) return false;
-    const voteOk = await sendVote(current.profile.id, value);
-    if (!voteOk) return false;
-    const x = window.innerWidth * 1.2 * dir;
-    setOutgoing({
-      item: current,
-      x,
-      tilt: dir === 1 ? Math.max(2, tilt) : Math.min(-2, tilt),
-      overlay: dir === 1 ? "like" : "nope",
-      imprint,
-    });
-    if (imprint) {
-      setCardImprint(imprint);
-    } else {
-      setCardImprint(null);
-    }
-    // Reset the interactive card so the next card doesn't inherit off-screen translateX.
-    setDragX(0);
-    startXRef.current = null;
+  function consumeTopAndRefill() {
     setDeck((d) => {
       const nextDeck = d.slice(1);
+      setDone(nextDeck.length === 0);
       void refillIfNeeded(nextDeck);
-      if (nextDeck.length === 0) setDone(true);
       return nextDeck;
     });
-    window.setTimeout(() => {
-      setOutgoing(null);
+  }
+
+  async function applyTransitionVote(
+    kind: StampKind,
+    value: 1 | -1,
+    imprint: StampImprint | null,
+    holdImprintMs: number,
+  ) {
+    if (!current || outgoing || transitionInFlightRef.current) return;
+    transitionInFlightRef.current = true;
+    const voteOk = await sendVote(current.profile.id, value);
+    if (!voteOk) {
+      setPendingTransition(null);
       setCardImprint(null);
       setStampDropping(false);
-    }, 220);
-    return true;
+      transitionInFlightRef.current = false;
+      return;
+    }
+
+    const resolvedImprint =
+      imprint ??
+      ({
+        kind,
+        x: kind === "approved" ? 24 : 76,
+        y: 56,
+      } as StampImprint);
+    setPendingTransition({ kind, imprint: resolvedImprint });
+    setCardImprint(resolvedImprint);
+    setDragX(0);
+    startXRef.current = null;
+    setNextAppearing(true);
+
+    if (imprintHoldTimerRef.current) {
+      window.clearTimeout(imprintHoldTimerRef.current);
+      imprintHoldTimerRef.current = null;
+    }
+
+    imprintHoldTimerRef.current = window.setTimeout(() => {
+      const dir: 1 | -1 = kind === "approved" ? 1 : -1;
+      setOutgoing({
+        item: current,
+        dir,
+        overlay: dir === 1 ? "like" : "nope",
+        imprint: resolvedImprint,
+      });
+      consumeTopAndRefill();
+      window.setTimeout(() => {
+        setOutgoing(null);
+        setPendingTransition(null);
+        setCardImprint(null);
+        setStampDropping(false);
+        setNextAppearing(false);
+        transitionInFlightRef.current = false;
+      }, CARD_TRANSITION_MS);
+    }, holdImprintMs);
   }
 
   function returnStampClone() {
@@ -610,7 +520,17 @@ export default function SwipePage() {
     resetStampDragState();
     setStampDropping(true);
     const imprint = buildImprint(kind, clientX, clientY);
-    if (imprint) setCardImprint(imprint);
+    if (!imprint) {
+      const fallbackImprint: StampImprint = {
+        kind,
+        x: kind === "approved" ? 24 : 76,
+        y: 56,
+      };
+      const vote = kind === "approved" ? 1 : -1;
+      void applyTransitionVote(kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
+      return;
+    }
+    setCardImprint(imprint);
     setStampImpact({ kind, x: clientX, y: clientY });
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(24);
@@ -620,8 +540,8 @@ export default function SwipePage() {
       setStampImpact(null);
     }, STAMP_IMPACT_MS);
     stampCommitTimerRef.current = window.setTimeout(() => {
-      const vote = kindToVote(kind);
-      void commitSwipe(vote.dir, vote.value, imprint);
+      const vote = kind === "approved" ? 1 : -1;
+      void applyTransitionVote(kind, vote, imprint, STAMP_IMPRINT_HOLD_MS);
     }, STAMP_DROP_DELAY_MS);
   }
 
@@ -686,8 +606,13 @@ export default function SwipePage() {
     if (source === "touch" && !cur.moved) {
       const rect = cardDropRef.current?.getBoundingClientRect();
       if (!rect) {
-        const vote = kindToVote(cur.kind);
-        void commitSwipe(vote.dir, vote.value);
+        const fallbackImprint: StampImprint = {
+          kind: cur.kind,
+          x: cur.kind === "approved" ? 24 : 76,
+          y: 56,
+        };
+        const vote = cur.kind === "approved" ? 1 : -1;
+        void applyTransitionVote(cur.kind, vote, fallbackImprint, 0);
         resetStampDragState();
         return;
       }
@@ -780,8 +705,8 @@ export default function SwipePage() {
     if (stampDragRef.current || stampDropping || !current || outgoing) return;
     const rect = cardDropRef.current?.getBoundingClientRect();
     if (!rect) {
-      const vote = kindToVote(kind);
-      void commitSwipe(vote.dir, vote.value);
+      const vote = kind === "approved" ? 1 : -1;
+      void applyTransitionVote(kind, vote, null, STAMP_IMPRINT_HOLD_MS);
       return;
     }
     beginStampDrop(
@@ -806,9 +731,11 @@ export default function SwipePage() {
     if (!dragging) return;
     setDragging(false);
     if (dragX > threshold) {
-      void commitSwipe(1, 1);
+      const fallbackImprint: StampImprint = { kind: "approved", x: 24, y: 56 };
+      void applyTransitionVote("approved", 1, fallbackImprint, 0);
     } else if (dragX < -threshold) {
-      void commitSwipe(-1, -1);
+      const fallbackImprint: StampImprint = { kind: "declined", x: 76, y: 56 };
+      void applyTransitionVote("declined", -1, fallbackImprint, 0);
     } else {
       setDragX(0);
     }
@@ -852,7 +779,7 @@ export default function SwipePage() {
             </div>
           </div>
         </div>
-      ) : !authReady || loading ? (
+      ) : !authReady || (loading && !current) ? (
         <div className="flex h-full items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
             <div className="text-sm font-semibold text-zinc-800">
@@ -924,6 +851,11 @@ export default function SwipePage() {
               className="relative min-h-[360px] sm:min-h-[480px]"
               style={{ height: `calc(100% - ${CONTROL_BAR_HEIGHT}px)` }}
             >
+              {showNextLoader ? (
+                <div className="pointer-events-none absolute right-4 top-4 z-20">
+                  <div className="h-7 w-7 rounded-full border-2 border-zinc-300 border-t-zinc-700 opacity-80 animate-spin" />
+                </div>
+              ) : null}
               {/* 3rd card (deepest) */}
               {third ? (
                 <div className="absolute inset-0">
@@ -947,7 +879,13 @@ export default function SwipePage() {
                   <div
                     className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                     style={{
-                      transform: "scale(0.988) translateY(5px)",
+                      transform:
+                        pendingTransition && !outgoing
+                          ? "scale(1) translateY(0)"
+                          : "scale(0.988) translateY(5px)",
+                      transitionProperty: "transform",
+                      transitionDuration: `${CARD_TRANSITION_MS}ms`,
+                      transitionTimingFunction: "ease-out",
                       filter: "brightness(0.995)",
                     }}
                   >
@@ -962,9 +900,11 @@ export default function SwipePage() {
                 <div
                   className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                   style={{
-                    transform: `translateX(${outgoing.x}px) rotate(${outgoing.tilt}deg)`,
+                    transform: `translateX(${outgoing.dir > 0 ? "118%" : "-118%"}) rotate(${
+                      outgoing.dir > 0 ? 7 : -7
+                    }deg)`,
                     transitionProperty: "transform",
-                    transitionDuration: "220ms",
+                    transitionDuration: `${CARD_TRANSITION_MS}ms`,
                     transitionTimingFunction: "ease-out",
                     pointerEvents: "none",
                   }}
@@ -1016,10 +956,12 @@ export default function SwipePage() {
                 style={{
                   transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
                   transitionProperty: "transform",
-                  transitionDuration: dragging ? "200ms" : "160ms",
+                  transitionDuration: dragging ? "200ms" : `${CARD_TRANSITION_MS}ms`,
                   transitionTimingFunction: "ease-out",
                   touchAction: "pan-y",
                   opacity: outgoing ? 0 : 1,
+                  transformOrigin: "center center",
+                  scale: pendingTransition && !outgoing ? "0.95" : nextAppearing ? "0.97" : "1",
                 }}
               >
                 {overlay ? (
@@ -1164,6 +1106,128 @@ export default function SwipePage() {
       ) : null}
 
       <style jsx>{`
+        .rs-stamp {
+          position: relative;
+          width: 172px;
+          height: 118px;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          user-select: none;
+        }
+        .rs-stamp__handle-cap {
+          position: absolute;
+          left: 50%;
+          top: 0;
+          width: 36px;
+          height: 28px;
+          transform: translateX(-50%);
+          border-radius: 999px 999px 10px 10px;
+          border: 1px solid #3f3f46;
+          background: linear-gradient(180deg, #fafafa 0%, #d4d4d8 100%);
+          box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.2);
+        }
+        .rs-stamp__handle-neck {
+          position: absolute;
+          left: 50%;
+          top: 24px;
+          width: 14px;
+          height: 16px;
+          transform: translateX(-50%);
+          border-radius: 6px;
+          border: 1px solid #3f3f46;
+          background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 100%);
+          box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.24);
+        }
+        .rs-stamp__body {
+          position: absolute;
+          left: 22px;
+          top: 38px;
+          width: 128px;
+          height: 44px;
+          border-radius: 11px;
+          border: 1px solid #3f3f46;
+          background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 100%);
+          box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.24);
+        }
+        .rs-stamp__rubber {
+          position: absolute;
+          left: 16px;
+          top: 72px;
+          width: 140px;
+          height: 32px;
+          border-radius: 8px;
+          border: 1px solid #27272a;
+          background: linear-gradient(180deg, #3f3f46 0%, #18181b 100%);
+          box-shadow:
+            inset 0 2px 3px rgba(255, 255, 255, 0.06),
+            0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        .rs-stamp__ink {
+          position: absolute;
+          left: 50%;
+          top: 85px;
+          transform: translateX(-50%);
+          pointer-events: none;
+        }
+        .rs-stamp__ink-text {
+          display: inline-block;
+          border: 2px solid currentColor;
+          padding: 4px 8px;
+          font-size: 13px;
+          font-family: "Arial Black", Impact, sans-serif;
+          font-weight: 900;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          opacity: 0.98;
+        }
+        .rs-stamp--approved .rs-stamp__ink {
+          color: #047857;
+          transform: translateX(-50%) rotate(-15deg);
+          text-shadow: 0 0 0.4px rgba(5, 120, 90, 0.9), 0 0 2px rgba(5, 120, 90, 0.68);
+        }
+        .rs-stamp--declined .rs-stamp__ink {
+          color: #be123c;
+          transform: translateX(-50%) rotate(15deg);
+          text-shadow: 0 0 0.4px rgba(170, 28, 44, 0.92), 0 0 2px rgba(170, 28, 44, 0.66);
+        }
+        .rs-stamp--floating {
+          transform: scale(1.05);
+        }
+
+        .rs-imprint {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid currentColor;
+          border-radius: 8px;
+          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.25);
+          opacity: 0.85;
+          pointer-events: none;
+          user-select: none;
+        }
+        .rs-imprint__text {
+          font-family: "Arial Black", Impact, sans-serif;
+          font-weight: 900;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-size: 15px;
+          line-height: 1;
+        }
+        .rs-imprint--approved {
+          color: #047857;
+          background: rgba(6, 120, 86, 0.16);
+          transform: rotate(-12deg);
+          text-shadow: 0 0 0.4px rgba(5, 120, 90, 0.9), 0 0 2px rgba(5, 120, 90, 0.62);
+        }
+        .rs-imprint--declined {
+          color: #be123c;
+          background: rgba(170, 28, 44, 0.16);
+          transform: rotate(12deg);
+          text-shadow: 0 0 0.4px rgba(170, 28, 44, 0.9), 0 0 2px rgba(170, 28, 44, 0.62);
+        }
+
         @keyframes stampWobble {
           0%,
           100% {
