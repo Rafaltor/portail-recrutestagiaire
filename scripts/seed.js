@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-require-imports */
 
+require("dotenv").config({ path: ".env.local" });
+
 const { createClient } = require("@supabase/supabase-js");
 const crypto = require("crypto");
 
