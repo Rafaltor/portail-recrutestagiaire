@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PdfPreview from "@/components/PdfPreview";
 import { getOrCreateVisitorId } from "@/lib/visitor";
 import type { Session } from "@supabase/supabase-js";
@@ -130,9 +130,10 @@ export default function SwipePage() {
   const suppressClickUntilRef = useRef(0);
   const refillInFlightRef = useRef(false);
   const transitionInFlightRef = useRef(false);
+  const sheetMeasureRef = useRef<HTMLDivElement | null>(null);
+  const [sheetSize, setSheetSize] = useState({ w: 320, h: 453 });
 
   const DECK_SIZE = 7;
-  const CONTROL_BAR_HEIGHT = 92;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
   const STAMP_DROP_DELAY_MS = 90;
   const STAMP_IMPACT_MS = 190;
@@ -371,6 +372,35 @@ export default function SwipePage() {
     return () => {
       document.documentElement.removeAttribute("data-rs-swipe");
     };
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = sheetMeasureRef.current;
+    if (!el) return undefined;
+    const padX = 12;
+    const padY = 10;
+    function measure() {
+      const node = sheetMeasureRef.current;
+      if (!node) return;
+      const r = node.getBoundingClientRect();
+      const availW = Math.max(0, r.width - padX * 2);
+      const availH = Math.max(0, r.height - padY * 2);
+      const a = 210;
+      const b = 297;
+      let h = availH;
+      let w = (availH * a) / b;
+      if (w > availW) {
+        w = availW;
+        h = (availW * b) / a;
+      }
+      const nw = Math.max(200, Math.floor(w));
+      const nh = Math.max(280, Math.floor(h));
+      setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   // Lock page scroll on mobile to avoid accidental scrollbars while swiping.
@@ -750,7 +780,14 @@ export default function SwipePage() {
   }
 
   return (
-    <div className="relative h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full overflow-hidden">
+    <div
+      ref={sheetMeasureRef}
+      className="relative flex w-full flex-col overflow-hidden"
+      style={{
+        height:
+          "calc(100dvh - var(--rs-swipe-top-offset, 48px) - var(--rs-swipe-bottom-chrome, 128px))",
+      }}
+    >
       {message ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
@@ -762,7 +799,7 @@ export default function SwipePage() {
       ) : null}
 
       {loadError ? (
-        <div className="flex h-full items-center justify-center px-6">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-rose-200 bg-rose-50 p-6">
             <div className="text-lg font-black text-rose-900">Impossible de charger les profils</div>
             <p className="mt-2 text-sm text-rose-800">
@@ -787,7 +824,7 @@ export default function SwipePage() {
           </div>
         </div>
       ) : !authReady || (loading && !current) ? (
-        <div className="flex h-full items-center justify-center px-6">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
             <div className="text-sm font-semibold text-zinc-800">
               {!authReady ? "Connexion à Supabase…" : "Chargement des profils…"}
@@ -798,7 +835,7 @@ export default function SwipePage() {
           </div>
         </div>
       ) : blockedByFreeLimit ? (
-        <div className="flex h-full items-center justify-center px-6">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
             <div className="text-lg font-black">
               Créez un compte pour continuer à voter et débloquer les récompenses.
@@ -823,7 +860,7 @@ export default function SwipePage() {
           </div>
         </div>
       ) : done || !current ? (
-        <div className="flex h-full items-center justify-center px-6">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
             <div className="text-lg font-black">
               {hasLoadedProfiles ? "C’est tout pour l’instant." : "Aucun profil pour l’instant, revenez bientôt."}
@@ -852,53 +889,60 @@ export default function SwipePage() {
           </div>
         </div>
       ) : (
-        <div className="flex h-full items-start justify-center px-0 pb-0 pt-0">
-          <div className="w-full">
+        <div className="flex min-h-0 flex-1 flex-col items-stretch justify-stretch px-0 pb-0 pt-0">
+          <div
+            dir="ltr"
+            className="flex min-h-0 flex-1 items-center justify-center px-2 py-2 sm:px-3 sm:py-3"
+          >
             <div
-              dir="ltr"
-              className="relative min-h-[360px] sm:min-h-[480px]"
-              style={{ height: `calc(100% - ${CONTROL_BAR_HEIGHT}px)` }}
+              className="relative shrink-0"
+              style={{
+                width: sheetSize.w,
+                height: sheetSize.h,
+              }}
             >
               {showNextLoader ? (
-                <div className="pointer-events-none absolute right-4 top-4 z-20">
+                <div className="pointer-events-none absolute -right-1 -top-1 z-20 sm:right-0 sm:top-0">
                   <div className="h-7 w-7 rounded-full border-2 border-zinc-300 border-t-zinc-700 opacity-80 animate-spin" />
                 </div>
               ) : null}
-              {/* 3rd card (deepest) */}
+              {/* 3rd sheet (bottom of stack) */}
               {third ? (
-                <div className="absolute inset-0">
+                <div className="pointer-events-none absolute inset-0">
                   <div
-                    className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                    className="h-full w-full select-none overflow-hidden rounded-md border border-zinc-300/90 bg-[#fbfbf9] shadow-[0_1px_0_rgba(0,0,0,0.05),0_14px_28px_-10px_rgba(0,0,0,0.2)]"
                     style={{
-                      transform: "scale(0.97) translateY(12px)",
-                      filter: "brightness(0.99)",
+                      transform: "translate(-7px, 12px) rotate(-2deg) scale(0.91)",
+                      transformOrigin: "50% 100%",
+                      filter: "brightness(0.96)",
                     }}
                   >
-                    <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
-                      <PdfPreview url={third.cvUrl} mode="fit-width" immersive />
+                    <div className="h-full min-h-0 w-full overflow-hidden rounded-md">
+                      <PdfPreview url={third.cvUrl} mode="fit-page" immersive />
                     </div>
                   </div>
                 </div>
               ) : null}
 
-              {/* 2nd card */}
+              {/* 2nd sheet */}
               {second ? (
-                <div className="absolute inset-0">
+                <div className="pointer-events-none absolute inset-0">
                   <div
-                    className="h-full select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                    className="h-full w-full select-none overflow-hidden rounded-md border border-zinc-300/90 bg-[#fcfcfa] shadow-[0_1px_0_rgba(0,0,0,0.05),0_18px_36px_-12px_rgba(0,0,0,0.22)]"
                     style={{
                       transform:
                         pendingTransition && !outgoing
-                          ? "scale(1) translateY(0)"
-                          : "scale(0.988) translateY(5px)",
+                          ? "translate(0px, 0px) rotate(0deg) scale(1)"
+                          : "translate(5px, 6px) rotate(1.2deg) scale(0.955)",
+                      transformOrigin: "50% 100%",
                       transitionProperty: "transform",
                       transitionDuration: `${CARD_TRANSITION_MS}ms`,
                       transitionTimingFunction: "ease-out",
-                      filter: "brightness(0.995)",
+                      filter: "brightness(0.98)",
                     }}
                   >
-                    <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
-                      <PdfPreview url={second.cvUrl} mode="fit-width" immersive />
+                    <div className="h-full min-h-0 w-full overflow-hidden rounded-md">
+                      <PdfPreview url={second.cvUrl} mode="fit-page" immersive />
                     </div>
                   </div>
                 </div>
@@ -906,7 +950,7 @@ export default function SwipePage() {
 
               {outgoing ? (
                 <div
-                  className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                  className="absolute inset-0 z-[15] select-none overflow-hidden rounded-md border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
                     transform: outgoing.slideOut
                       ? `translateX(${outgoing.dir > 0 ? "118%" : "-118%"}) rotate(${
@@ -919,14 +963,14 @@ export default function SwipePage() {
                     pointerEvents: "none",
                   }}
                 >
-                  <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
+                  <div className="h-full min-h-0 w-full overflow-hidden rounded-md">
                     <PdfPreview
                       url={outgoing.item.cvUrl}
-                      mode="fit-width"
+                      mode="fit-page"
                       immersive
                     />
                   </div>
-                  <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-3 py-1 text-xs font-black tracking-wide text-zinc-900 shadow-sm">
+                  <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                     {normHandle(outgoing.item.profile.handle)}
                   </div>
                   <div className="pointer-events-none absolute left-3 top-3">
@@ -962,15 +1006,15 @@ export default function SwipePage() {
                 onPointerUp={onPointerUp}
                 onPointerCancel={onPointerUp}
                 data-stamp-dropzone="1"
-                className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
+                className="absolute inset-0 z-[20] select-none overflow-hidden rounded-md border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]"
                 style={{
                   transform: `translateX(${dragX}px) rotate(${tilt}deg) scale(${
-                    outgoing ? 1 : nextAppearing && !dragging ? 0.95 : 1
+                    outgoing ? 1 : nextAppearing && !dragging ? 0.97 : 1
                   })`,
                   transitionProperty: "transform",
                   transitionDuration: dragging ? "200ms" : `${CARD_TRANSITION_MS}ms`,
                   transitionTimingFunction: "ease-out",
-                  touchAction: "pan-y",
+                  touchAction: "none",
                   opacity: outgoing ? 0 : 1,
                   transformOrigin: "center center",
                 }}
@@ -1002,10 +1046,10 @@ export default function SwipePage() {
                   </div>
                 ) : null}
 
-                <div className="h-full overflow-y-auto rounded-2xl p-0" data-cv-scroll>
-                  <PdfPreview url={current.cvUrl} mode="fit-width" immersive />
+                <div className="h-full min-h-0 w-full overflow-hidden rounded-md">
+                  <PdfPreview url={current.cvUrl} mode="fit-page" immersive />
                 </div>
-                <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-3 py-1 text-xs font-black tracking-wide text-zinc-900 shadow-sm">
+                <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                   {normHandle(current.profile.handle)}
                 </div>
               </div>

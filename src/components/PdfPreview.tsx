@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   url: string;
-  mode?: "cover-height" | "fit-width";
+  /** fit-width: fill width (may crop vertically). fit-page / cover-height: entire page visible (contain). */
+  mode?: "cover-height" | "fit-width" | "fit-page";
   immersive?: boolean;
 };
 
@@ -14,17 +15,20 @@ export default function PdfPreview({
   immersive = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    async function run() {
-      setLoading(true);
-      setError("");
+    async function renderPdf(silent: boolean) {
+      if (!silent) {
+        setLoading(true);
+        setError("");
+      }
       try {
-        // Use legacy build for better mobile/Safari compatibility.
         const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         type PdfDoc = {
           getPage: (n: number) => Promise<PdfPage>;
@@ -44,14 +48,10 @@ export default function PdfPreview({
         };
         const { GlobalWorkerOptions, getDocument } = pdfjsAny;
 
-        // PDF.js workers can be problematic on iOS/Safari (module workers, CSP, etc.).
-        // For MVP, disable worker on iOS to avoid runtime crashes.
         const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
         const isIOS = /iPad|iPhone|iPod/.test(ua);
         const disableWorker = isIOS;
 
-        // Always set workerSrc when missing. Even with disableWorker,
-        // some environments still require a defined workerSrc.
         if (!GlobalWorkerOptions.workerSrc) {
           GlobalWorkerOptions.workerSrc = new URL(
             "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
@@ -64,26 +64,24 @@ export default function PdfPreview({
         const page = (await pdf.getPage(1)) as PdfPage;
 
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        const wrap = wrapRef.current;
+        if (!canvas || !wrap) return;
 
-        const parent = canvas.parentElement;
-        const rect = parent?.getBoundingClientRect();
-        const containerWidth = rect?.width ?? 900;
-        // Aim to use the available height (avoid cropping on desktop).
-        const containerHeight = rect?.height ?? 900;
+        const rect = wrap.getBoundingClientRect();
+        const containerWidth = Math.max(1, rect.width);
+        const containerHeight = Math.max(1, rect.height);
 
         const vp1 = page.getViewport({ scale: 1 });
         const byWidth = containerWidth / vp1.width;
         const byHeight = containerHeight / vp1.height;
         const raw =
           mode === "fit-width" ? byWidth : Math.min(byWidth, byHeight);
-        const scale = Math.max(0.5, Math.min(3.2, raw));
+        const scale = Math.max(0.45, Math.min(3.2, raw));
         const viewport = page.getViewport({ scale });
 
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Render in HiDPI to avoid blurry canvas on mobile.
         const dpr =
           typeof window !== "undefined" ? Math.min(3, window.devicePixelRatio || 1) : 1;
         canvas.width = Math.floor(viewport.width * dpr);
@@ -110,9 +108,31 @@ export default function PdfPreview({
       }
     }
 
-    run();
+    function scheduleRender(silent: boolean) {
+      if (typeof window === "undefined") return;
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = null;
+        void renderPdf(silent);
+      });
+    }
+
+    scheduleRender(false);
+
+    const wrap = wrapRef.current;
+    if (wrap && typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => scheduleRender(true));
+      ro.observe(wrap);
+      return () => {
+        cancelled = true;
+        if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+        ro.disconnect();
+      };
+    }
+
     return () => {
       cancelled = true;
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
   }, [url, mode]);
 
@@ -120,23 +140,27 @@ export default function PdfPreview({
     <div
       className={
         immersive
-          ? "h-full overflow-hidden rounded-2xl bg-zinc-50"
+          ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-md bg-zinc-100"
           : "rounded-lg border border-zinc-200 bg-white"
       }
     >
       {error ? (
         <div className="px-3 py-3 text-sm text-red-700">{error}</div>
       ) : (
-        <div className={`relative overflow-hidden bg-zinc-50 ${immersive ? "h-full p-0" : "p-2"}`}>
+        <div
+          ref={wrapRef}
+          className={`relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden bg-zinc-50 ${
+            immersive ? "h-full p-0" : "min-h-[200px] p-2"
+          }`}
+        >
           {loading ? (
-            <div className="absolute inset-x-0 top-2 text-center text-xs font-semibold text-zinc-500">
+            <div className="pointer-events-none absolute inset-x-0 top-2 text-center text-xs font-semibold text-zinc-500">
               Chargement…
             </div>
           ) : null}
-          <canvas ref={canvasRef} className="mx-auto block max-w-full" />
+          <canvas ref={canvasRef} className="block max-h-full max-w-full shrink-0" />
         </div>
       )}
     </div>
   );
 }
-
