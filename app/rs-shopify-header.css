@@ -856,20 +856,24 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
 }
 
 @media (min-width: 992px) {
-  /* Swipe desktop : une ligne — marque | onglets centrés | Mon dossier (Mon espace masqué ici) */
+  /*
+   * Swipe desktop : ligne 1 = logo + titre (gauche) et boutons (droite), alignés entre eux ;
+   * ligne 2 = onglets pleine largeur, collés au bas du header (filet or).
+   */
   html[data-rs-swipe="1"] {
-    --rs-swipe-top-offset: calc(60px + env(safe-area-inset-top, 0px));
+    --rs-swipe-top-offset: calc(96px + env(safe-area-inset-top, 0px));
   }
 
   html[data-rs-swipe="1"] .header-wrap .container {
-    padding: 2px 10px 4px !important;
+    padding: 4px 10px 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-header-main-row {
-    grid-template-columns: auto minmax(0, 1fr) auto !important;
-    grid-template-rows: auto !important;
-    column-gap: 10px !important;
-    align-items: flex-end !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-rows: auto auto !important;
+    column-gap: 16px !important;
+    row-gap: 0 !important;
+    align-items: center !important;
     padding: 2px 0 0 !important;
   }
 
@@ -878,8 +882,8 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     grid-row: 1 !important;
     width: auto !important;
     justify-self: start !important;
-    align-self: flex-end !important;
-    padding: 0 0 2px !important;
+    align-self: center !important;
+    padding: 0 !important;
     align-items: center !important;
   }
 
@@ -887,40 +891,42 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     align-items: center !important;
   }
 
-  html[data-rs-swipe="1"] .header-wrap .rs-banner-nav.rs-header-pole-tabs {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: center !important;
-    align-self: flex-end !important;
-    width: auto !important;
-    max-width: min(640px, 58vw) !important;
-    margin: 0 auto !important;
-    padding: 0 0 2px !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-  }
-
   html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     grid-column: 3 !important;
     grid-row: 1 !important;
     justify-self: end !important;
-    align-self: flex-end !important;
-    padding: 0 0 2px !important;
+    align-self: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    gap: 8px !important;
   }
 
-  html[data-rs-swipe="1"] .header-wrap .rs-banner-top__account {
-    display: none !important;
+  html[data-rs-swipe="1"] .header-wrap .rs-banner-nav.rs-header-pole-tabs {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    justify-self: stretch !important;
+    align-self: end !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: stretch !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-subnav.rs-subnav--buttons {
     display: flex !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
     justify-content: center !important;
     align-items: flex-end !important;
     gap: 6px !important;
-    width: auto !important;
-    max-width: 100% !important;
+    width: 100% !important;
+    max-width: none !important;
     margin: 0 auto !important;
     padding: 0 !important;
   }
@@ -975,8 +981,20 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     max-width: none !important;
     justify-self: stretch !important;
     align-self: end !important;
-    padding: 2px 4px 0 !important;
+    padding: 0 !important;
     margin-top: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-top-width: 0 !important;
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .rs-header-two-tier {
+    padding-bottom: 0 !important;
+  }
+
+  html[data-rs-swipe="1"] .header-wrap .container {
+    padding-bottom: 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-nav-brand {

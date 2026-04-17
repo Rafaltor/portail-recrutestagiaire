@@ -404,7 +404,7 @@ export default function SwipePage() {
     };
   }, [session?.access_token, visitorId]);
 
-  // Active les styles `html[data-rs-swipe="1"]` (rs-shopify-header.css) : header desktop = marque | onglets centrés | Mon dossier.
+  // Active les styles `html[data-rs-swipe="1"]` (rs-shopify-header.css) : desktop = marque + actions ligne 1, onglets ligne 2 ; mobile = bandeau onglets sans fond bleu.
   useEffect(() => {
     document.documentElement.setAttribute("data-rs-swipe", "1");
     return () => {
