@@ -63,18 +63,8 @@ function StampVisual({
   const label = stampLabel(kind);
   const kindClass = kind === "approved" ? "rs-stamp--approved" : "rs-stamp--declined";
   return (
-    <div
-      className={`rs-stamp ${kindClass} ${floating ? "rs-stamp--floating" : ""} ${
-        muted ? "opacity-45" : ""
-      }`}
-    >
-      <div className="rs-stamp__handle-cap" />
-      <div className="rs-stamp__handle-neck" />
-      <div className="rs-stamp__body" />
-      <div className="rs-stamp__rubber" />
-      <div className="rs-stamp__ink">
-        <span className="rs-stamp__ink-text">{label}</span>
-      </div>
+    <div className={`rs-stamp ${kindClass} ${floating ? "rs-stamp--floating" : ""} ${muted ? "opacity-45" : ""}`}>
+      <span className="rs-stamp__label">{label}</span>
     </div>
   );
 }
@@ -959,14 +949,15 @@ export default function SwipePage() {
                 data-stamp-dropzone="1"
                 className="absolute inset-0 select-none rounded-2xl border border-zinc-200 bg-white shadow-sm"
                 style={{
-                  transform: `translateX(${dragX}px) rotate(${tilt}deg)`,
+                  transform: `translateX(${dragX}px) rotate(${tilt}deg) scale(${
+                    outgoing ? 1 : nextAppearing && !dragging ? 0.95 : 1
+                  })`,
                   transitionProperty: "transform",
                   transitionDuration: dragging ? "200ms" : `${CARD_TRANSITION_MS}ms`,
                   transitionTimingFunction: "ease-out",
                   touchAction: "pan-y",
                   opacity: outgoing ? 0 : 1,
                   transformOrigin: "center center",
-                  scale: pendingTransition && !outgoing ? "0.95" : nextAppearing ? "0.97" : "1",
                 }}
               >
                 {overlay ? (
@@ -1091,12 +1082,12 @@ export default function SwipePage() {
         <div
           className="pointer-events-none fixed z-[10035]"
           style={{
-            left: `${stampImpact.x * 100}%`,
-            top: `${stampImpact.y * 100}%`,
+            left: `${stampImpact.x}px`,
+            top: `${stampImpact.y}px`,
             transform: "translate(-50%, -50%)",
           }}
         >
-          <div style={{ animation: "stampImpact 280ms cubic-bezier(0.2, 1.15, 0.35, 1)" }}>
+          <div style={{ animation: "stampDrop 240ms cubic-bezier(0.2, 1.15, 0.35, 1)" }}>
             <StampVisual kind={stampImpact.kind} />
           </div>
           <div
@@ -1113,87 +1104,44 @@ export default function SwipePage() {
       <style jsx>{`
         .rs-stamp {
           position: relative;
-          width: 172px;
-          height: 118px;
+          width: 150px;
+          height: 74px;
           display: inline-flex;
-          flex-direction: column;
           align-items: center;
+          justify-content: center;
           user-select: none;
-        }
-        .rs-stamp__handle-cap {
-          position: absolute;
-          left: 50%;
-          top: 0;
-          width: 36px;
-          height: 28px;
-          transform: translateX(-50%);
-          border-radius: 999px 999px 10px 10px;
-          border: 1px solid #3f3f46;
+          border-radius: 999px;
+          border: 2px solid #27272a;
           background: linear-gradient(180deg, #fafafa 0%, #d4d4d8 100%);
-          box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.2);
-        }
-        .rs-stamp__handle-neck {
-          position: absolute;
-          left: 50%;
-          top: 24px;
-          width: 14px;
-          height: 16px;
-          transform: translateX(-50%);
-          border-radius: 6px;
-          border: 1px solid #3f3f46;
-          background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 100%);
-          box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.24);
-        }
-        .rs-stamp__body {
-          position: absolute;
-          left: 22px;
-          top: 38px;
-          width: 128px;
-          height: 44px;
-          border-radius: 11px;
-          border: 1px solid #3f3f46;
-          background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 100%);
-          box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.24);
-        }
-        .rs-stamp__rubber {
-          position: absolute;
-          left: 16px;
-          top: 72px;
-          width: 140px;
-          height: 32px;
-          border-radius: 8px;
-          border: 1px solid #27272a;
-          background: linear-gradient(180deg, #3f3f46 0%, #18181b 100%);
           box-shadow:
-            inset 0 2px 3px rgba(255, 255, 255, 0.06),
-            0 3px 6px rgba(0, 0, 0, 0.3);
+            inset 0 2px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -3px 6px rgba(0, 0, 0, 0.18),
+            0 10px 22px rgba(0, 0, 0, 0.12);
         }
-        .rs-stamp__ink {
-          position: absolute;
-          left: 50%;
-          top: 85px;
-          transform: translateX(-50%);
-          pointer-events: none;
-        }
-        .rs-stamp__ink-text {
+        .rs-stamp__label {
           display: inline-block;
           border: 2px solid currentColor;
-          padding: 4px 8px;
-          font-size: 13px;
+          border-radius: 10px;
+          padding: 6px 12px;
+          font-size: 14px;
           font-family: "Arial Black", Impact, sans-serif;
           font-weight: 900;
-          letter-spacing: 0.16em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           opacity: 0.98;
         }
-        .rs-stamp--approved .rs-stamp__ink {
+        .rs-stamp--approved {
           color: #047857;
-          transform: translateX(-50%) rotate(-15deg);
+        }
+        .rs-stamp--approved .rs-stamp__label {
+          transform: rotate(-14deg);
           text-shadow: 0 0 0.4px rgba(5, 120, 90, 0.9), 0 0 2px rgba(5, 120, 90, 0.68);
         }
-        .rs-stamp--declined .rs-stamp__ink {
+        .rs-stamp--declined {
           color: #be123c;
-          transform: translateX(-50%) rotate(15deg);
+        }
+        .rs-stamp--declined .rs-stamp__label {
+          transform: rotate(14deg);
           text-shadow: 0 0 0.4px rgba(170, 28, 44, 0.92), 0 0 2px rgba(170, 28, 44, 0.66);
         }
         .rs-stamp--floating {
@@ -1242,15 +1190,15 @@ export default function SwipePage() {
             transform: rotate(2.5deg);
           }
         }
-        @keyframes stampImpact {
+        @keyframes stampDrop {
           0% {
-            transform: scale(1.06, 0.94);
+            transform: translateY(-44px) scale(1.04);
           }
-          45% {
-            transform: scale(0.86, 1.18);
+          55% {
+            transform: translateY(0px) scale(1.0, 0.92);
           }
           100% {
-            transform: scale(1, 1);
+            transform: translateY(0px) scale(1, 1);
           }
         }
         @keyframes stampInk {
