@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
+import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
@@ -114,29 +115,7 @@ export default function RootLayout({
                     <span className="rs-caf-btn-dossier__label">Mon dossier</span>
                   </a>
 
-                  <Link
-                    href="/connexion"
-                    className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-decoration-none"
-                  >
-                    <svg
-                      className="rs-icon-account"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      focusable="false"
-                      stroke="currentColor"
-                      strokeWidth="1.85"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20 21a8 8 0 0 0-16 0" />
-                      <path d="M12 13a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
-                    </svg>
-                    <span className="rs-caf-btn-dossier__label">Mon espace</span>
-                  </Link>
+                  <HeaderAccountLink />
                 </div>
               </div>
 

@@ -281,6 +281,14 @@ function ConnexionPageInner() {
                 </a>
               </div>
             ) : null}
+            <div className="mt-2">
+              <a
+                href="/mon-espace"
+                className="rs-btn rs-btn--ghost"
+              >
+                Aller à mon espace
+              </a>
+            </div>
 
             {shopifyCustomerId ? (
               <div className="mt-4 text-sm text-zinc-700">
