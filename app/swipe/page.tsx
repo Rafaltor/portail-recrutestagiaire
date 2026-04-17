@@ -111,6 +111,7 @@ export default function SwipePage() {
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
     exitStartX: number;
     exitStartTilt: number;
+    exitDurationMs: number;
     /** After mount, set true on next frames so transform transitions from center (correct left/right slide). */
     slideOut: boolean;
   } | null>(null);
@@ -142,8 +143,10 @@ export default function SwipePage() {
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
   const STAMP_DROP_DELAY_MS = 48;
   const STAMP_IMPACT_MS = 140;
-  const STAMP_IMPRINT_HOLD_MS = 360;
+  const STAMP_IMPRINT_HOLD_MS = 280;
   const CARD_TRANSITION_MS = 240;
+  /** Swipe commit: snappier exit off-screen (full viewport). */
+  const SWIPE_EXIT_MS = 200;
   const STAMP_RETURN_MS = 180;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
   const likesDayKey = useMemo(
@@ -405,18 +408,6 @@ export default function SwipePage() {
     return () => ro.disconnect();
   }, []);
 
-  // Lock page scroll on mobile to avoid accidental scrollbars while swiping.
-  useEffect(() => {
-    const prevOverflow = document.documentElement.style.overflow;
-    const prevBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.documentElement.style.overflow = prevOverflow;
-      document.body.style.overflow = prevBodyOverflow;
-    };
-  }, []);
-
   const threshold = 120;
   const tilt = Math.max(-12, Math.min(12, dragX / 18));
   const overlay =
@@ -476,9 +467,71 @@ export default function SwipePage() {
     swipeRelease: SwipeRelease | null = null,
   ) {
     if (!current || outgoing || transitionInFlightRef.current) return;
+
+    const resolvedImprint =
+      imprint ??
+      ({
+        kind,
+        x: kind === "approved" ? 24 : 76,
+        y: 56,
+      } as StampImprint);
+
+    const swipeFast = holdImprintMs === 0 && swipeRelease !== null;
+
+    if (swipeFast) {
+      transitionInFlightRef.current = true;
+      const profileId = current.profile.id;
+      const item = current;
+
+      setPendingTransition({ kind, imprint: resolvedImprint });
+      setCardImprint(resolvedImprint);
+      setNextAppearing(true);
+      setOutgoing({
+        item,
+        dir: value,
+        overlay: value === 1 ? "like" : "nope",
+        imprint: resolvedImprint,
+        exitStartX: swipeRelease.x,
+        exitStartTilt: swipeRelease.tilt,
+        exitDurationMs: SWIPE_EXIT_MS,
+        slideOut: false,
+      });
+      setDragX(0);
+      startXRef.current = null;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setOutgoing((o) =>
+            o && o.item.profile.id === profileId
+              ? { ...o, slideOut: true, exitDurationMs: SWIPE_EXIT_MS }
+              : o,
+          );
+        });
+      });
+
+      const voteOk = await sendVote(profileId, value);
+      if (!voteOk) {
+        setOutgoing(null);
+        setPendingTransition(null);
+        setCardImprint(null);
+        setNextAppearing(false);
+        transitionInFlightRef.current = false;
+        return;
+      }
+
+      consumeTopAndRefill();
+      window.setTimeout(() => {
+        setOutgoing(null);
+        setPendingTransition(null);
+        setCardImprint(null);
+        setStampDropping(false);
+        setNextAppearing(false);
+        transitionInFlightRef.current = false;
+      }, SWIPE_EXIT_MS + 40);
+      return;
+    }
+
     transitionInFlightRef.current = true;
-    const releaseX = swipeRelease?.x ?? 0;
-    const releaseTilt = swipeRelease?.tilt ?? 0;
     const voteOk = await sendVote(current.profile.id, value);
     if (!voteOk) {
       setPendingTransition(null);
@@ -488,13 +541,6 @@ export default function SwipePage() {
       return;
     }
 
-    const resolvedImprint =
-      imprint ??
-      ({
-        kind,
-        x: kind === "approved" ? 24 : 76,
-        y: 56,
-      } as StampImprint);
     setPendingTransition({ kind, imprint: resolvedImprint });
     setCardImprint(resolvedImprint);
     if (holdImprintMs > 0) {
@@ -509,11 +555,10 @@ export default function SwipePage() {
     }
 
     imprintHoldTimerRef.current = window.setTimeout(() => {
-      // Same convention as drag: vote 1 → exit right, -1 → exit left.
       const dir: 1 | -1 = value;
       const votedProfileId = current.profile.id;
-      const exitStartX = holdImprintMs > 0 ? 0 : releaseX;
-      const exitStartTilt = holdImprintMs > 0 ? 0 : releaseTilt;
+      const exitStartX = holdImprintMs > 0 ? 0 : swipeRelease?.x ?? 0;
+      const exitStartTilt = holdImprintMs > 0 ? 0 : swipeRelease?.tilt ?? 0;
       setOutgoing({
         item: current,
         dir,
@@ -521,6 +566,7 @@ export default function SwipePage() {
         imprint: resolvedImprint,
         exitStartX,
         exitStartTilt,
+        exitDurationMs: CARD_TRANSITION_MS,
         slideOut: false,
       });
       if (holdImprintMs === 0) {
@@ -531,7 +577,9 @@ export default function SwipePage() {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setOutgoing((o) =>
-            o && o.item.profile.id === votedProfileId ? { ...o, slideOut: true } : o,
+            o && o.item.profile.id === votedProfileId
+              ? { ...o, slideOut: true, exitDurationMs: CARD_TRANSITION_MS }
+              : o,
           );
         });
       });
@@ -799,7 +847,7 @@ export default function SwipePage() {
   return (
     <div
       ref={sheetMeasureRef}
-      className="relative flex w-full flex-col overflow-hidden"
+      className="relative flex w-full flex-col overflow-hidden overscroll-y-contain"
       style={{
         height:
           "calc(100dvh - var(--rs-swipe-top-offset, 96px) - var(--rs-swipe-bottom-chrome, 128px))",
@@ -936,7 +984,7 @@ export default function SwipePage() {
                   >
                     <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
                       <PdfPreview
-                        key={`${third.profile.id}-${sheetSize.w}x${sheetSize.h}`}
+                        key={third.profile.id}
                         url={third.cvUrl}
                         mode="fit-page"
                         immersive
@@ -965,7 +1013,7 @@ export default function SwipePage() {
                   >
                     <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
                       <PdfPreview
-                        key={`${second.profile.id}-${sheetSize.w}x${sheetSize.h}`}
+                        key={second.profile.id}
                         url={second.cvUrl}
                         mode="fit-page"
                         immersive
@@ -980,19 +1028,21 @@ export default function SwipePage() {
                   className="absolute inset-0 z-[15] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
                     transform: outgoing.slideOut
-                      ? `translateX(${outgoing.dir > 0 ? "118%" : "-118%"}) rotate(${
-                          outgoing.dir > 0 ? 7 : -7
-                        }deg)`
+                      ? `translateX(${
+                          outgoing.dir > 0 ? "calc(50vw + 50%)" : "calc(-50vw - 50%)"
+                        }) rotate(${outgoing.exitStartTilt}deg)`
                       : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`,
                     transitionProperty: "transform",
-                    transitionDuration: outgoing.slideOut ? `${CARD_TRANSITION_MS}ms` : "0ms",
+                    transitionDuration: outgoing.slideOut
+                      ? `${outgoing.exitDurationMs}ms`
+                      : "0ms",
                     transitionTimingFunction: "ease-out",
                     pointerEvents: "none",
                   }}
                 >
                   <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
                     <PdfPreview
-                      key={`${outgoing.item.profile.id}-${sheetSize.w}x${sheetSize.h}`}
+                      key={outgoing.item.profile.id}
                       url={outgoing.item.cvUrl}
                       mode="fit-page"
                       immersive
@@ -1076,7 +1126,7 @@ export default function SwipePage() {
 
                 <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
                   <PdfPreview
-                    key={`${current.profile.id}-${sheetSize.w}x${sheetSize.h}`}
+                    key={current.profile.id}
                     url={current.cvUrl}
                     mode="fit-page"
                     immersive
@@ -1092,7 +1142,7 @@ export default function SwipePage() {
       )}
 
       {!blockedByFreeLimit ? (
-        <div className="fixed bottom-2 left-0 right-0 z-[10020] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
+        <div className="fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
           <div className="mx-auto flex max-w-[980px] items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white/96 px-3 py-2 shadow-lg backdrop-blur-sm">
             <button
               data-stamp-source="declined"
@@ -1150,7 +1200,7 @@ export default function SwipePage() {
 
       {stampDrag ? (
         <div
-          className="pointer-events-none fixed z-[10030]"
+          className="pointer-events-none fixed z-[9600]"
           style={{
             left: 0,
             top: 0,
@@ -1172,7 +1222,7 @@ export default function SwipePage() {
 
       {stampImpact ? (
         <div
-          className="pointer-events-none fixed z-[10035]"
+          className="pointer-events-none fixed z-[9650]"
           style={{
             left: `${stampImpact.x}px`,
             top: `${stampImpact.y}px`,

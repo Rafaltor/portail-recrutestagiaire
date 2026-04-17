@@ -28,6 +28,8 @@ export default function PdfPreview({
   const [loading, setLoading] = useState<boolean>(true);
   const rafRef = useRef<number | null>(null);
   const layoutPrimedForUrlRef = useRef<string | null>(null);
+  const activeRenderTaskRef = useRef<{ cancel?: () => void } | null>(null);
+  const resizeDebounceRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,7 +60,7 @@ export default function PdfPreview({
           render: (arg: {
             canvasContext: CanvasRenderingContext2D;
             viewport: { width: number; height: number };
-          }) => { promise: Promise<void> };
+          }) => { promise: Promise<void>; cancel?: () => void };
         };
 
         const pdfjsAny = pdfjs as unknown as {
@@ -108,6 +110,13 @@ export default function PdfPreview({
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
+        try {
+          activeRenderTaskRef.current?.cancel?.();
+        } catch {
+          /* ignore */
+        }
+        activeRenderTaskRef.current = null;
+
         const dpr =
           typeof window !== "undefined" ? Math.min(3, window.devicePixelRatio || 1) : 1;
         canvas.width = Math.floor(viewport.width * dpr);
@@ -120,10 +129,21 @@ export default function PdfPreview({
           canvasContext: ctx,
           viewport,
         });
-        await renderTask.promise;
+        activeRenderTaskRef.current = renderTask;
+        try {
+          await renderTask.promise;
+        } catch (renderErr: unknown) {
+          if (cancelled) return;
+          const msg = renderErr instanceof Error ? renderErr.message : String(renderErr);
+          if (msg.includes("cancel") || msg.includes("aborted")) return;
+          throw renderErr;
+        } finally {
+          activeRenderTaskRef.current = null;
+        }
 
         if (cancelled) return;
       } catch (e: unknown) {
+        if (cancelled) return;
         setError(
           e instanceof Error
             ? e.message
@@ -147,10 +167,28 @@ export default function PdfPreview({
 
     const wrap = wrapRef.current;
     if (wrap && typeof ResizeObserver !== "undefined") {
-      const ro = new ResizeObserver(() => scheduleRender(true));
+      const ro = new ResizeObserver(() => {
+        if (resizeDebounceRef.current != null) {
+          window.clearTimeout(resizeDebounceRef.current);
+        }
+        resizeDebounceRef.current = window.setTimeout(() => {
+          resizeDebounceRef.current = null;
+          if (!cancelled) scheduleRender(true);
+        }, 48);
+      });
       ro.observe(wrap);
       return () => {
         cancelled = true;
+        if (resizeDebounceRef.current != null) {
+          window.clearTimeout(resizeDebounceRef.current);
+          resizeDebounceRef.current = null;
+        }
+        try {
+          activeRenderTaskRef.current?.cancel?.();
+        } catch {
+          /* ignore */
+        }
+        activeRenderTaskRef.current = null;
         if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
         ro.disconnect();
         layoutPrimedForUrlRef.current = null;
@@ -159,6 +197,16 @@ export default function PdfPreview({
 
     return () => {
       cancelled = true;
+      if (resizeDebounceRef.current != null) {
+        window.clearTimeout(resizeDebounceRef.current);
+        resizeDebounceRef.current = null;
+      }
+      try {
+        activeRenderTaskRef.current?.cancel?.();
+      } catch {
+        /* ignore */
+      }
+      activeRenderTaskRef.current = null;
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       layoutPrimedForUrlRef.current = null;
     };

@@ -568,11 +568,30 @@ html[data-rs-swipe="1"] {
   --rs-swipe-bottom-chrome: calc(128px + env(safe-area-inset-bottom, 0px));
 }
 
-html[data-rs-swipe="1"] footer.footer {
+html[data-rs-swipe="1"] footer.footer,
+html[data-rs-swipe="1"] footer.skin-dark-footer {
   display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  border: 0 !important;
+}
+
+@media (min-width: 769px) {
+  html[data-rs-swipe="1"] footer.footer,
+  html[data-rs-swipe="1"] footer.skin-dark-footer {
+    display: none !important;
+  }
 }
 
 html[data-rs-swipe="1"] .header-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 10050;
   border-bottom-width: 1px;
 }
 
@@ -690,6 +709,16 @@ html[data-rs-swipe="1"] .header-wrap .rs-subnav__item.is-active .rs-subnav__trig
 html[data-rs-swipe="1"] .header-wrap .rs-subnav__dropdown {
   min-width: 160px;
   width: max-content;
+  z-index: 10100 !important;
+}
+
+html[data-rs-swipe="1"] .header-wrap .rs-subnav__item.is-open > .rs-subnav__dropdown {
+  z-index: 10100 !important;
+}
+
+html[data-rs-swipe="1"] .header-wrap .rs-subnav__item:hover .rs-subnav__dropdown,
+html[data-rs-swipe="1"] .header-wrap .rs-subnav__item:focus-within .rs-subnav__dropdown {
+  z-index: 10100 !important;
 }
 
 html[data-rs-swipe="1"] main.mx-auto {
