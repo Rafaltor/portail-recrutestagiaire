@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 import { generateProfileOwnerToken } from "@/lib/profile-owner-token";
+import { parseCvWithAffinda } from "@/lib/affinda";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,19 +64,30 @@ export async function POST(req: Request) {
   if (!form) return bad("bad_formdata");
 
   const handle = String(form.get("handle") || "").trim();
-  const jobTitle = String(form.get("jobTitle") || "").trim();
-  const city = String(form.get("city") || "").trim();
-  const tagsRaw = String(form.get("tags") || "").trim();
-  const portfolioUrl = String(form.get("portfolioUrl") || "").trim();
+  const candidateName = String(form.get("candidateName") || "").trim();
+  const parsedEmail = String(form.get("parsedEmail") || "").trim().toLowerCase();
+  const parsedJobTitle = String(form.get("parsedJobTitle") || "").trim();
+  const parsedSkillsRaw = String(form.get("parsedSkills") || "").trim();
+  const photoDetected = String(form.get("photoDetected") || "") === "true";
   const accepted = String(form.get("accepted") || "") === "true";
   const file = form.get("cv");
 
   if (!accepted) return bad("charte_required");
   if (handle.length < 2) return bad("handle_required");
-  if (jobTitle.length < 2) return bad("job_required");
   if (!file || !(file instanceof File)) return bad("file_required");
   if (file.type !== "application/pdf") return bad("pdf_only");
   if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
+  if (photoDetected) return bad("photo_forbidden");
+
+  const parsedSkills = parsedSkillsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 12);
+
+  const hasParsingPreview =
+    candidateName.length > 0 || parsedEmail.length > 0 || parsedJobTitle.length > 0;
+  if (!hasParsingPreview) return bad("affinda_preview_required");
 
   const handleNorm = handle.replace(/^@/, "").toLowerCase();
   const rlHandle = rateLimitOrNull(`iphandle:${ipHash}:${handleNorm}`, 1, 60 * 60 * 1000); // 2e tentative même pseudo / 1h
@@ -114,20 +126,16 @@ export async function POST(req: Request) {
   });
   if (upload.error) return bad(`upload_failed:${upload.error.message}`, 500);
 
-  const tags = tagsRaw
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .slice(0, 12);
+  const inferredJobTitle = parsedJobTitle.length > 0 ? parsedJobTitle : "Candidature";
 
   const insert = await supabaseServer.from("profiles").insert({
     handle,
-    job_title: jobTitle,
-    city: city || null,
-    tags,
-    portfolio_url: portfolioUrl || null,
+    job_title: inferredJobTitle,
+    tags: parsedSkills,
+    portfolio_url: null,
     cv_path: path,
     status: "pending",
+    city: null,
   });
   if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
 
@@ -145,5 +153,33 @@ export async function POST(req: Request) {
     },
     { status: 200 },
   );
+}
+
+export async function PUT(req: Request) {
+  const form = await req.formData().catch(() => null);
+  if (!form) return bad("bad_formdata");
+  const file = form.get("cv");
+  if (!file || !(file instanceof File)) return bad("file_required");
+  if (file.type !== "application/pdf") return bad("pdf_only");
+  if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
+  try {
+    const parsed = await parseCvWithAffinda(file);
+    return NextResponse.json(
+      {
+        ok: true,
+        parsed: {
+          name: parsed.preview.name || "",
+          email: parsed.preview.email || "",
+          jobTitle: parsed.preview.jobTitle || "",
+          skills: parsed.preview.skills || [],
+          hasPhoto: !!parsed.preview.hasPhoto,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "affinda_failed";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }
 
