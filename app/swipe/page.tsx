@@ -133,6 +133,8 @@ export default function SwipePage() {
     item: SwipeItem;
     dir: 1 | -1;
     imprint: StampImprint | null;
+    /** Swipe = horizontal ; tampon = carte qui descend. */
+    exitAxis: "horizontal" | "down";
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
     exitStartX: number;
     exitStartTilt: number;
@@ -182,14 +184,16 @@ export default function SwipePage() {
 
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
-  const STAMP_DROP_DELAY_MS = 18;
-  /** Durée de l’effet « coup de tampon » (ondes + écrasement) — laisse le temps de le percevoir. */
-  const STAMP_IMPACT_MS = 240;
-  /** Pause après le vote avant la sortie (l’empreinte est déjà visible pendant l’appel réseau). */
-  const STAMP_IMPRINT_HOLD_MS = 72;
+  const STAMP_DROP_DELAY_MS = 6;
+  /** Durée de l’effet « coup de tampon » (ondes + écrasement). */
+  const STAMP_IMPACT_MS = 220;
+  /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
+  const STAMP_IMPRINT_HOLD_MS = 28;
+  /** Sortie « tampon » vers le bas — ni trop lente ni trop sèche. */
+  const STAMP_EXIT_MS = 300;
   const CARD_TRANSITION_MS = 220;
   /** Swipe commit: sortie écran (courbe type « momentum »). */
-  const SWIPE_EXIT_MS = 240;
+  const SWIPE_EXIT_MS = 260;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
   const SWIPE_EXIT_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -534,15 +538,20 @@ export default function SwipePage() {
   ) {
     if (!current || outgoing || transitionInFlightRef.current) return;
 
-    const resolvedImprint =
+    const baseImprint =
       imprint ??
       ({
         kind,
-        x: kind === "approved" ? 24 : 76,
-        y: 56,
+        x: 50,
+        y: 52,
       } as StampImprint);
 
     const swipeFast = holdImprintMs === 0 && swipeRelease !== null;
+
+    /** Swipe doigt : tampon visuel centré sur le document. */
+    const resolvedImprint = swipeFast
+      ? ({ kind: baseImprint.kind, x: 50, y: 52 } as StampImprint)
+      : baseImprint;
 
     if (swipeFast) {
       transitionInFlightRef.current = true;
@@ -554,6 +563,7 @@ export default function SwipePage() {
         item,
         dir: value,
         imprint: resolvedImprint,
+        exitAxis: "horizontal",
         exitStartX: swipeRelease.x,
         exitStartTilt: swipeRelease.tilt,
         exitDurationMs: SWIPE_EXIT_MS,
@@ -593,8 +603,61 @@ export default function SwipePage() {
       return;
     }
 
+    if (holdImprintMs > 0) {
+      transitionInFlightRef.current = true;
+      const profileId = current.profile.id;
+      const item = current;
+
+      setCardImprint(resolvedImprint);
+      setDragX(0);
+      startXRef.current = null;
+      if (imprintHoldTimerRef.current) {
+        window.clearTimeout(imprintHoldTimerRef.current);
+        imprintHoldTimerRef.current = null;
+      }
+
+      imprintHoldTimerRef.current = window.setTimeout(() => {
+        setOutgoing({
+          item,
+          dir: value,
+          imprint: resolvedImprint,
+          exitAxis: "down",
+          exitStartX: 0,
+          exitStartTilt: 0,
+          exitDurationMs: STAMP_EXIT_MS,
+          slideOut: false,
+        });
+        consumeTopAndRefill();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setOutgoing((o) =>
+              o && o.item.profile.id === profileId
+                ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+                : o,
+            );
+          });
+        });
+        void sendVote(profileId, value).then((voteOk) => {
+          if (!voteOk) {
+            setDeck((prev) => {
+              if (prev[0]?.profile.id === item.profile.id) return prev;
+              return [item, ...prev];
+            });
+            setOutgoing(null);
+            setCardImprint(null);
+            transitionInFlightRef.current = false;
+          }
+        });
+        window.setTimeout(() => {
+          completeOutgoingCleanup();
+        }, STAMP_EXIT_MS + 28);
+      }, holdImprintMs);
+      return;
+    }
+
     transitionInFlightRef.current = true;
-    const voteOk = await sendVote(current.profile.id, value);
+    const itemAfterVote = current;
+    const voteOk = await sendVote(itemAfterVote.profile.id, value);
     if (!voteOk) {
       setCardImprint(null);
       setStampDropping(false);
@@ -603,33 +666,27 @@ export default function SwipePage() {
     }
 
     setCardImprint(resolvedImprint);
-    if (holdImprintMs > 0) {
-      setDragX(0);
-      startXRef.current = null;
-    }
+    setDragX(0);
+    startXRef.current = null;
     if (imprintHoldTimerRef.current) {
       window.clearTimeout(imprintHoldTimerRef.current);
       imprintHoldTimerRef.current = null;
     }
 
+    const votedProfileId = itemAfterVote.profile.id;
     imprintHoldTimerRef.current = window.setTimeout(() => {
-      const dir: 1 | -1 = value;
-      const votedProfileId = current.profile.id;
-      const exitStartX = holdImprintMs > 0 ? 0 : swipeRelease?.x ?? 0;
-      const exitStartTilt = holdImprintMs > 0 ? 0 : swipeRelease?.tilt ?? 0;
+      const exitStartX = swipeRelease?.x ?? 0;
+      const exitStartTilt = swipeRelease?.tilt ?? 0;
       setOutgoing({
-        item: current,
-        dir,
+        item: itemAfterVote,
+        dir: value,
         imprint: resolvedImprint,
+        exitAxis: "horizontal",
         exitStartX,
         exitStartTilt,
         exitDurationMs: CARD_TRANSITION_MS,
         slideOut: false,
       });
-      if (holdImprintMs === 0) {
-        setDragX(0);
-        startXRef.current = null;
-      }
       consumeTopAndRefill();
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -643,7 +700,7 @@ export default function SwipePage() {
       window.setTimeout(() => {
         completeOutgoingCleanup();
       }, CARD_TRANSITION_MS + 48);
-    }, holdImprintMs);
+    }, 0);
   }
 
   function returnStampClone() {
@@ -675,8 +732,8 @@ export default function SwipePage() {
     if (!imprint) {
       const fallbackImprint: StampImprint = {
         kind,
-        x: kind === "approved" ? 24 : 76,
-        y: 56,
+        x: 50,
+        y: 52,
       };
       const vote = kind === "approved" ? 1 : -1;
       void applyTransitionVote(kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
@@ -760,11 +817,11 @@ export default function SwipePage() {
       if (!rect) {
         const fallbackImprint: StampImprint = {
           kind: cur.kind,
-          x: cur.kind === "approved" ? 24 : 76,
-          y: 56,
+          x: 50,
+          y: 52,
         };
         const vote = cur.kind === "approved" ? 1 : -1;
-        void applyTransitionVote(cur.kind, vote, fallbackImprint, 0);
+        void applyTransitionVote(cur.kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
         resetStampDragState();
         return;
       }
@@ -885,10 +942,10 @@ export default function SwipePage() {
     const dx = dragX;
     const releaseTilt = Math.max(-12, Math.min(12, dx / 18));
     if (dx > threshold) {
-      const fallbackImprint: StampImprint = { kind: "approved", x: 24, y: 56 };
+      const fallbackImprint: StampImprint = { kind: "approved", x: 50, y: 52 };
       void applyTransitionVote("approved", 1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
     } else if (dx < -threshold) {
-      const fallbackImprint: StampImprint = { kind: "declined", x: 76, y: 56 };
+      const fallbackImprint: StampImprint = { kind: "declined", x: 50, y: 52 };
       void applyTransitionVote("declined", -1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
     } else {
       requestAnimationFrame(() => {
@@ -906,7 +963,7 @@ export default function SwipePage() {
       id="rs-swipe-page"
       ref={sheetMeasureRef}
       className={`rs-swipe-page-root relative flex w-full flex-col overscroll-y-contain ${
-        desktopSwipeLayout ? "min-h-0 overflow-x-visible overflow-y-visible" : "overflow-hidden"
+        desktopSwipeLayout ? "min-h-0 overflow-x-visible overflow-y-visible" : "overflow-x-hidden overflow-y-visible"
       }`}
       style={
         desktopSwipeLayout
@@ -951,12 +1008,17 @@ export default function SwipePage() {
         </div>
       ) : !authReady || (loading && !current) ? (
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
-            <div className="text-sm font-semibold text-zinc-800">
-              {!authReady ? "Connexion à Supabase…" : "Chargement des profils…"}
+          <div className="rs-swipe-loader-panel w-full max-w-md">
+            <div className="rs-swipe-loader-title">
+              {!authReady ? "Connexion au portail…" : "Chargement des profils"}
             </div>
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-zinc-100">
-              <div className="h-full w-1/3 animate-[swipeLoading_1.15s_ease-in-out_infinite] rounded-full bg-zinc-900" />
+            <p className="rs-swipe-loader-sub">
+              {!authReady
+                ? "Préparation de ta session sécurisée."
+                : "Récupération des CV publiés pour le swipe."}
+            </p>
+            <div className="rs-swipe-loader-track">
+              <div className="rs-swipe-loader-bar" />
             </div>
           </div>
         </div>
@@ -1027,7 +1089,7 @@ export default function SwipePage() {
             }`}
           >
             <div
-              className="relative shrink-0"
+              className="relative shrink-0 overflow-visible"
               style={{
                 width: sheetSize.w,
                 height: sheetSize.h,
@@ -1035,7 +1097,9 @@ export default function SwipePage() {
             >
               {showNextLoader ? (
                 <div className="pointer-events-none absolute -right-1 -top-1 z-20 sm:right-0 sm:top-0">
-                  <div className="h-7 w-7 rounded-full border-2 border-zinc-300 border-t-zinc-700 opacity-80 animate-spin" />
+                  <div className="rs-swipe-next-loader" aria-hidden="true">
+                    <div className="rs-swipe-next-loader__spin" />
+                  </div>
                 </div>
               ) : null}
               {([2, 1, 0] as const).map((deckIdx) => {
@@ -1141,20 +1205,25 @@ export default function SwipePage() {
                 <div
                   className="absolute inset-0 z-[26] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
-                    transform: outgoing.slideOut
-                      ? `translateX(${
-                          outgoing.dir > 0
-                            ? "calc(100vw + 100%)"
-                            : "calc(-100vw - 100%)"
-                        }) rotate(${outgoing.exitStartTilt}deg)`
-                      : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`,
+                    transform: (() => {
+                      if (outgoing.exitAxis === "down") {
+                        return outgoing.slideOut
+                          ? "translateY(calc(100vh + 100% + 40px)) rotate(2.5deg)"
+                          : "translateY(0px) rotate(0deg)";
+                      }
+                      const farX =
+                        outgoing.dir > 0
+                          ? "calc(100vw + 100% + 64px)"
+                          : "calc(-100vw - 100% - 64px)";
+                      return outgoing.slideOut
+                        ? `translateX(${farX}) rotate(${outgoing.exitStartTilt}deg)`
+                        : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
+                    })(),
                     transitionProperty: "transform",
                     transitionDuration: outgoing.slideOut
                       ? `${outgoing.exitDurationMs}ms`
                       : "0ms",
-                    transitionTimingFunction: outgoing.slideOut
-                      ? SWIPE_EXIT_EASE
-                      : "linear",
+                    transitionTimingFunction: outgoing.slideOut ? SWIPE_EXIT_EASE : "linear",
                     willChange: "transform",
                     pointerEvents: "none",
                   }}

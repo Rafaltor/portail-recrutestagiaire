@@ -47,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-dvh bg-[#e8e8e8] text-[#212529]">
+      <body className="flex min-h-dvh flex-col bg-[#e8e8e8] text-[#212529]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
         <header
@@ -184,7 +184,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[980px] px-[10px] py-0">
+        <main className="mx-auto w-full max-w-[980px] flex-1 bg-white px-[10px] py-0">
           {children}
         </main>
 

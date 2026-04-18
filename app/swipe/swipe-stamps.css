@@ -3,12 +3,103 @@
  * Préfixe #rs-swipe-page pour limiter la portée à cette page.
  */
 
-@keyframes swipeLoading {
+/** Barre type « site vitrine 2010 » : segment bleu qui défile dans une rigole inset */
+@keyframes rsSwipeLoadingSweep {
   0% {
-    transform: translateX(-120%);
+    transform: translateX(-100%);
   }
   100% {
-    transform: translateX(320%);
+    transform: translateX(280%);
+  }
+}
+
+#rs-swipe-page .rs-swipe-loader-panel {
+  border: 3px solid var(--rs-gold-shadow, #8a6f12);
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--rs-logo-blue-pale, #e8eeff) 42%,
+    var(--rs-pole-header-bot, #d4dff7) 100%
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 6px rgba(0, 26, 87, 0.06),
+    0 3px 12px rgba(0, 26, 87, 0.14);
+  padding: 1.25rem 1.35rem;
+}
+
+#rs-swipe-page .rs-swipe-loader-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rs-logo-blue-dark, #001a57);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+#rs-swipe-page .rs-swipe-loader-sub {
+  margin-top: 0.35rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.75rem;
+  color: rgba(0, 26, 87, 0.72);
+}
+
+#rs-swipe-page .rs-swipe-loader-track {
+  margin-top: 0.85rem;
+  height: 14px;
+  border-radius: 2px;
+  border: 2px solid rgba(0, 51, 171, 0.25);
+  background: linear-gradient(180deg, #dce4ef 0%, #eef2f8 45%, #e2e8f2 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 26, 87, 0.18),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+
+#rs-swipe-page .rs-swipe-loader-bar {
+  height: 100%;
+  width: 38%;
+  border-radius: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: linear-gradient(
+    180deg,
+    var(--rs-logo-blue-bright, #5b86e5) 0%,
+    var(--rs-pole-blue, #0033ab) 48%,
+    var(--rs-logo-blue-dark, #001a57) 100%
+  );
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+    inset -1px -1px 0 rgba(0, 15, 50, 0.45);
+  animation: rsSwipeLoadingSweep 1.2s ease-in-out infinite;
+}
+
+#rs-swipe-page .rs-swipe-next-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--rs-gold-shadow, #8a6f12);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fff 0%, var(--rs-logo-blue-pale, #e8eeff) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px rgba(0, 26, 87, 0.12);
+}
+
+#rs-swipe-page .rs-swipe-next-loader__spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 51, 171, 0.2);
+  border-top-color: var(--rs-pole-blue, #0033ab);
+  border-right-color: var(--rs-logo-blue-bright, #5b86e5);
+  animation: rsSwipeSpin 0.85s linear infinite;
+}
+
+@keyframes rsSwipeSpin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
