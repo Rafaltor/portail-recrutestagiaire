@@ -4,10 +4,6 @@ import { useMemo, useState } from "react";
 
 type FormState = {
   handle: string;
-  jobTitle: string;
-  city: string;
-  tags: string;
-  portfolioUrl: string;
   accepted: boolean;
 };
 
@@ -18,16 +14,22 @@ type DepotSuccess = {
   absoluteProfileUrl?: string;
 };
 
+type ParsedPreview = {
+  name: string;
+  email: string;
+  jobTitle: string;
+  skills: string[];
+  hasPhoto: boolean;
+};
+
 export default function DepotPage() {
   const [form, setForm] = useState<FormState>({
     handle: "",
-    jobTitle: "",
-    city: "",
-    tags: "",
-    portfolioUrl: "",
     accepted: false,
   });
   const [file, setFile] = useState<File | null>(null);
+  const [parsed, setParsed] = useState<ParsedPreview | null>(null);
+  const [parsing, setParsing] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
@@ -44,10 +46,54 @@ export default function DepotPage() {
     return (
       form.accepted &&
       form.handle.trim().length > 1 &&
-      form.jobTitle.trim().length > 1 &&
-      !!file
+      !!file &&
+      !!parsed &&
+      !parsed.hasPhoto
     );
-  }, [form.accepted, form.handle, form.jobTitle, file]);
+  }, [form.accepted, form.handle, file, parsed]);
+
+  async function onFileChange(nextFile: File | null) {
+    setFile(nextFile);
+    setParsed(null);
+    if (!nextFile) return;
+    setParsing(true);
+    setMessage("");
+    try {
+      if (nextFile.type !== "application/pdf") {
+        throw new Error("Le CV doit être au format PDF.");
+      }
+      const fd = new FormData();
+      fd.set("cv", nextFile);
+      const r = await fetch("/api/depot", {
+        method: "PUT",
+        body: fd,
+      });
+      if (!r.ok) {
+        const j: { error?: string } = await r.json().catch(() => ({}));
+        throw new Error(j.error || "affinda_failed");
+      }
+      const j: { ok: boolean; parsed?: ParsedPreview } = await r.json();
+      if (!j.ok || !j.parsed) throw new Error("affinda_invalid_payload");
+      setParsed(j.parsed);
+      if (j.parsed.hasPhoto) {
+        setMessage(
+          "Photo détectée dans le CV. Dépôt bloqué. Merci d’envoyer un PDF sans photo.",
+        );
+      }
+    } catch (e: unknown) {
+      setParsed(null);
+      const raw = e instanceof Error ? e.message : "Erreur inconnue";
+      if (raw === "affinda_not_configured") {
+        setMessage("Parsing temporairement indisponible. Réessaie plus tard.");
+      } else if (raw.startsWith("affinda_failed_")) {
+        setMessage("Impossible d’analyser ce CV pour le moment. Réessaie.");
+      } else {
+        setMessage(raw);
+      }
+    } finally {
+      setParsing(false);
+    }
+  }
 
   async function onSubmit() {
     setStatus("loading");
@@ -60,14 +106,19 @@ export default function DepotPage() {
       if (file.type !== "application/pdf") {
         throw new Error("Le CV doit être au format PDF.");
       }
+      if (!parsed) throw new Error("Analyse du CV requise avant validation.");
+      if (parsed.hasPhoto) {
+        throw new Error("Photo détectée. Dépôt refusé (charte).");
+      }
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
       const fd = new FormData();
       fd.set("handle", form.handle.trim());
-      fd.set("jobTitle", form.jobTitle.trim());
-      fd.set("city", form.city.trim());
-      fd.set("tags", form.tags.trim());
-      fd.set("portfolioUrl", form.portfolioUrl.trim());
+      fd.set("candidateName", parsed.name || "");
+      fd.set("parsedEmail", parsed.email || "");
+      fd.set("parsedJobTitle", parsed.jobTitle || "");
+      fd.set("parsedSkills", parsed.skills.join(","));
+      fd.set("photoDetected", String(parsed.hasPhoto));
       fd.set("accepted", String(!!form.accepted));
       fd.set("cv", file);
 
@@ -98,8 +149,14 @@ export default function DepotPage() {
         if (code === "charte_required") {
           throw new Error("Tu dois accepter la charte.");
         }
-        if (code === "handle_required" || code === "job_required") {
-          throw new Error("Pseudo et métier sont obligatoires.");
+        if (code === "handle_required") {
+          throw new Error("Pseudo Instagram obligatoire.");
+        }
+        if (code === "affinda_preview_required") {
+          throw new Error("Analyse CV incomplète. Réessaie l’upload du PDF.");
+        }
+        if (code === "photo_forbidden") {
+          throw new Error("Photo détectée. Dépôt bloqué (charte).");
         }
 
         throw new Error(code);
@@ -108,7 +165,7 @@ export default function DepotPage() {
       const data = (await r.json()) as DepotSuccess;
       setStatus("done");
       setMessage(
-        "Candidature envoyée. Elle sera visible après modération (pas de photo de profil).",
+        "Ta candidature est en cours d’examen. Dans la limite des postes disponibles.",
       );
       if (data.profileUrl) {
         setOwnerProfileUrl(data.profileUrl);
@@ -117,6 +174,7 @@ export default function DepotPage() {
         setOwnerProfileAbsoluteUrl(data.absoluteProfileUrl);
       }
       setFile(null);
+      setParsed(null);
       setForm((f) => ({ ...f, accepted: false }));
     } catch (e: unknown) {
       setStatus("error");
@@ -128,16 +186,15 @@ export default function DepotPage() {
     <div className="grid gap-6">
       <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">
-          Déposer un profil (PDF)
+          Dépose ta candidature
         </h1>
         <p className="mt-2 text-sm text-zinc-700">
-          Le profil public affiche le pseudo (ex: Instagram) et le CV PDF. Pas de
-          photo de profil.
+          Un seul fichier suffit. La communauté fait le reste.
         </p>
       </div>
 
       <div className="rs-panel rounded-lg p-6">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4">
           <label className="grid gap-1">
             <span className="text-sm font-semibold">Pseudo (@instagram)</span>
             <input
@@ -149,59 +206,54 @@ export default function DepotPage() {
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">Métier</span>
-            <input
-              value={form.jobTitle}
-              onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="Ex: Directeur artistique"
-            />
-          </label>
-
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">Ville (optionnel)</span>
-            <input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="Paris"
-            />
-          </label>
-
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">
-              Tags (optionnel, séparés par virgules)
-            </span>
-            <input
-              value={form.tags}
-              onChange={(e) => setForm({ ...form, tags: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="fashion, 3D, couture, UI"
-            />
-          </label>
-
-          <label className="grid gap-1 md:col-span-2">
-            <span className="text-sm font-semibold">Portfolio (optionnel)</span>
-            <input
-              value={form.portfolioUrl}
-              onChange={(e) =>
-                setForm({ ...form, portfolioUrl: e.target.value })
-              }
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="https://..."
-            />
-          </label>
-
-          <label className="grid gap-1 md:col-span-2">
             <span className="text-sm font-semibold">CV (PDF)</span>
             <input
               type="file"
               accept="application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                void onFileChange(e.target.files?.[0] ?? null);
+              }}
               className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
             />
           </label>
         </div>
+
+        {parsing ? (
+          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
+            Analyse du CV en cours…
+          </div>
+        ) : null}
+
+        {parsed ? (
+          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700">
+            <p className="text-sm font-black text-zinc-900">
+              Aperçu des infos extraites (Affinda)
+            </p>
+            <div className="mt-2 grid gap-1">
+              <p>
+                <span className="font-semibold">Nom:</span>{" "}
+                {parsed.name || "Non détecté"}
+              </p>
+              <p>
+                <span className="font-semibold">Email:</span>{" "}
+                {parsed.email || "Non détecté"}
+              </p>
+              <p>
+                <span className="font-semibold">Métier:</span>{" "}
+                {parsed.jobTitle || "Non détecté"}
+              </p>
+              <p>
+                <span className="font-semibold">Compétences:</span>{" "}
+                {parsed.skills.length ? parsed.skills.join(", ") : "Non détectées"}
+              </p>
+            </div>
+            {parsed.hasPhoto ? (
+              <p className="mt-2 font-semibold text-rose-700">
+                Photo détectée: dépôt bloqué.
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <label className="mt-4 flex items-start gap-2 text-sm text-zinc-800">
           <input
@@ -211,14 +263,13 @@ export default function DepotPage() {
             className="mt-1"
           />
           <span>
-            J’accepte la charte : pas de photo de profil, CV en PDF, respect et
-            contenu légal.
+            Pas de photo. Un seul PDF. Offre non négociable.
           </span>
         </label>
 
         <div className="mt-5 flex items-center gap-2">
           <button
-            disabled={!canSubmit || status === "loading"}
+            disabled={!canSubmit || status === "loading" || parsing}
             onClick={onSubmit}
             className="rs-btn rs-btn--primary disabled:cursor-not-allowed disabled:opacity-50"
           >
@@ -248,12 +299,11 @@ export default function DepotPage() {
               href={ownerProfileUrl}
               className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
             >
-              Voir mon profil privé (stats)
+              Ouvrir mon lien /mon-profil
             </a>
             <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
               <p>
-                Optionnel : crée un compte pour suivre l&apos;historique et les
-                évolutions de tes versions.
+                Optionnel : crée un compte pour suivre tes stats plus facilement.
               </p>
               {ownerToken ? (
                 <a
