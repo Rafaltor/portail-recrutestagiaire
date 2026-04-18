@@ -72,8 +72,8 @@ export default function ProfilPage({
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
-        <Link href="/profils" className="text-sm font-semibold text-blue-700">
+      <div className="rs-panel rounded-lg p-6">
+        <Link href="/profils" className="text-sm font-semibold">
           ← Retour aux profils
         </Link>
         {loading ? (

@@ -10,6 +10,7 @@ import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
 import "./rs-shopify-ui.css";
+import "./portal-theme.css";
 
 export const viewport = {
   width: "device-width",
@@ -47,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="flex min-h-dvh flex-col bg-[#e8e8e8] text-[#212529]">
+      <body className="rs-portal-body flex min-h-dvh flex-col text-[#212529]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
         <header
@@ -184,7 +185,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[980px] flex-1 bg-white px-[10px] py-0">
+        <main className="rs-portal-main mx-auto w-full max-w-[980px] flex-1">
           {children}
         </main>
 

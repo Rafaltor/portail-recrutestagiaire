@@ -1,0 +1,90 @@
+/**
+ * Thème portail (hors page /swipe) : cohérence avec la boutique — variables Shopify,
+ * fond page, colonne principale type « section », panneaux et pied de page.
+ */
+
+:root {
+  --rs-portal-bg-top: #e4ebf6;
+  --rs-portal-bg-mid: #eef2fa;
+  --rs-portal-bg-bot: #f4f6fc;
+  --rs-portal-main-shadow: 0 0 0 1px rgba(0, 51, 171, 0.06), 0 22px 48px -18px rgba(20, 45, 95, 0.14);
+}
+
+body.rs-portal-body {
+  background: linear-gradient(
+    180deg,
+    var(--rs-portal-bg-top) 0%,
+    var(--rs-portal-bg-mid) 42%,
+    var(--rs-portal-bg-bot) 100%
+  );
+  color: var(--rs-logo-blue-deep, #001a57);
+}
+
+/* Swipe mobile / tablette : pas de lien panier « Mon dossier » (charge dès layout, sans attendre swipe-stamps.css) */
+@media (max-width: 991.98px) {
+  html:has(#rs-swipe-page) .header-wrap a.rs-banner-top__cart {
+    display: none !important;
+  }
+}
+
+/* Colonne contenu : carte claire façon section boutique */
+main.rs-portal-main {
+  background: linear-gradient(180deg, #fbfcff 0%, #ffffff 18%, #ffffff 100%);
+  border-left: 1px solid var(--rs-panel-border, #c5d5e4);
+  border-right: 1px solid var(--rs-panel-border, #c5d5e4);
+  box-shadow: var(--rs-portal-main-shadow);
+  padding: clamp(14px, 2.4vw, 22px) clamp(12px, 2vw, 18px) clamp(28px, 4vw, 40px);
+}
+
+/* Liens portail : bleu marque plutôt que défaut navigateur */
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier) {
+  color: var(--rs-logo-blue-mid, #1b55c4);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover {
+  color: var(--rs-pole-blue, #0033ab);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+main.rs-portal-main h1 {
+  color: var(--rs-logo-blue-deep, #001a57);
+}
+
+/* Swipe : pleine largeur, pas de carte « section » ; chrome bas repris du header swipe */
+html[data-rs-swipe="1"] main.rs-portal-main.mx-auto,
+html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
+  background: transparent !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+@media (min-width: 768px) {
+  html[data-rs-swipe="1"] main.rs-portal-main.mx-auto {
+    padding-bottom: calc(var(--rs-swipe-bottom-chrome, 128px) + 12px) !important;
+  }
+}
+
+/* Panneaux : même famille que la boutique, un peu plus « produit » */
+.rs-panel {
+  border-radius: 12px;
+  border-color: rgba(0, 51, 171, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 28px -14px rgba(25, 55, 120, 0.12);
+}
+
+/* Pied de page : filet or comme l’en-tête boutique */
+.footer.skin-dark-footer {
+  border-top: 3px solid var(--rs-gold-shadow, #8a6f12);
+  background: linear-gradient(180deg, #151c2e 0%, #111827 48%, #0f172a 100%);
+}
+
+.footer.skin-dark-footer a:hover {
+  color: var(--rs-gold-light, #ffe566);
+  text-decoration: none;
+}

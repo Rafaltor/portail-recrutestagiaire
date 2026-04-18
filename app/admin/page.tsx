@@ -151,7 +151,7 @@ export default function AdminPage() {
   if (!authReady) {
     return (
       <div className="grid gap-6">
-        <div className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-700">
+        <div className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
           Chargement…
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function AdminPage() {
   if (!accessToken) {
     return (
       <div className="grid gap-6">
-        <div className="rounded-lg border border-zinc-200 bg-white p-6">
+        <div className="rs-panel rounded-lg p-6">
           <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
           <p className="mt-2 text-sm text-zinc-700">Connexion requise.</p>
           <a
@@ -178,7 +178,7 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="grid gap-6">
-        <div className="rounded-lg border border-zinc-200 bg-white p-6">
+        <div className="rs-panel rounded-lg p-6">
           <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
           <p className="mt-2 text-sm text-red-700">Accès réservé aux admins.</p>
         </div>
@@ -188,7 +188,7 @@ export default function AdminPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
         <p className="mt-1 text-sm text-zinc-700">
           Validation des CVs en attente avec aperçu inline.
@@ -202,7 +202,7 @@ export default function AdminPage() {
         {message ? <p className="mt-3 text-sm text-red-700">{message}</p> : null}
       </div>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="rs-panel rounded-lg p-6">
         {loading ? (
           <p className="text-sm text-zinc-700">Chargement…</p>
         ) : items.length ? (
@@ -210,7 +210,7 @@ export default function AdminPage() {
             {items.map((p) => (
               <article
                 key={p.id}
-                className="rounded-lg border border-zinc-200 bg-white p-5"
+                className="rs-panel rounded-lg p-5"
               >
                 <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
                   <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-2 lg:h-[420px]">

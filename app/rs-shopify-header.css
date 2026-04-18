@@ -865,7 +865,7 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
   }
 
   html[data-rs-swipe="1"] .header-wrap .container {
-    padding: 4px 10px 0 !important;
+    padding: 0 10px 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-header-main-row {
@@ -874,7 +874,7 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     column-gap: 16px !important;
     row-gap: 0 !important;
     align-items: center !important;
-    padding: 2px 0 0 !important;
+    padding: 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-banner-top.rs-header-pole-brand {
@@ -924,7 +924,7 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     flex-wrap: wrap !important;
     justify-content: center !important;
     align-items: flex-end !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: 100% !important;
     max-width: none !important;
     margin: 0 auto !important;
@@ -932,21 +932,23 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-subnav__trigger {
-    min-height: 34px !important;
-    padding: 6px 12px !important;
-    font-size: 11px !important;
-    border-radius: 7px 7px 0 0 !important;
+    min-height: 42px !important;
+    min-width: 7.5rem !important;
+    padding: 9px 18px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.03em !important;
+    border-radius: 8px 8px 0 0 !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-nav-brand__img {
-    width: 40px !important;
-    height: 40px !important;
-    max-height: 40px !important;
+    width: 38px !important;
+    height: 38px !important;
+    max-height: 38px !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-nav-brand__name.logo {
-    font-size: 14px !important;
-    line-height: 1 !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
     letter-spacing: 0.03em !important;
   }
 }
@@ -956,10 +958,6 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
     align-items: end !important;
     row-gap: 0 !important;
     column-gap: 8px !important;
-  }
-
-  html[data-rs-swipe="1"] .header-wrap .rs-banner-top__cart {
-    display: none !important;
   }
 
   html[data-rs-swipe="1"] .header-wrap .rs-banner-top.rs-header-pole-brand {
