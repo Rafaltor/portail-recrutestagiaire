@@ -189,8 +189,8 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 220;
   /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
   const STAMP_IMPRINT_HOLD_MS = 28;
-  /** Sortie « tampon » vers le bas — ni trop lente ni trop sèche. */
-  const STAMP_EXIT_MS = 300;
+  /** Sortie « tampon » vers le bas (tampon posé). */
+  const STAMP_EXIT_MS = 480;
   const CARD_TRANSITION_MS = 220;
   /** Swipe commit: sortie écran (courbe type « momentum »). */
   const SWIPE_EXIT_MS = 260;
@@ -650,7 +650,7 @@ export default function SwipePage() {
         });
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 28);
+        }, STAMP_EXIT_MS + 40);
       }, holdImprintMs);
       return;
     }
@@ -962,9 +962,7 @@ export default function SwipePage() {
     <div
       id="rs-swipe-page"
       ref={sheetMeasureRef}
-      className={`rs-swipe-page-root relative flex w-full flex-col overscroll-y-contain ${
-        desktopSwipeLayout ? "min-h-0 overflow-x-visible overflow-y-visible" : "overflow-x-hidden overflow-y-visible"
-      }`}
+      className={`rs-swipe-page-root relative flex w-full flex-col overscroll-y-contain min-h-0 overflow-x-visible overflow-y-visible`}
       style={
         desktopSwipeLayout
           ? { minHeight: swipeChromeHeight }
@@ -1203,7 +1201,7 @@ export default function SwipePage() {
 
               {outgoing ? (
                 <div
-                  className="absolute inset-0 z-[26] select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
+                  className="absolute inset-0 z-[26] select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
                     transform: (() => {
                       if (outgoing.exitAxis === "down") {
@@ -1211,10 +1209,11 @@ export default function SwipePage() {
                           ? "translateY(calc(100vh + 100% + 40px)) rotate(2.5deg)"
                           : "translateY(0px) rotate(0deg)";
                       }
+                      /* Sortie bien hors cadre (évite l’effet « disparition sur place » si clip ou écran étroit) */
                       const farX =
                         outgoing.dir > 0
-                          ? "calc(100vw + 100% + 64px)"
-                          : "calc(-100vw - 100% - 64px)";
+                          ? "calc(100vw + 100% + 40vw)"
+                          : "calc(-100vw - 100% - 40vw)";
                       return outgoing.slideOut
                         ? `translateX(${farX}) rotate(${outgoing.exitStartTilt}deg)`
                         : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
