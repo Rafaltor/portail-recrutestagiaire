@@ -40,6 +40,39 @@ type DepotSuccess = {
   absoluteProfileUrl?: string;
 };
 
+const inputClass =
+  "mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-[#0033cc] focus:ring-2 focus:ring-[#0033cc]/25";
+
+function StepHeader({
+  step,
+  title,
+  hint,
+}: {
+  step: number;
+  title: string;
+  hint?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white shadow-sm"
+        style={{ background: "linear-gradient(145deg, #0047cc, #003399)" }}
+        aria-hidden
+      >
+        {step}
+      </span>
+      <div className="min-w-0 pt-0.5">
+        <h2 className="text-base font-bold tracking-tight text-zinc-900">
+          {title}
+        </h2>
+        {hint ? (
+          <p className="mt-1 text-xs leading-relaxed text-zinc-500">{hint}</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function DepotPage() {
   const [form, setForm] = useState<FormState>({
     handle: "",
@@ -66,11 +99,15 @@ export default function DepotPage() {
     return ownerProfileUrl.split("/").pop() || "";
   }, [ownerProfileUrl]);
 
+  const isPdf = useMemo(() => {
+    if (!file) return false;
+    return (
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf")
+    );
+  }, [file]);
+
   const canSubmit = useMemo(() => {
-    const isPdf =
-      !!file &&
-      (file.type === "application/pdf" ||
-        file.name.toLowerCase().endsWith(".pdf"));
     return (
       form.accepted &&
       form.handle.trim().length > 1 &&
@@ -78,7 +115,7 @@ export default function DepotPage() {
       !!file &&
       isPdf
     );
-  }, [form.accepted, form.handle, form.jobTitle, file]);
+  }, [form.accepted, form.handle, form.jobTitle, file, isPdf]);
 
   async function onExtractCv() {
     setExtractMessage("");
@@ -148,12 +185,9 @@ export default function DepotPage() {
 
     try {
       if (!file) throw new Error("Ajoute un PDF.");
-      if (
-        file.type !== "application/pdf" &&
-        !file.name.toLowerCase().endsWith(".pdf")
-      ) {
+      if (!isPdf) {
         throw new Error(
-          "Pour l’envoi final, le CV doit être un PDF (tu peux extraire les infos depuis Word avec le bouton ci-dessus, puis exporter en PDF).",
+          "Pour l’envoi final, le CV doit être un PDF (tu peux extraire les infos depuis Word avec l’étape 1, puis exporter en PDF).",
         );
       }
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
@@ -221,193 +255,284 @@ export default function DepotPage() {
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
-        <h1 className="text-xl font-black tracking-tight">
-          Déposer un profil (PDF)
-        </h1>
-        <p className="mt-2 text-sm text-zinc-700">
-          Dépose ton CV : tu peux lancer une <strong>extraction automatique</strong>{" "}
-          (Affinda) pour préremplir métier et liens. L’envoi final reste en{" "}
-          <strong>PDF</strong> pour l’affichage sur le portail. Pas de photo de
-          profil.
+    <div className="mx-auto max-w-5xl px-4 pb-14 pt-2 sm:px-6 lg:px-8">
+      <header className="mb-10 border-b border-zinc-200 pb-8 text-center sm:text-left">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#0033cc]">
+          Candidature
         </p>
-      </div>
+        <h1 className="mt-1 text-2xl font-black tracking-tight text-zinc-900 sm:text-3xl">
+          Déposer son profil
+        </h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600 sm:mx-0">
+          Commence par ton <strong>CV</strong> : extraction automatique (Affinda)
+          pour préremplir métier et liens. Pour publier, envoie un{" "}
+          <strong>PDF</strong> — pas de photo de profil sur le portail.
+        </p>
+      </header>
 
-      <div className="rs-panel rounded-lg p-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">Pseudo (@instagram)</span>
-            <input
-              value={form.handle}
-              onChange={(e) => setForm({ ...form, handle: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="@pseudo"
-            />
-          </label>
-
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">Métier</span>
-            <input
-              value={form.jobTitle}
-              onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="Ex: Directeur artistique"
-            />
-          </label>
-
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">Ville (optionnel)</span>
-            <input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="Paris"
-            />
-          </label>
-
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">
-              Tags (optionnel, séparés par virgules)
-            </span>
-            <input
-              value={form.tags}
-              onChange={(e) => setForm({ ...form, tags: e.target.value })}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="fashion, 3D, couture, UI"
-            />
-          </label>
-
-          <label className="grid gap-1 md:col-span-2">
-            <span className="text-sm font-semibold">Portfolio (optionnel)</span>
-            <input
-              value={form.portfolioUrl}
-              onChange={(e) =>
-                setForm({ ...form, portfolioUrl: e.target.value })
-              }
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              placeholder="https://..."
-            />
-          </label>
-
-          <label className="grid gap-1 md:col-span-2">
-            <span className="text-sm font-semibold">
-              CV (PDF pour envoi — PDF / Word pour extraction)
-            </span>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              onChange={(e) => {
-                setFile(e.target.files?.[0] ?? null);
-                setExtractMessage("");
-              }}
-              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
-            />
-            <span className="text-xs text-zinc-500">
-              Extraction : Affinda (clé serveur). Envoi : PDF uniquement dans le
-              bucket Supabase.
-            </span>
-          </label>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            disabled={!file || extractStatus === "loading"}
-            onClick={onExtractCv}
-            className="rs-btn rs-btn--ghost disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {extractStatus === "loading"
-              ? "Analyse du CV…"
-              : "Extraire les infos du CV"}
-          </button>
-        </div>
-        {extractMessage ? (
-          <p
-            className={`mt-2 text-sm ${
-              extractStatus === "error" ? "text-red-700" : "text-emerald-800"
-            }`}
-          >
-            {extractMessage}
-          </p>
-        ) : null}
-
-        <label className="mt-4 flex items-start gap-2 text-sm text-zinc-800">
-          <input
-            type="checkbox"
-            checked={form.accepted}
-            onChange={(e) => setForm({ ...form, accepted: e.target.checked })}
-            className="mt-1"
+      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-12 lg:items-start lg:gap-10">
+        {/* Colonne CV */}
+        <aside className="lg:col-span-5">
+          <StepHeader
+            step={1}
+            title="Importer ton CV"
+            hint="PDF ou Word pour l’analyse. L’envoi final (étape 3) exige un PDF."
           />
-          <span>
-            J’accepte la charte : pas de photo de profil, CV en PDF, respect et
-            contenu légal.
-          </span>
-        </label>
-
-        <div className="mt-5 flex items-center gap-2">
-          <button
-            disabled={!canSubmit || status === "loading"}
-            onClick={onSubmit}
-            title={
-              file &&
-              file.type !== "application/pdf" &&
-              !file.name.toLowerCase().endsWith(".pdf")
-                ? "Convertis le CV en PDF pour envoyer"
-                : undefined
-            }
-            className="rs-btn rs-btn--primary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {status === "loading" ? "Envoi..." : "Envoyer"}
-          </button>
-          <a
-            href="/profils"
-            className="rs-btn rs-btn--ghost"
-          >
-            Voir les profils
-          </a>
-        </div>
-
-        {message ? (
-          <p
-            className={`mt-4 text-sm ${
-              status === "error" ? "text-red-700" : "text-zinc-700"
+          <div
+            className={`rs-panel mt-5 rounded-xl p-5 sm:p-6 ${
+              file
+                ? "border border-solid border-[#c5d5e4] bg-white"
+                : "border-2 border-dashed border-zinc-300 bg-zinc-50/80"
             }`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const f = e.dataTransfer.files?.[0];
+              if (f) {
+                setFile(f);
+                setExtractMessage("");
+              }
+            }}
           >
-            {message}
-          </p>
-        ) : null}
+            <label className="block cursor-pointer">
+              <span className="text-sm font-semibold text-zinc-800">
+                Fichier CV
+              </span>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={(e) => {
+                  setFile(e.target.files?.[0] ?? null);
+                  setExtractMessage("");
+                }}
+                className="mt-3 block w-full cursor-pointer text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#0033cc] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#002699]"
+              />
+            </label>
 
-        {status === "done" && ownerProfileUrl ? (
-          <div className="mt-3 grid gap-3">
-            <a
-              href={ownerProfileUrl}
-              className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
-            >
-              Voir mon profil privé (stats)
-            </a>
-            <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
-              <p>
-                Optionnel : crée un compte pour suivre l&apos;historique et les
-                évolutions de tes versions.
+            {file ? (
+              <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-700">
+                <span className="font-medium text-zinc-900">{file.name}</span>
+                <span className="ml-2 text-zinc-500">
+                  ({(file.size / 1024).toFixed(0)} Ko)
+                  {!isPdf ? (
+                    <span className="ml-2 font-semibold text-amber-700">
+                      → convertir en PDF pour l’envoi
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+            ) : (
+              <p className="mt-4 text-center text-xs text-zinc-500 sm:text-left">
+                Glisse-dépose ou clique pour choisir un fichier.
               </p>
-              {ownerToken ? (
-                <a
-                  href={`/connexion?token=${encodeURIComponent(
-                    ownerToken,
-                  )}&profileUrl=${encodeURIComponent(
-                    ownerProfileAbsoluteUrl || ownerProfileUrl,
-                  )}`}
-                  className="mt-2 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
-                >
-                  Créer un compte / se connecter
-                </a>
-              ) : null}
+            )}
+
+            <button
+              type="button"
+              disabled={!file || extractStatus === "loading"}
+              onClick={onExtractCv}
+              className="rs-btn rs-btn--ghost mt-5 w-full justify-center disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            >
+              {extractStatus === "loading"
+                ? "Analyse du CV…"
+                : "Extraire les infos du CV"}
+            </button>
+
+            {extractMessage ? (
+              <div
+                className={`mt-4 rounded-lg border px-3 py-2.5 text-xs leading-relaxed sm:text-sm ${
+                  extractStatus === "error"
+                    ? "border-red-200 bg-red-50 text-red-800"
+                    : "border-emerald-200 bg-emerald-50 text-emerald-900"
+                }`}
+                role="status"
+              >
+                {extractMessage}
+              </div>
+            ) : null}
+          </div>
+        </aside>
+
+        {/* Colonne formulaire */}
+        <div className="lg:col-span-7">
+          <StepHeader
+            step={2}
+            title="Ton profil public"
+            hint="Ce que les visiteurs verront après modération."
+          />
+
+          <div className="rs-panel mt-5 rounded-xl p-5 sm:p-6">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="grid gap-0.5 sm:col-span-1">
+                <span className="text-sm font-semibold text-zinc-800">
+                  Pseudo <span className="text-red-600">*</span>
+                </span>
+                <span className="text-xs text-zinc-500">ex. Instagram</span>
+                <input
+                  value={form.handle}
+                  onChange={(e) => setForm({ ...form, handle: e.target.value })}
+                  className={inputClass}
+                  placeholder="@pseudo"
+                  autoComplete="username"
+                />
+              </label>
+
+              <label className="grid gap-0.5 sm:col-span-1">
+                <span className="text-sm font-semibold text-zinc-800">
+                  Métier <span className="text-red-600">*</span>
+                </span>
+                <span className="text-xs text-zinc-500">
+                  Rempli auto si tu extrais le CV
+                </span>
+                <input
+                  value={form.jobTitle}
+                  onChange={(e) =>
+                    setForm({ ...form, jobTitle: e.target.value })
+                  }
+                  className={inputClass}
+                  placeholder="Ex. Directeur artistique"
+                />
+              </label>
+            </div>
+
+            <div className="mt-8 border-t border-zinc-100 pt-6">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                Détails optionnels
+              </h3>
+              <div className="mt-4 grid gap-5 sm:grid-cols-2">
+                <label className="grid gap-0.5">
+                  <span className="text-sm font-semibold text-zinc-800">
+                    Ville
+                  </span>
+                  <input
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                    className={inputClass}
+                    placeholder="Paris"
+                  />
+                </label>
+
+                <label className="grid gap-0.5">
+                  <span className="text-sm font-semibold text-zinc-800">
+                    Tags
+                  </span>
+                  <span className="text-xs text-zinc-500">
+                    séparés par des virgules
+                  </span>
+                  <input
+                    value={form.tags}
+                    onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                    className={inputClass}
+                    placeholder="fashion, 3D, couture"
+                  />
+                </label>
+
+                <label className="grid gap-0.5 sm:col-span-2">
+                  <span className="text-sm font-semibold text-zinc-800">
+                    Portfolio ou lien
+                  </span>
+                  <input
+                    value={form.portfolioUrl}
+                    onChange={(e) =>
+                      setForm({ ...form, portfolioUrl: e.target.value })
+                    }
+                    className={inputClass}
+                    placeholder="https://…"
+                    inputMode="url"
+                  />
+                </label>
+              </div>
             </div>
           </div>
-        ) : null}
+
+          <div className="rs-panel mt-6 rounded-xl p-5 sm:p-6">
+            <StepHeader
+              step={3}
+              title="Envoyer la candidature"
+              hint="Charte obligatoire. Le fichier doit être un PDF."
+            />
+
+            <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 p-4 text-sm text-zinc-800">
+              <input
+                type="checkbox"
+                checked={form.accepted}
+                onChange={(e) =>
+                  setForm({ ...form, accepted: e.target.checked })
+                }
+                className="mt-0.5 size-4 shrink-0 rounded border-zinc-400 text-[#0033cc] focus:ring-[#0033cc]"
+              />
+              <span>
+                J’accepte la charte : pas de photo de profil, CV en PDF, respect
+                et contenu légal.
+              </span>
+            </label>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <button
+                disabled={!canSubmit || status === "loading"}
+                onClick={onSubmit}
+                title={
+                  file && !isPdf
+                    ? "Convertis le CV en PDF pour envoyer"
+                    : undefined
+                }
+                className="rs-btn rs-btn--primary order-1 justify-center px-8 disabled:cursor-not-allowed disabled:opacity-50 sm:order-none"
+              >
+                {status === "loading" ? "Envoi en cours…" : "Envoyer ma candidature"}
+              </button>
+              <a
+                href="/profils"
+                className="rs-btn rs-btn--ghost order-2 justify-center sm:order-none"
+              >
+                Voir les profils
+              </a>
+            </div>
+
+            {message ? (
+              <p
+                className={`mt-5 text-sm leading-relaxed ${
+                  status === "error" ? "text-red-700" : "text-zinc-700"
+                }`}
+              >
+                {message}
+              </p>
+            ) : null}
+
+            {status === "done" && ownerProfileUrl ? (
+              <div className="mt-6 grid gap-4 border-t border-zinc-100 pt-6">
+                <a
+                  href={ownerProfileUrl}
+                  className="inline-flex w-full justify-center rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-semibold text-zinc-900 shadow-sm hover:bg-zinc-50 sm:w-fit sm:justify-start"
+                >
+                  Voir mon profil privé (stats)
+                </a>
+                <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700">
+                  <p>
+                    Optionnel : crée un compte pour suivre l&apos;historique et
+                    les évolutions de tes versions.
+                  </p>
+                  {ownerToken ? (
+                    <a
+                      href={`/connexion?token=${encodeURIComponent(
+                        ownerToken,
+                      )}&profileUrl=${encodeURIComponent(
+                        ownerProfileAbsoluteUrl || ownerProfileUrl,
+                      )}`}
+                      className="mt-3 inline-flex w-full justify-center rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-zinc-100 sm:w-fit"
+                    >
+                      Créer un compte / se connecter
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
