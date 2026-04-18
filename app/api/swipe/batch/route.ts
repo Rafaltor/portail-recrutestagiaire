@@ -94,9 +94,8 @@ export async function GET(req: Request) {
     });
   }
 
-  return NextResponse.json(
-    { done: items.length === 0, items },
-    { status: 200 },
-  );
+  /* `done` = plus aucun profil publié hors exclus/votes en base — pas « aucune URL signée » sur ce tirage. */
+  const done = candidates.length === 0;
+  return NextResponse.json({ done, items }, { status: 200 });
 }
 

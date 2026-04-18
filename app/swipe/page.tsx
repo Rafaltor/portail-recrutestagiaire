@@ -291,9 +291,11 @@ export default function SwipePage() {
       const excludeIds = nextDeck.map((i) => i.profile.id);
       const res = await fetchBatch(excludeIds, DECK_SIZE - nextDeck.length);
       if (!res.items.length) {
-        setDone(true);
+        /* Vide ≠ « plus rien à swiper » : le deck peut encore contenir des cartes, ou le refill peut échouer (réseau / URL signée). */
+        setDone(nextDeck.length === 0 && (res.done !== false));
         return;
       }
+      setDone(false);
       setDeck((d) => {
         // d might have changed; merge carefully
         const curIds = new Set(d.map((i) => i.profile.id));
@@ -302,6 +304,9 @@ export default function SwipePage() {
       });
     } catch (e: unknown) {
       setMessage(e instanceof Error ? e.message : "Erreur inconnue");
+      if (nextDeck.length === 0) {
+        setDone(true);
+      }
     } finally {
       refillInFlightRef.current = false;
       setNextCardLoading(false);
@@ -520,7 +525,7 @@ export default function SwipePage() {
   function consumeTopAndRefill() {
     setDeck((d) => {
       const nextDeck = d.slice(1);
-      setDone(nextDeck.length === 0);
+      /* Ne pas setDone ici : le deck peut être vide le temps que refill recharge ; sinon done reste bloqué à true. */
       void refillIfNeeded(nextDeck);
       return nextDeck;
     });
@@ -1019,6 +1024,16 @@ export default function SwipePage() {
                 ? "Préparation de ta session sécurisée."
                 : "Récupération des CV publiés pour le swipe."}
             </p>
+            <div className="rs-swipe-loader-track">
+              <div className="rs-swipe-loader-bar" />
+            </div>
+          </div>
+        </div>
+      ) : !current && nextCardLoading && hasLoadedProfiles ? (
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
+          <div className="rs-swipe-loader-panel w-full max-w-md">
+            <div className="rs-swipe-loader-title">Chargement du prochain CV…</div>
+            <p className="rs-swipe-loader-sub">Patiente quelques secondes.</p>
             <div className="rs-swipe-loader-track">
               <div className="rs-swipe-loader-bar" />
             </div>
