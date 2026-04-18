@@ -4,6 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 - Page **`/depot`** : dépôt de CV, bouton **Extraire les infos du CV** (API **`POST /api/parse-cv`**, clé serveur **`AFFINDA_API_KEY`**), puis envoi **`POST /api/depot`** (PDF uniquement, bucket Supabase `cvs`).
 - Variables : voir **`.env.example`**. Sans `AFFINDA_API_KEY`, l’extraction renvoie une erreur de configuration ; le dépôt PDF reste utilisable.
+- **Erreur 401** : clé incorrecte *ou* mauvaise région — `AFFINDA_API_BASE` doit correspondre au domaine Affinda où tu te connectes (`api.eu1`, `api.us1` ou `api` global). Le code par défaut utilise **EU** (`https://api.eu1.affinda.com`).
 
 ## Getting Started
 

@@ -16,6 +16,41 @@ function asRecord(v: unknown): Record<string, unknown> | null {
   return v !== null && typeof v === "object" ? (v as Record<string, unknown>) : null;
 }
 
+/** Retire espaces / guillemets souvent collés par copier-coller depuis le dashboard. */
+export function normalizeAffindaApiKey(raw: string): string {
+  let k = raw.trim();
+  if (
+    (k.startsWith('"') && k.endsWith('"')) ||
+    (k.startsWith("'") && k.endsWith("'"))
+  ) {
+    k = k.slice(1, -1).trim();
+  }
+  return k;
+}
+
+function extractAffindaErrorDetail(body: unknown): string {
+  const r = asRecord(body);
+  if (!r) return "";
+  const err = asRecord(r.error);
+  if (err && typeof err.message === "string" && err.message.trim() !== "") {
+    return err.message.trim();
+  }
+  if (typeof r.message === "string" && r.message.trim() !== "") {
+    return r.message.trim();
+  }
+  if (typeof r.detail === "string" && r.detail.trim() !== "") {
+    return r.detail.trim();
+  }
+  return "";
+}
+
+function affindaAuthHint(): string {
+  return (
+    "Vérifie AFFINDA_API_KEY (Settings du compte Affinda) et AFFINDA_API_BASE selon l’URL où tu te connectes : " +
+    "EU → https://api.eu1.affinda.com | US → https://api.us1.affinda.com | global/AUS → https://api.affinda.com"
+  );
+}
+
 export function mapAffindaResumeToForm(resume: unknown): ParsedCvForm {
   const root = asRecord(resume) ?? {};
   const d = asRecord(root.data) ?? root;
@@ -97,7 +132,11 @@ export function mapAffindaResumeToForm(resume: unknown): ParsedCvForm {
 
 export function getAffindaApiBase(): string {
   const b = process.env.AFFINDA_API_BASE?.trim();
-  return b && b.length > 0 ? b.replace(/\/+$/, "") : "https://api.eu1.affinda.com";
+  if (b && b.length > 0) {
+    return b.replace(/\/+$/, "");
+  }
+  /* Défaut EU ; si ton compte est app.affinda.com ou app.us1.affinda.com, surcharge AFFINDA_API_BASE */
+  return "https://api.eu1.affinda.com";
 }
 
 function sleep(ms: number) {
@@ -115,7 +154,21 @@ async function affindaGetResume(
     cache: "no-store",
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`affinda_get_${res.status}`);
+  if (!res.ok) {
+    let j: unknown = null;
+    try {
+      j = text ? JSON.parse(text) : null;
+    } catch {
+      j = null;
+    }
+    const detail = extractAffindaErrorDetail(j);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(
+        `Affinda a refusé la clé (${res.status}). ${affindaAuthHint()}${detail ? ` — ${detail}` : ""}`,
+      );
+    }
+    throw new Error(detail || `affinda_get_${res.status}`);
+  }
   return text ? JSON.parse(text) : null;
 }
 
@@ -127,7 +180,7 @@ export async function parseCvWithAffinda(
   fileName: string,
   mimeType: string,
 ): Promise<ParsedCvForm> {
-  const apiKey = process.env.AFFINDA_API_KEY?.trim();
+  const apiKey = normalizeAffindaApiKey(process.env.AFFINDA_API_KEY ?? "");
   if (!apiKey) {
     throw new Error("affinda_not_configured");
   }
@@ -156,11 +209,13 @@ export async function parseCvWithAffinda(
     j = null;
   }
   if (!postRes.ok) {
-    const msg =
-      asRecord(j)?.error && asRecord(asRecord(j)?.error)?.message
-        ? String(asRecord(asRecord(j)?.error)?.message)
-        : `affinda_http_${postRes.status}`;
-    throw new Error(msg);
+    const detail = extractAffindaErrorDetail(j);
+    if (postRes.status === 401 || postRes.status === 403) {
+      throw new Error(
+        `Affinda a refusé la clé (${postRes.status}). ${affindaAuthHint()}${detail ? ` — ${detail}` : ""}`,
+      );
+    }
+    throw new Error(detail || `affinda_http_${postRes.status}`);
   }
 
   const jr = asRecord(j);
