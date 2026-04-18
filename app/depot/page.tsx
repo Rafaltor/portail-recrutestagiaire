@@ -165,7 +165,7 @@ export default function DepotPage() {
       const data = (await r.json()) as DepotSuccess;
       setStatus("done");
       setMessage(
-        "Ta candidature est en cours d’examen. Dans la limite des postes disponibles.",
+        "Ta candidature est en cours d'examen. Dans la limite des postes disponibles.",
       );
       if (data.profileUrl) {
         setOwnerProfileUrl(data.profileUrl);
@@ -189,7 +189,9 @@ export default function DepotPage() {
           Dépose ta candidature
         </h1>
         <p className="mt-2 text-sm text-zinc-700">
-          Un seul fichier suffit. La communauté fait le reste.
+          Un seul fichier suffit.
+          <br />
+          La communauté fait le reste.
         </p>
       </div>
 
@@ -263,7 +265,9 @@ export default function DepotPage() {
             className="mt-1"
           />
           <span>
-            Pas de photo. Un seul PDF. Offre non négociable.
+            Pas de photo. Un seul PDF.
+            <br />
+            Offre non négociable.
           </span>
         </label>
 
@@ -299,11 +303,11 @@ export default function DepotPage() {
               href={ownerProfileUrl}
               className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
             >
-              Ouvrir mon lien /mon-profil
+              {`/mon-profil/${ownerToken || "[token]"}`}
             </a>
             <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
               <p>
-                Optionnel : crée un compte pour suivre tes stats plus facilement.
+                Optionnel : crée un compte pour suivre tes stats.
               </p>
               {ownerToken ? (
                 <a
