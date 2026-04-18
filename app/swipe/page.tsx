@@ -189,13 +189,18 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 220;
   /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
   const STAMP_IMPRINT_HOLD_MS = 28;
-  /** Sortie « tampon » vers le bas — un peu plus long que le swipe ; courbe ease-in (voir STAMP_EXIT_EASE). */
+  /** Sortie vers le bas — durée commune tampon + swipe-fall. */
   const STAMP_EXIT_MS = 1180;
   const CARD_TRANSITION_MS = 300;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
-  /** Tampon : ease-in (léger démarrage, puis accélération nette sur la fin). */
-  const STAMP_EXIT_EASE = "cubic-bezier(0.45, 0.02, 0.78, 0.48)";
+  /**
+   * Chute verticale : proche d’une chute libre (y ∝ t²) — démarrage lent, accélération croissante.
+   * easeInQuad, voisin de la courbe position avec accélération g constante.
+   */
+  const STAMP_FALL_Y_EASE = "cubic-bezier(0.55, 0.085, 0.68, 0.53)";
+  /** Dérive latérale pendant la chute : vitesse horizontale ~uniforme (pas d’accélération latérale). */
+  const STAMP_FALL_X_EASE = "linear";
   const SWIPE_SPRING_EASE = "cubic-bezier(0.34, 1.56, 0.64, 1)";
   const STAMP_RETURN_MS = 180;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
@@ -961,7 +966,7 @@ export default function SwipePage() {
     <div
       id="rs-swipe-page"
       ref={sheetMeasureRef}
-      className={`rs-swipe-page-root relative flex w-full flex-col overscroll-y-contain min-h-0 overflow-x-visible overflow-y-visible`}
+      className={`rs-swipe-page-root relative flex w-full min-w-0 max-w-full flex-col overscroll-y-contain overflow-x-hidden overflow-y-visible`}
       style={
         desktopSwipeLayout
           ? { minHeight: swipeChromeHeight }
@@ -1075,18 +1080,18 @@ export default function SwipePage() {
         </div>
       ) : (
         <div
-          className={`flex flex-col items-stretch justify-stretch px-0 pb-0 pt-0 ${
+          className={`flex min-w-0 max-w-full flex-col items-stretch justify-stretch px-0 pb-0 pt-0 ${
             desktopSwipeLayout ? "shrink-0 py-3" : "min-h-0 flex-1"
           }`}
         >
           <div
             dir="ltr"
-            className={`flex items-center justify-center py-2 max-md:px-0 md:px-4 md:py-4 ${
+            className={`flex min-w-0 max-w-full items-center justify-center overflow-x-hidden py-2 max-md:px-0 md:px-4 md:py-4 ${
               desktopSwipeLayout ? "min-h-0" : "min-h-0 flex-1"
             }`}
           >
             <div
-              className="relative shrink-0 overflow-visible"
+              className="relative max-w-full shrink-0 overflow-visible"
               style={{
                 width: sheetSize.w,
                 height: sheetSize.h,
@@ -1200,67 +1205,75 @@ export default function SwipePage() {
 
               {outgoing ? (
                 <div
-                  className="absolute inset-0 z-[26] select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
+                  className="pointer-events-none absolute inset-0 z-[26] overflow-visible"
                   style={{
-                    transform: (() => {
-                      const fallY = "translateY(calc(100vh + 100% + 40px))";
-                      if (outgoing.exitAxis === "down") {
-                        return outgoing.slideOut
-                          ? `${fallY} rotate(2.5deg)`
-                          : "translateY(0px) rotate(0deg)";
-                      }
-                      /* swipe-fall : même chute que le tampon + dérive latérale selon le swipe */
-                      if (outgoing.exitAxis === "swipe-fall") {
-                        if (!outgoing.slideOut) {
-                          return `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
-                        }
-                        const dir = outgoing.dir;
-                        const extra = Math.min(Math.abs(outgoing.exitStartX) * 0.38, 160);
-                        const xFinal =
-                          dir > 0
-                            ? `calc(26vw + 12% + ${48 + extra}px)`
-                            : `calc(-26vw - 12% - ${48 + extra}px)`;
-                        const rot = 2.2 * dir + outgoing.exitStartTilt * 0.35;
-                        return `translateX(${xFinal}) ${fallY} rotate(${rot}deg)`;
-                      }
-                      return "none";
-                    })(),
+                    transform:
+                      outgoing.slideOut &&
+                      (outgoing.exitAxis === "down" || outgoing.exitAxis === "swipe-fall")
+                        ? "translateY(calc(100vh + 100% + 40px))"
+                        : "translateY(0px)",
                     transitionProperty: "transform",
                     transitionDuration: outgoing.slideOut
                       ? `${outgoing.exitDurationMs}ms`
                       : "0ms",
-                    transitionTimingFunction: outgoing.slideOut
-                      ? outgoing.exitAxis === "down" || outgoing.exitAxis === "swipe-fall"
-                        ? STAMP_EXIT_EASE
-                        : "ease-out"
-                      : "linear",
+                    transitionTimingFunction: outgoing.slideOut ? STAMP_FALL_Y_EASE : "linear",
                     willChange: "transform",
-                    pointerEvents: "none",
                   }}
                 >
-                  <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                    <PdfPreview
-                      key={outgoing.item.profile.id}
-                      url={outgoing.item.cvUrl}
-                      mode={swipePdfMode}
-                      immersive
-                    />
-                  </div>
-                  <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
-                    {normHandle(outgoing.item.profile.handle)}
-                  </div>
-                  {outgoing.imprint ? (
-                    <div
-                      className="pointer-events-none absolute z-30"
-                      style={{
-                        left: `${outgoing.imprint.x}%`,
-                        top: `${outgoing.imprint.y}%`,
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    >
-                      <StampImprintVisual kind={outgoing.imprint.kind} />
+                  <div
+                    className="absolute inset-0 select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
+                    style={{
+                      transform: (() => {
+                        if (outgoing.exitAxis === "down") {
+                          return outgoing.slideOut ? "rotate(2.5deg)" : "rotate(0deg)";
+                        }
+                        if (outgoing.exitAxis === "swipe-fall") {
+                          if (!outgoing.slideOut) {
+                            return `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
+                          }
+                          const dir = outgoing.dir;
+                          const extra = Math.min(Math.abs(outgoing.exitStartX) * 0.38, 160);
+                          const xFinal =
+                            dir > 0
+                              ? `calc(26vw + 12% + ${48 + extra}px)`
+                              : `calc(-26vw - 12% - ${48 + extra}px)`;
+                          const rot = 2.2 * dir + outgoing.exitStartTilt * 0.35;
+                          return `translateX(${xFinal}) rotate(${rot}deg)`;
+                        }
+                        return "none";
+                      })(),
+                      transitionProperty: "transform",
+                      transitionDuration: outgoing.slideOut
+                        ? `${outgoing.exitDurationMs}ms`
+                        : "0ms",
+                      transitionTimingFunction: outgoing.slideOut ? STAMP_FALL_X_EASE : "linear",
+                      willChange: "transform",
+                    }}
+                  >
+                    <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                      <PdfPreview
+                        key={outgoing.item.profile.id}
+                        url={outgoing.item.cvUrl}
+                        mode={swipePdfMode}
+                        immersive
+                      />
                     </div>
-                  ) : null}
+                    <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                      {normHandle(outgoing.item.profile.handle)}
+                    </div>
+                    {outgoing.imprint ? (
+                      <div
+                        className="pointer-events-none absolute z-30"
+                        style={{
+                          left: `${outgoing.imprint.x}%`,
+                          top: `${outgoing.imprint.y}%`,
+                          transform: "translate(-50%, -50%)",
+                        }}
+                      >
+                        <StampImprintVisual kind={outgoing.imprint.kind} />
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               ) : null}
             </div>

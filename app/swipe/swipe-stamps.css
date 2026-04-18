@@ -3,6 +3,13 @@
  * Préfixe #rs-swipe-page pour limiter la portée à cette page.
  */
 
+/**
+ * Scrollbar horizontale : les grosses translations (swipe / sortie) dépassent parfois du viewport.
+ */
+html:has(#rs-swipe-page) {
+  overflow-x: hidden;
+}
+
 /** Barre type « site vitrine 2010 » : segment bleu qui défile dans une rigole inset */
 @keyframes rsSwipeLoadingSweep {
   0% {
