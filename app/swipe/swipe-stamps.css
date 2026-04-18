@@ -4,16 +4,18 @@
  */
 
 /**
- * Scrollbars : translations swipe / chute (transform) étendent parfois le scroll du document.
- * Verrouillage document uniquement sur /swipe (la zone swipe a déjà une hauteur contrôlée).
+ * Scrollbars (mobile uniquement) : la chute / swipe agrandit le scroll du document.
+ * Sur ordinateur (≥768px) on laisse défiler la page ; sur petit écran on verrouille pour éviter la scrollbar fantôme.
  */
-html:has(#rs-swipe-page) {
-  overflow: hidden;
-  min-height: 100dvh;
-}
+@media (max-width: 767.98px) {
+  html:has(#rs-swipe-page) {
+    overflow: hidden;
+    min-height: 100dvh;
+  }
 
-body:has(#rs-swipe-page) {
-  overflow: hidden;
+  body:has(#rs-swipe-page) {
+    overflow: hidden;
+  }
 }
 
 /** Barre type « site vitrine 2010 » : segment bleu qui défile dans une rigole inset */
