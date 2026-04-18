@@ -189,11 +189,11 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 220;
   /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
   const STAMP_IMPRINT_HOLD_MS = 28;
-  /** Sortie « tampon » vers le bas (tampon posé). */
-  const STAMP_EXIT_MS = 480;
-  const CARD_TRANSITION_MS = 220;
-  /** Swipe commit: sortie écran (courbe type « momentum »). */
-  const SWIPE_EXIT_MS = 260;
+  /** Sortie « tampon » vers le bas (tampon posé) — assez long pour bien suivre la carte. */
+  const STAMP_EXIT_MS = 780;
+  const CARD_TRANSITION_MS = 260;
+  /** Swipe doigt : sortie latérale (lisible, pas « flash »). */
+  const SWIPE_EXIT_MS = 560;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
   const SWIPE_EXIT_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -598,7 +598,7 @@ export default function SwipePage() {
         }
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, SWIPE_EXIT_MS + 24);
+        }, SWIPE_EXIT_MS + 48);
       })();
       return;
     }
@@ -650,7 +650,7 @@ export default function SwipePage() {
         });
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 40);
+        }, STAMP_EXIT_MS + 56);
       }, holdImprintMs);
       return;
     }
