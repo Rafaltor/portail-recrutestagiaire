@@ -4,10 +4,16 @@
  */
 
 /**
- * Scrollbar horizontale : les grosses translations (swipe / sortie) dépassent parfois du viewport.
+ * Scrollbars : translations swipe / chute (transform) étendent parfois le scroll du document.
+ * Verrouillage document uniquement sur /swipe (la zone swipe a déjà une hauteur contrôlée).
  */
 html:has(#rs-swipe-page) {
-  overflow-x: hidden;
+  overflow: hidden;
+  min-height: 100dvh;
+}
+
+body:has(#rs-swipe-page) {
+  overflow: hidden;
 }
 
 /** Barre type « site vitrine 2010 » : segment bleu qui défile dans une rigole inset */
