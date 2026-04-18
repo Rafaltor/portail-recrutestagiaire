@@ -31,10 +31,6 @@ type SwipeItem = {
 type ApiBatch = { done: boolean; items: SwipeItem[] };
 type StampKind = "approved" | "declined";
 type StampImprint = { kind: StampKind; x: number; y: number };
-type PendingTransition = {
-  kind: StampKind;
-  imprint: StampImprint;
-};
 type SwipeRelease = { x: number; tilt: number };
 
 type StampDragState = {
@@ -124,8 +120,6 @@ export default function SwipePage() {
   const [done, setDone] = useState(false);
   const [hasLoadedProfiles, setHasLoadedProfiles] = useState(false);
   const [nextCardLoading, setNextCardLoading] = useState(false);
-  /** After outgoing unmounts: one frame stacked, then CSS transition to front (smooth promote). */
-  const [arriveFromStack, setArriveFromStack] = useState(false);
   const [blockedByFreeLimit, setBlockedByFreeLimit] = useState(false);
   const [freeSwipesUsed, setFreeSwipesUsed] = useState(0);
   const [likesToday, setLikesToday] = useState(0);
@@ -153,7 +147,6 @@ export default function SwipePage() {
     y: number;
   } | null>(null);
   const [cardImprint, setCardImprint] = useState<StampImprint | null>(null);
-  const [pendingTransition, setPendingTransition] = useState<PendingTransition | null>(null);
   const [activeStampKind, setActiveStampKind] = useState<StampKind | null>(null);
   const [stampDropping, setStampDropping] = useState(false);
 
@@ -194,9 +187,13 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 240;
   /** Pause après le vote avant la sortie (l’empreinte est déjà visible pendant l’appel réseau). */
   const STAMP_IMPRINT_HOLD_MS = 72;
-  const CARD_TRANSITION_MS = 200;
-  /** Swipe commit: snappier exit off-screen (full viewport). */
-  const SWIPE_EXIT_MS = 200;
+  const CARD_TRANSITION_MS = 220;
+  /** Swipe commit: sortie écran (courbe type « momentum »). */
+  const SWIPE_EXIT_MS = 240;
+  /** Retour au centre si swipe insuffisant (ressort). */
+  const SWIPE_SPRING_MS = 280;
+  const SWIPE_EXIT_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+  const SWIPE_SPRING_EASE = "cubic-bezier(0.34, 1.56, 0.64, 1)";
   const STAMP_RETURN_MS = 180;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
   const likesDayKey = useMemo(
@@ -239,7 +236,6 @@ export default function SwipePage() {
     setMessage("");
     setLoadError("");
     setNextCardLoading(false);
-    setArriveFromStack(false);
     if (!isConnected) {
       const used = readLocalInt(swipeCountKey);
       setFreeSwipesUsed(used);
@@ -522,22 +518,11 @@ export default function SwipePage() {
     });
   }
 
-  function triggerStackLift() {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setArriveFromStack(false);
-      });
-    });
-  }
-
   function completeOutgoingCleanup() {
-    setArriveFromStack(true);
     setOutgoing(null);
-    setPendingTransition(null);
     setCardImprint(null);
     setStampDropping(false);
     transitionInFlightRef.current = false;
-    triggerStackLift();
   }
 
   async function applyTransitionVote(
@@ -564,7 +549,6 @@ export default function SwipePage() {
       const profileId = current.profile.id;
       const item = current;
 
-      setPendingTransition({ kind, imprint: resolvedImprint });
       setCardImprint(resolvedImprint);
       setOutgoing({
         item,
@@ -588,33 +572,36 @@ export default function SwipePage() {
         });
       });
 
-      const voteOk = await sendVote(profileId, value);
-      if (!voteOk) {
-        setOutgoing(null);
-        setPendingTransition(null);
-        setCardImprint(null);
-        transitionInFlightRef.current = false;
-        return;
-      }
-
       consumeTopAndRefill();
-      window.setTimeout(() => {
-        completeOutgoingCleanup();
-      }, SWIPE_EXIT_MS + 40);
+
+      void (async () => {
+        const voteOk = await sendVote(profileId, value);
+        if (!voteOk) {
+          setDeck((prev) => {
+            if (prev[0]?.profile.id === item.profile.id) return prev;
+            return [item, ...prev];
+          });
+          setOutgoing(null);
+          setCardImprint(null);
+          transitionInFlightRef.current = false;
+          return;
+        }
+        window.setTimeout(() => {
+          completeOutgoingCleanup();
+        }, SWIPE_EXIT_MS + 24);
+      })();
       return;
     }
 
     transitionInFlightRef.current = true;
     const voteOk = await sendVote(current.profile.id, value);
     if (!voteOk) {
-      setPendingTransition(null);
       setCardImprint(null);
       setStampDropping(false);
       transitionInFlightRef.current = false;
       return;
     }
 
-    setPendingTransition({ kind, imprint: resolvedImprint });
     setCardImprint(resolvedImprint);
     if (holdImprintMs > 0) {
       setDragX(0);
@@ -904,7 +891,9 @@ export default function SwipePage() {
       const fallbackImprint: StampImprint = { kind: "declined", x: 76, y: 56 };
       void applyTransitionVote("declined", -1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
     } else {
-      setDragX(0);
+      requestAnimationFrame(() => {
+        setDragX(0);
+      });
     }
     startXRef.current = null;
   }
@@ -1060,25 +1049,24 @@ export default function SwipePage() {
                 if (deckIdx === 2) {
                   transform = STACK_DECK_BACK;
                 } else if (deckIdx === 1) {
-                  transform =
-                    pendingTransition && !outgoing
-                      ? "translate(0px, 0px) rotate(0deg) scale(1)"
-                      : STACK_DECK_MID;
+                  transform = STACK_DECK_MID;
                 } else {
-                  transform = arriveFromStack
-                    ? STACK_DECK_MID
-                    : `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
+                  transform = `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
                 }
 
                 const transformOrigin = "center center";
 
                 const transitionDuration = isTop
                   ? dragging
-                    ? "200ms"
-                    : arriveFromStack
-                      ? "0ms"
-                      : `${CARD_TRANSITION_MS}ms`
+                    ? "0ms"
+                    : `${SWIPE_SPRING_MS}ms`
                   : `${CARD_TRANSITION_MS}ms`;
+
+                const transitionEasing = isTop
+                  ? dragging
+                    ? "linear"
+                    : SWIPE_SPRING_EASE
+                  : "ease-out";
 
                 const shellClass =
                   deckIdx === 2
@@ -1112,7 +1100,7 @@ export default function SwipePage() {
                         transformOrigin,
                         transitionProperty: "transform",
                         transitionDuration,
-                        transitionTimingFunction: "ease-out",
+                        transitionTimingFunction: transitionEasing,
                         filter: shellFilter,
                         touchAction: isTop ? "none" : undefined,
                       }}
@@ -1164,7 +1152,10 @@ export default function SwipePage() {
                     transitionDuration: outgoing.slideOut
                       ? `${outgoing.exitDurationMs}ms`
                       : "0ms",
-                    transitionTimingFunction: "ease-out",
+                    transitionTimingFunction: outgoing.slideOut
+                      ? SWIPE_EXIT_EASE
+                      : "linear",
+                    willChange: "transform",
                     pointerEvents: "none",
                   }}
                 >
