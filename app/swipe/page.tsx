@@ -189,14 +189,16 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 220;
   /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
   const STAMP_IMPRINT_HOLD_MS = 28;
-  /** Sortie « tampon » vers le bas (tampon posé). */
-  const STAMP_EXIT_MS = 1500;
-  const CARD_TRANSITION_MS = 320;
-  /** Swipe doigt : sortie latérale. */
-  const SWIPE_EXIT_MS = 1150;
+  /** Sortie « tampon » vers le bas — un peu plus long que le swipe ; courbe ease-in (voir STAMP_EXIT_EASE). */
+  const STAMP_EXIT_MS = 1180;
+  const CARD_TRANSITION_MS = 300;
+  /** Swipe doigt : sortie latérale (durée « standard » lisible). */
+  const SWIPE_EXIT_MS = 820;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
   const SWIPE_EXIT_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+  /** Tampon : ease-in (léger démarrage, puis accélération nette sur la fin). */
+  const STAMP_EXIT_EASE = "cubic-bezier(0.45, 0.02, 0.78, 0.48)";
   const SWIPE_SPRING_EASE = "cubic-bezier(0.34, 1.56, 0.64, 1)";
   const STAMP_RETURN_MS = 180;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
@@ -598,7 +600,7 @@ export default function SwipePage() {
         }
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, SWIPE_EXIT_MS + 72);
+        }, SWIPE_EXIT_MS + 56);
       })();
       return;
     }
@@ -650,7 +652,7 @@ export default function SwipePage() {
         });
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 96);
+        }, STAMP_EXIT_MS + 72);
       }, holdImprintMs);
       return;
     }
@@ -1222,7 +1224,11 @@ export default function SwipePage() {
                     transitionDuration: outgoing.slideOut
                       ? `${outgoing.exitDurationMs}ms`
                       : "0ms",
-                    transitionTimingFunction: outgoing.slideOut ? SWIPE_EXIT_EASE : "linear",
+                    transitionTimingFunction: outgoing.slideOut
+                      ? outgoing.exitAxis === "down"
+                        ? STAMP_EXIT_EASE
+                        : SWIPE_EXIT_EASE
+                      : "linear",
                     willChange: "transform",
                     pointerEvents: "none",
                   }}
