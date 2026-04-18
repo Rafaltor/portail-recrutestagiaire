@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Portail — dépôt CV & extraction (Affinda)
+
+- Page **`/depot`** : dépôt de CV, bouton **Extraire les infos du CV** (API **`POST /api/parse-cv`**, clé serveur **`AFFINDA_API_KEY`**), puis envoi **`POST /api/depot`** (PDF uniquement, bucket Supabase `cvs`).
+- Variables : voir **`.env.example`**. Sans `AFFINDA_API_KEY`, l’extraction renvoie une erreur de configuration ; le dépôt PDF reste utilisable.
+
 ## Getting Started
 
 First, run the development server:
