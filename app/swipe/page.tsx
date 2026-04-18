@@ -133,8 +133,8 @@ export default function SwipePage() {
     item: SwipeItem;
     dir: 1 | -1;
     imprint: StampImprint | null;
-    /** Swipe = horizontal ; tampon = carte qui descend. */
-    exitAxis: "horizontal" | "down";
+    /** Tampon = chute verticale ; swipe doigt = même chute + trajectoire latérale (swipe-fall). */
+    exitAxis: "down" | "swipe-fall";
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
     exitStartX: number;
     exitStartTilt: number;
@@ -192,11 +192,8 @@ export default function SwipePage() {
   /** Sortie « tampon » vers le bas — un peu plus long que le swipe ; courbe ease-in (voir STAMP_EXIT_EASE). */
   const STAMP_EXIT_MS = 1180;
   const CARD_TRANSITION_MS = 300;
-  /** Swipe doigt : sortie latérale (durée « standard » lisible). */
-  const SWIPE_EXIT_MS = 820;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
-  const SWIPE_EXIT_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
   /** Tampon : ease-in (léger démarrage, puis accélération nette sur la fin). */
   const STAMP_EXIT_EASE = "cubic-bezier(0.45, 0.02, 0.78, 0.48)";
   const SWIPE_SPRING_EASE = "cubic-bezier(0.34, 1.56, 0.64, 1)";
@@ -565,10 +562,10 @@ export default function SwipePage() {
         item,
         dir: value,
         imprint: resolvedImprint,
-        exitAxis: "horizontal",
+        exitAxis: "swipe-fall",
         exitStartX: swipeRelease.x,
         exitStartTilt: swipeRelease.tilt,
-        exitDurationMs: SWIPE_EXIT_MS,
+        exitDurationMs: STAMP_EXIT_MS,
         slideOut: false,
       });
       setDragX(0);
@@ -578,7 +575,7 @@ export default function SwipePage() {
         requestAnimationFrame(() => {
           setOutgoing((o) =>
             o && o.item.profile.id === profileId
-              ? { ...o, slideOut: true, exitDurationMs: SWIPE_EXIT_MS }
+              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
               : o,
           );
         });
@@ -600,7 +597,7 @@ export default function SwipePage() {
         }
         window.setTimeout(() => {
           completeOutgoingCleanup();
-        }, SWIPE_EXIT_MS + 56);
+        }, STAMP_EXIT_MS + 72);
       })();
       return;
     }
@@ -683,10 +680,10 @@ export default function SwipePage() {
         item: itemAfterVote,
         dir: value,
         imprint: resolvedImprint,
-        exitAxis: "horizontal",
+        exitAxis: "swipe-fall",
         exitStartX,
         exitStartTilt,
-        exitDurationMs: CARD_TRANSITION_MS,
+        exitDurationMs: STAMP_EXIT_MS,
         slideOut: false,
       });
       consumeTopAndRefill();
@@ -694,14 +691,14 @@ export default function SwipePage() {
         requestAnimationFrame(() => {
           setOutgoing((o) =>
             o && o.item.profile.id === votedProfileId
-              ? { ...o, slideOut: true, exitDurationMs: CARD_TRANSITION_MS }
+              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
               : o,
           );
         });
       });
       window.setTimeout(() => {
         completeOutgoingCleanup();
-      }, CARD_TRANSITION_MS + 48);
+      }, STAMP_EXIT_MS + 72);
     }, 0);
   }
 
@@ -1206,28 +1203,36 @@ export default function SwipePage() {
                   className="absolute inset-0 z-[26] select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                   style={{
                     transform: (() => {
+                      const fallY = "translateY(calc(100vh + 100% + 40px))";
                       if (outgoing.exitAxis === "down") {
                         return outgoing.slideOut
-                          ? "translateY(calc(100vh + 100% + 40px)) rotate(2.5deg)"
+                          ? `${fallY} rotate(2.5deg)`
                           : "translateY(0px) rotate(0deg)";
                       }
-                      /* Sortie bien hors cadre (évite l’effet « disparition sur place » si clip ou écran étroit) */
-                      const farX =
-                        outgoing.dir > 0
-                          ? "calc(100vw + 100% + 40vw)"
-                          : "calc(-100vw - 100% - 40vw)";
-                      return outgoing.slideOut
-                        ? `translateX(${farX}) rotate(${outgoing.exitStartTilt}deg)`
-                        : `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
+                      /* swipe-fall : même chute que le tampon + dérive latérale selon le swipe */
+                      if (outgoing.exitAxis === "swipe-fall") {
+                        if (!outgoing.slideOut) {
+                          return `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
+                        }
+                        const dir = outgoing.dir;
+                        const extra = Math.min(Math.abs(outgoing.exitStartX) * 0.38, 160);
+                        const xFinal =
+                          dir > 0
+                            ? `calc(26vw + 12% + ${48 + extra}px)`
+                            : `calc(-26vw - 12% - ${48 + extra}px)`;
+                        const rot = 2.2 * dir + outgoing.exitStartTilt * 0.35;
+                        return `translateX(${xFinal}) ${fallY} rotate(${rot}deg)`;
+                      }
+                      return "none";
                     })(),
                     transitionProperty: "transform",
                     transitionDuration: outgoing.slideOut
                       ? `${outgoing.exitDurationMs}ms`
                       : "0ms",
                     transitionTimingFunction: outgoing.slideOut
-                      ? outgoing.exitAxis === "down"
+                      ? outgoing.exitAxis === "down" || outgoing.exitAxis === "swipe-fall"
                         ? STAMP_EXIT_EASE
-                        : SWIPE_EXIT_EASE
+                        : "ease-out"
                       : "linear",
                     willChange: "transform",
                     pointerEvents: "none",
