@@ -5,6 +5,7 @@ export type AffindaParsedPreview = {
   email: string;
   jobTitle: string;
   skills: string[];
+  city: string;
   hasPhoto: boolean;
 };
 
@@ -116,6 +117,27 @@ function extractEmail(data: UnknownRecord): string {
   return "";
 }
 
+function extractCity(data: UnknownRecord): string {
+  const location = asRecord(data.location);
+  const compactLocation = firstString(location?.text ?? data.location?.toString?.());
+  if (compactLocation) return compactLocation.slice(0, 120);
+
+  const rawLocation = firstString(data.locations);
+  if (rawLocation) return rawLocation.slice(0, 120);
+
+  const rawAddress = asRecord(data.address);
+  const city = String(rawAddress?.city || "").trim();
+  if (city) return city.slice(0, 120);
+
+  const education = Array.isArray(data.education) ? data.education : [];
+  for (const entry of education) {
+    const edu = asRecord(entry);
+    const cityName = String(edu?.location || "").trim();
+    if (cityName) return cityName.slice(0, 120);
+  }
+  return "";
+}
+
 function extractHasPhoto(data: UnknownRecord): boolean {
   const compact = data.headshot;
   if (typeof compact === "string" && compact.trim()) return true;
@@ -166,6 +188,7 @@ export async function parseCvWithAffinda(file: File): Promise<AffindaParseResult
     email: extractEmail(parsed),
     jobTitle: extractJobTitle(parsed),
     skills: normalizeSkills(parsed.skill ?? parsed.skills),
+    city: extractCity(parsed),
     hasPhoto: extractHasPhoto(parsed),
   };
 

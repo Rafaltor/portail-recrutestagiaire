@@ -64,10 +64,9 @@ export async function POST(req: Request) {
   if (!form) return bad("bad_formdata");
 
   const handle = String(form.get("handle") || "").trim();
-  const candidateName = String(form.get("candidateName") || "").trim();
-  const parsedEmail = String(form.get("parsedEmail") || "").trim().toLowerCase();
   const parsedJobTitle = String(form.get("parsedJobTitle") || "").trim();
   const parsedSkillsRaw = String(form.get("parsedSkills") || "").trim();
+  const parsedCity = String(form.get("parsedCity") || "").trim();
   const photoDetected = String(form.get("photoDetected") || "") === "true";
   const accepted = String(form.get("accepted") || "") === "true";
   const file = form.get("cv");
@@ -84,10 +83,6 @@ export async function POST(req: Request) {
     .map((t) => t.trim())
     .filter(Boolean)
     .slice(0, 12);
-
-  const hasParsingPreview =
-    candidateName.length > 0 || parsedEmail.length > 0 || parsedJobTitle.length > 0;
-  if (!hasParsingPreview) return bad("affinda_preview_required");
 
   const handleNorm = handle.replace(/^@/, "").toLowerCase();
   const rlHandle = rateLimitOrNull(`iphandle:${ipHash}:${handleNorm}`, 1, 60 * 60 * 1000); // 2e tentative même pseudo / 1h
@@ -127,6 +122,7 @@ export async function POST(req: Request) {
   if (upload.error) return bad(`upload_failed:${upload.error.message}`, 500);
 
   const inferredJobTitle = parsedJobTitle.length > 0 ? parsedJobTitle : "Candidature";
+  const normalizedCity = parsedCity.length > 0 ? parsedCity : null;
 
   const insert = await supabaseServer.from("profiles").insert({
     handle,
@@ -135,7 +131,7 @@ export async function POST(req: Request) {
     portfolio_url: null,
     cv_path: path,
     status: "pending",
-    city: null,
+    city: normalizedCity,
   });
   if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
 
@@ -172,6 +168,7 @@ export async function PUT(req: Request) {
           email: parsed.preview.email || "",
           jobTitle: parsed.preview.jobTitle || "",
           skills: parsed.preview.skills || [],
+          city: parsed.preview.city || "",
           hasPhoto: !!parsed.preview.hasPhoto,
         },
       },
