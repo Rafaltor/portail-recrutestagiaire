@@ -14,12 +14,14 @@ type DepotSuccess = {
   absoluteProfileUrl?: string;
 };
 
-type ParsedPreview = {
+type StepTwoState = {
   name: string;
   email: string;
   jobTitle: string;
-  skills: string[];
+  skills: string;
+  city: string;
   hasPhoto: boolean;
+  manualFallback: boolean;
 };
 
 export default function DepotPage() {
@@ -28,7 +30,7 @@ export default function DepotPage() {
     accepted: false,
   });
   const [file, setFile] = useState<File | null>(null);
-  const [parsed, setParsed] = useState<ParsedPreview | null>(null);
+  const [stepTwo, setStepTwo] = useState<StepTwoState | null>(null);
   const [parsing, setParsing] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
@@ -42,28 +44,54 @@ export default function DepotPage() {
     return ownerProfileUrl.split("/").pop() || "";
   }, [ownerProfileUrl]);
 
+  const canAnalyze = useMemo(() => {
+    return form.handle.trim().length > 1 && !!file;
+  }, [form.handle, file]);
+
   const canSubmit = useMemo(() => {
     return (
       form.accepted &&
       form.handle.trim().length > 1 &&
       !!file &&
-      !!parsed &&
-      !parsed.hasPhoto
+      !!stepTwo &&
+      !stepTwo.hasPhoto
     );
-  }, [form.accepted, form.handle, file, parsed]);
+  }, [form.accepted, form.handle, file, stepTwo]);
 
-  async function onFileChange(nextFile: File | null) {
-    setFile(nextFile);
-    setParsed(null);
-    if (!nextFile) return;
-    setParsing(true);
+  function resetStatusForInput() {
+    if (status !== "idle") {
+      setStatus("idle");
+    }
     setMessage("");
+  }
+
+  function onSkillsChange(nextValue: string) {
+    const normalized = nextValue
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean)
+      .slice(0, 5)
+      .join(", ");
+    setStepTwo((prev) => (prev ? { ...prev, skills: normalized } : prev));
+  }
+
+  async function onAnalyzeCv() {
+    resetStatusForInput();
+    if (!file) {
+      setStatus("error");
+      setMessage("Ajoute un CV PDF pour continuer.");
+      return;
+    }
+    if (file.type !== "application/pdf") {
+      setStatus("error");
+      setMessage("Le CV doit être au format PDF.");
+      return;
+    }
+
+    setParsing(true);
     try {
-      if (nextFile.type !== "application/pdf") {
-        throw new Error("Le CV doit être au format PDF.");
-      }
       const fd = new FormData();
-      fd.set("cv", nextFile);
+      fd.set("cv", file);
       const r = await fetch("/api/depot", {
         method: "PUT",
         body: fd,
@@ -72,22 +100,79 @@ export default function DepotPage() {
         const j: { error?: string } = await r.json().catch(() => ({}));
         throw new Error(j.error || "affinda_failed");
       }
-      const j: { ok: boolean; parsed?: ParsedPreview } = await r.json();
+      const j: {
+        ok: boolean;
+        parsed?: {
+          name: string;
+          email: string;
+          jobTitle: string;
+          skills: string[];
+          city: string;
+          hasPhoto: boolean;
+        };
+      } = await r.json();
       if (!j.ok || !j.parsed) throw new Error("affinda_invalid_payload");
-      setParsed(j.parsed);
+      setStepTwo({
+        name: j.parsed.name || "",
+        email: j.parsed.email || "",
+        jobTitle: j.parsed.jobTitle || "",
+        skills: (j.parsed.skills || []).slice(0, 5).join(", "),
+        city: j.parsed.city || "",
+        hasPhoto: !!j.parsed.hasPhoto,
+        manualFallback: false,
+      });
       if (j.parsed.hasPhoto) {
+        setStatus("error");
         setMessage(
           "Photo détectée dans le CV. Dépôt bloqué. Merci d’envoyer un PDF sans photo.",
         );
       }
     } catch (e: unknown) {
-      setParsed(null);
       const raw = e instanceof Error ? e.message : "Erreur inconnue";
       if (raw === "affinda_not_configured") {
-        setMessage("Parsing temporairement indisponible. Réessaie plus tard.");
+        setStatus("idle");
+        setMessage(
+          "Analyse indisponible pour le moment. Complète les champs manuellement.",
+        );
+        setStepTwo({
+          name: "",
+          email: "",
+          jobTitle: "",
+          skills: "",
+          city: "",
+          hasPhoto: false,
+          manualFallback: true,
+        });
       } else if (raw.startsWith("affinda_failed_")) {
-        setMessage("Impossible d’analyser ce CV pour le moment. Réessaie.");
+        setStatus("idle");
+        setMessage(
+          "Analyse indisponible pour le moment. Complète les champs manuellement.",
+        );
+        setStepTwo({
+          name: "",
+          email: "",
+          jobTitle: "",
+          skills: "",
+          city: "",
+          hasPhoto: false,
+          manualFallback: true,
+        });
+      } else if (raw === "affinda_invalid_payload") {
+        setStatus("idle");
+        setMessage(
+          "Analyse indisponible pour le moment. Complète les champs manuellement.",
+        );
+        setStepTwo({
+          name: "",
+          email: "",
+          jobTitle: "",
+          skills: "",
+          city: "",
+          hasPhoto: false,
+          manualFallback: true,
+        });
       } else {
+        setStatus("error");
         setMessage(raw);
       }
     } finally {
@@ -106,19 +191,20 @@ export default function DepotPage() {
       if (file.type !== "application/pdf") {
         throw new Error("Le CV doit être au format PDF.");
       }
-      if (!parsed) throw new Error("Analyse du CV requise avant validation.");
-      if (parsed.hasPhoto) {
+      if (!stepTwo) throw new Error("Analyse ou saisie manuelle requise avant validation.");
+      if (stepTwo.hasPhoto) {
         throw new Error("Photo détectée. Dépôt refusé (charte).");
       }
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
       const fd = new FormData();
       fd.set("handle", form.handle.trim());
-      fd.set("candidateName", parsed.name || "");
-      fd.set("parsedEmail", parsed.email || "");
-      fd.set("parsedJobTitle", parsed.jobTitle || "");
-      fd.set("parsedSkills", parsed.skills.join(","));
-      fd.set("photoDetected", String(parsed.hasPhoto));
+      fd.set("candidateName", stepTwo.name || "");
+      fd.set("parsedEmail", stepTwo.email || "");
+      fd.set("parsedJobTitle", stepTwo.jobTitle || "");
+      fd.set("parsedSkills", stepTwo.skills || "");
+      fd.set("parsedCity", stepTwo.city || "");
+      fd.set("photoDetected", String(stepTwo.hasPhoto));
       fd.set("accepted", String(!!form.accepted));
       fd.set("cv", file);
 
@@ -152,9 +238,6 @@ export default function DepotPage() {
         if (code === "handle_required") {
           throw new Error("Pseudo Instagram obligatoire.");
         }
-        if (code === "affinda_preview_required") {
-          throw new Error("Analyse CV incomplète. Réessaie l’upload du PDF.");
-        }
         if (code === "photo_forbidden") {
           throw new Error("Photo détectée. Dépôt bloqué (charte).");
         }
@@ -174,7 +257,7 @@ export default function DepotPage() {
         setOwnerProfileAbsoluteUrl(data.absoluteProfileUrl);
       }
       setFile(null);
-      setParsed(null);
+      setStepTwo(null);
       setForm((f) => ({ ...f, accepted: false }));
     } catch (e: unknown) {
       setStatus("error");
@@ -196,96 +279,175 @@ export default function DepotPage() {
       </div>
 
       <div className="rs-panel rounded-lg p-6">
-        <div className="grid gap-4">
+        <p className="text-sm font-bold text-zinc-900">Étape 1 — Upload</p>
+        <div className="mt-4 grid gap-4">
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">Pseudo (@instagram)</span>
+            <span className="text-sm font-semibold">Pseudo Instagram (obligatoire)</span>
             <input
               value={form.handle}
-              onChange={(e) => setForm({ ...form, handle: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, handle: e.target.value });
+                resetStatusForInput();
+              }}
               className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
               placeholder="@pseudo"
             />
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">CV (PDF)</span>
+            <span className="text-sm font-semibold">CV en PDF (obligatoire)</span>
             <input
               type="file"
               accept="application/pdf"
               onChange={(e) => {
-                void onFileChange(e.target.files?.[0] ?? null);
+                setFile(e.target.files?.[0] ?? null);
+                setStepTwo(null);
+                resetStatusForInput();
               }}
               className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
             />
           </label>
         </div>
 
+        <button
+          disabled={!canAnalyze || parsing}
+          onClick={onAnalyzeCv}
+          className="rs-btn rs-btn--primary mt-5 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Analyser mon CV
+        </button>
+
         {parsing ? (
-          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
-            Analyse du CV en cours…
+          <div className="mt-4 flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
+            <span
+              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700"
+              aria-hidden
+            />
+            Analyse de votre CV...
           </div>
         ) : null}
 
-        {parsed ? (
-          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700">
-            <p className="text-sm font-black text-zinc-900">
-              Aperçu des infos extraites (Affinda)
+        {stepTwo ? (
+          <div className="mt-8 border-t border-zinc-200 pt-6">
+            <p className="text-sm font-bold text-zinc-900">
+              Étape 2 — Vérifier et compléter
             </p>
-            <div className="mt-2 grid gap-1">
-              <p>
-                <span className="font-semibold">Nom:</span>{" "}
-                {parsed.name || "Non détecté"}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span>{" "}
-                {parsed.email || "Non détecté"}
-              </p>
-              <p>
-                <span className="font-semibold">Métier:</span>{" "}
-                {parsed.jobTitle || "Non détecté"}
-              </p>
-              <p>
-                <span className="font-semibold">Compétences:</span>{" "}
-                {parsed.skills.length ? parsed.skills.join(", ") : "Non détectées"}
-              </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1 sm:col-span-2">
+                <span className="text-sm font-semibold">Nom complet</span>
+                <input
+                  value={stepTwo.name}
+                  onChange={(e) =>
+                    setStepTwo((prev) =>
+                      prev ? { ...prev, name: e.target.value } : prev,
+                    )
+                  }
+                  placeholder="Non détecté — à compléter"
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                />
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-sm font-semibold">Métier / spécialité</span>
+                <input
+                  value={stepTwo.jobTitle}
+                  onChange={(e) =>
+                    setStepTwo((prev) =>
+                      prev ? { ...prev, jobTitle: e.target.value } : prev,
+                    )
+                  }
+                  placeholder="Non détecté — à compléter"
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                />
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-sm font-semibold">
+                  Email (non affiché publiquement)
+                </span>
+                <input
+                  value={stepTwo.email}
+                  onChange={(e) =>
+                    setStepTwo((prev) =>
+                      prev ? { ...prev, email: e.target.value } : prev,
+                    )
+                  }
+                  placeholder="Non détecté — à compléter"
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  inputMode="email"
+                />
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-sm font-semibold">
+                  Compétences principales (max 5)
+                </span>
+                <input
+                  value={stepTwo.skills}
+                  onChange={(e) => onSkillsChange(e.target.value)}
+                  placeholder="Non détecté — à compléter"
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                />
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-sm font-semibold">Ville</span>
+                <input
+                  value={stepTwo.city}
+                  onChange={(e) =>
+                    setStepTwo((prev) =>
+                      prev ? { ...prev, city: e.target.value } : prev,
+                    )
+                  }
+                  placeholder="Non détecté — à compléter"
+                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                />
+              </label>
             </div>
-            {parsed.hasPhoto ? (
+
+            {stepTwo.manualFallback ? (
+              <p className="mt-3 text-sm text-zinc-600">
+                Analyse indisponible : renseigne les champs manuellement.
+              </p>
+            ) : null}
+
+            {stepTwo.hasPhoto ? (
               <p className="mt-2 font-semibold text-rose-700">
                 Photo détectée: dépôt bloqué.
               </p>
             ) : null}
+
+            <label className="mt-4 flex items-start gap-2 text-sm text-zinc-800">
+              <input
+                type="checkbox"
+                checked={form.accepted}
+                onChange={(e) => setForm({ ...form, accepted: e.target.checked })}
+                className="mt-1"
+              />
+              <span>
+                Pas de photo. Un seul PDF.
+                <br />
+                Offre non négociable.
+              </span>
+            </label>
+
+            <div className="mt-5 flex items-center gap-2">
+              <button
+                disabled={!canSubmit || status === "loading" || parsing}
+                onClick={onSubmit}
+                className="rs-btn rs-btn--primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {status === "loading" ? "Envoi..." : "Déposer ma candidature"}
+              </button>
+              <a
+                href="/profils"
+                className="rs-btn rs-btn--ghost"
+              >
+                Voir les profils
+              </a>
+            </div>
           </div>
         ) : null}
-
-        <label className="mt-4 flex items-start gap-2 text-sm text-zinc-800">
-          <input
-            type="checkbox"
-            checked={form.accepted}
-            onChange={(e) => setForm({ ...form, accepted: e.target.checked })}
-            className="mt-1"
-          />
-          <span>
-            Pas de photo. Un seul PDF.
-            <br />
-            Offre non négociable.
-          </span>
-        </label>
-
-        <div className="mt-5 flex items-center gap-2">
-          <button
-            disabled={!canSubmit || status === "loading" || parsing}
-            onClick={onSubmit}
-            className="rs-btn rs-btn--primary disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {status === "loading" ? "Envoi..." : "Envoyer"}
-          </button>
-          <a
-            href="/profils"
-            className="rs-btn rs-btn--ghost"
-          >
-            Voir les profils
-          </a>
-        </div>
 
         {message ? (
           <p
@@ -307,7 +469,7 @@ export default function DepotPage() {
             </a>
             <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
               <p>
-                Optionnel : crée un compte pour suivre tes stats.
+                Optionnel : crée un compte pour suivre tes stats plus facilement.
               </p>
               {ownerToken ? (
                 <a
