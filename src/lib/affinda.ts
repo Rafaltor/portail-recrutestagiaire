@@ -64,6 +64,258 @@ function normalizeSkills(rawSkills: unknown): string[] {
   return out;
 }
 
+type JobTitleCategory = {
+  title: string;
+  keywords: string[];
+};
+
+const JOB_TITLE_CATEGORIES: JobTitleCategory[] = [
+  {
+    title: "Directeur artistique / Graphiste",
+    keywords: [
+      "illustrator",
+      "photoshop",
+      "indesign",
+      "figma",
+      "sketch",
+      "xd",
+      "canva",
+      "typographie",
+      "mise en page",
+      "identite visuelle",
+    ],
+  },
+  {
+    title: "Styliste / Créateur mode",
+    keywords: [
+      "couture",
+      "patronage",
+      "textile",
+      "tricot",
+      "broderie",
+      "modelisme",
+      "stylisme",
+      "collection",
+      "croquis mode",
+      "draping",
+    ],
+  },
+  {
+    title: "Photographe / Vidéaste",
+    keywords: [
+      "photographie",
+      "lightroom",
+      "capture one",
+      "studio",
+      "shooting",
+      "premiere pro",
+      "after effects",
+      "montage",
+      "motion design",
+      "davinci",
+    ],
+  },
+  {
+    title: "Chargé de communication / Marketing",
+    keywords: [
+      "community management",
+      "reseaux sociaux",
+      "instagram",
+      "tiktok",
+      "copywriting",
+      "redaction",
+      "brand",
+      "marketing",
+      "influence",
+      "presse",
+    ],
+  },
+  {
+    title: "Chef de projet / Producteur",
+    keywords: [
+      "production",
+      "logistique",
+      "evenementiel",
+      "coordination",
+      "planning",
+      "chef de projet",
+      "organisation",
+    ],
+  },
+  {
+    title: "Acheteur / Retail manager",
+    keywords: [
+      "vente",
+      "retail",
+      "merchandising",
+      "buying",
+      "achat",
+      "showroom",
+    ],
+  },
+  {
+    title: "Architecte / Scénographe",
+    keywords: [
+      "architecture",
+      "architecture interieure",
+      "scenographie",
+      "espace",
+      "volume",
+      "autocad",
+      "rhino",
+      "sketchup",
+    ],
+  },
+  {
+    title: "Artisan / Créateur",
+    keywords: [
+      "bijouterie",
+      "joaillerie",
+      "maroquinerie",
+      "cuir",
+      "ceramique",
+      "serigraphie",
+      "impression",
+      "fabrication",
+    ],
+  },
+  {
+    title: "Illustrateur / Artiste",
+    keywords: [
+      "illustration",
+      "peinture",
+      "dessin",
+      "sculpture",
+      "art",
+      "galerie",
+      "concept art",
+      "storyboard",
+    ],
+  },
+  {
+    title: "Musicien / Producteur musical",
+    keywords: [
+      "musique",
+      "son",
+      "audio",
+      "production musicale",
+      "dj",
+      "beatmaking",
+      "ableton",
+      "pro tools",
+    ],
+  },
+  {
+    title: "Ingénieur / Développeur",
+    keywords: [
+      "ingenieur",
+      "engineering",
+      "developpement",
+      "code",
+      "programmation",
+      "python",
+      "javascript",
+      "typescript",
+      "react",
+      "node",
+      "sql",
+      "data",
+      "algorithme",
+      "mecanique",
+      "electronique",
+      "systemes",
+      "reseau",
+      "cybersecurite",
+    ],
+  },
+];
+
+function normalizeSearchText(input: string): string {
+  const compact = input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+  return compact ? ` ${compact} ` : "";
+}
+
+function collectJobTitleSignals(data: UnknownRecord): string[] {
+  const out: string[] = [];
+  const pushString = (value: unknown) => {
+    if (typeof value !== "string") return;
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    out.push(trimmed);
+  };
+
+  pushString(data.profession);
+  pushString(data.headline);
+  pushString(data.jobTitle);
+  pushString(data.title);
+  pushString(data.summary);
+  pushString(data.objective);
+
+  const workExperience = Array.isArray(data.workExperience)
+    ? data.workExperience
+    : [];
+  for (const entry of workExperience) {
+    const job = asRecord(entry);
+    if (!job) continue;
+    pushString(job.jobTitle);
+    pushString(job.position);
+    pushString(job.organization);
+    const occupation = asRecord(job.occupation);
+    if (occupation) {
+      pushString(occupation.jobTitle);
+      pushString(occupation.jobTitleNormalized);
+    }
+  }
+
+  const skillValues = Array.isArray(data.skill)
+    ? data.skill
+    : Array.isArray(data.skills)
+      ? data.skills
+      : [];
+  for (const skill of skillValues) {
+    if (typeof skill === "string") {
+      pushString(skill);
+      continue;
+    }
+    const skillObj = asRecord(skill);
+    if (!skillObj) continue;
+    pushString(skillObj.name);
+    pushString(skillObj.type);
+  }
+
+  return out;
+}
+
+function inferMappedJobTitle(data: UnknownRecord): string {
+  const haystack = normalizeSearchText(collectJobTitleSignals(data).join(" "));
+  if (!haystack) return "";
+
+  let bestTitle = "";
+  let bestScore = 0;
+  for (const category of JOB_TITLE_CATEGORIES) {
+    let score = 0;
+    for (const rawKeyword of category.keywords) {
+      const normalizedKeyword = normalizeSearchText(rawKeyword).trim();
+      if (!normalizedKeyword) continue;
+      if (haystack.includes(` ${normalizedKeyword} `)) {
+        score += 1;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestTitle = category.title;
+    }
+  }
+
+  return bestScore > 0 ? bestTitle : "";
+}
+
 function extractName(data: UnknownRecord): string {
   const candidateName = asRecord(data.candidateName);
   if (candidateName) {
@@ -89,24 +341,7 @@ function extractName(data: UnknownRecord): string {
 }
 
 function extractJobTitle(data: UnknownRecord): string {
-  const profession = String(data.profession || "").trim();
-  if (profession) return profession.slice(0, 120);
-
-  const workExperience = Array.isArray(data.workExperience)
-    ? data.workExperience
-    : [];
-  const firstWork = asRecord(workExperience[0]);
-  if (firstWork) {
-    const jobTitle = String(firstWork.jobTitle || "").trim();
-    if (jobTitle) return jobTitle.slice(0, 120);
-    const occupation = asRecord(firstWork.occupation);
-    if (occupation) {
-      const normalized = String(occupation.jobTitleNormalized || "").trim();
-      if (normalized) return normalized.slice(0, 120);
-    }
-  }
-
-  return "";
+  return inferMappedJobTitle(data).slice(0, 120);
 }
 
 function extractEmail(data: UnknownRecord): string {
