@@ -23,6 +23,12 @@ import {
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
 
+function formatSwipeError(e: unknown): string {
+  if (e instanceof Error && e.message.trim()) return e.message;
+  if (typeof e === "string" && e.trim()) return e;
+  return "Impossible de charger. Vérifie ta connexion.";
+}
+
 type SwipeItem = {
   profile: { id: string; handle: string };
   cvUrl: string;
@@ -273,7 +279,7 @@ export default function SwipePage() {
       setLoading(false);
       void refillIfNeeded([first]);
     } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : "Erreur inconnue";
+      const errMsg = formatSwipeError(e);
       setLoadError(errMsg);
       setMessage(errMsg);
       setDeck([]);
@@ -305,7 +311,7 @@ export default function SwipePage() {
         return [...d, ...add].slice(0, DECK_SIZE);
       });
     } catch (e: unknown) {
-      setMessage(e instanceof Error ? e.message : "Erreur inconnue");
+      setMessage(formatSwipeError(e));
       if (nextDeck.length === 0) {
         setDone(true);
       }
@@ -986,7 +992,7 @@ export default function SwipePage() {
           : { height: swipeChromeHeight }
       }
     >
-      {message ? (
+      {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
             <div className="pointer-events-auto rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-800">
@@ -1284,6 +1290,31 @@ export default function SwipePage() {
                     <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
+                    {outgoing.rhFeedback ? (
+                      <div className="pointer-events-none absolute inset-x-2 bottom-8 z-[35] flex justify-center sm:bottom-9">
+                        <p className="max-w-[96%] rounded-md border border-white/20 bg-white/20 px-2 py-1 text-center text-[10px] font-medium leading-snug text-zinc-900 shadow-sm backdrop-blur-[3px] sm:text-[11px]">
+                          {outgoing.rhFeedback}
+                        </p>
+                      </div>
+                    ) : null}
+                    {outgoing.imprint ? (
+                      <div
+                        className="pointer-events-none absolute z-30"
+                        style={{
+                          left: `${outgoing.imprint.x}%`,
+                          top: `${outgoing.imprint.y}%`,
+                          transform: "translate(-50%, -50%)",
+                        }}
+                      >
+                        <StampImprintVisual kind={outgoing.imprint.kind} />
+                      </div>
+                    ) : (
+                      <div className="pointer-events-none absolute left-1/2 top-[52%] z-30 -translate-x-1/2 -translate-y-1/2">
+                        <StampImprintVisual
+                          kind={outgoing.dir === 1 ? "approved" : "declined"}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : null}
@@ -1390,39 +1421,6 @@ export default function SwipePage() {
             </div>
           </div>
         </div>
-      ) : null}
-
-      {/* Tampon + verdict RH : fixe au centre de l’écran ; la carte PDF tombe seule derrière. */}
-      {outgoing ? (
-        <>
-          <div
-            className="pointer-events-none fixed inset-0 z-[9705] bg-zinc-950/20"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none fixed inset-0 z-[9710] flex items-center justify-center px-4"
-            role="status"
-            aria-live="polite"
-          >
-            <div className="flex max-w-[min(420px,94vw)] flex-col items-center gap-4 rounded-2xl border border-zinc-200 bg-white px-6 py-7 shadow-2xl">
-              <StampImprintVisual
-                kind={
-                  outgoing.imprint?.kind ??
-                  (outgoing.dir === 1 ? "approved" : "declined")
-                }
-              />
-              {outgoing.rhFeedback ? (
-                <p className="text-center text-[13px] font-bold leading-snug text-zinc-900 sm:text-sm">
-                  {outgoing.rhFeedback}
-                </p>
-              ) : (
-                <p className="text-center text-xs font-semibold text-zinc-500">
-                  Vote enregistré.
-                </p>
-              )}
-            </div>
-          </div>
-        </>
       ) : null}
     </div>
   );

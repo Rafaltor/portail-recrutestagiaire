@@ -24,7 +24,6 @@ type VoteRow = {
 export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [votes, setVotes] = useState<Record<string, number>>({});
   const [myVotes, setMyVotes] = useState<Record<string, 1 | -1 | 0>>({});
   const [q, setQ] = useState("");
   const [message, setMessage] = useState<string>("");
@@ -51,36 +50,23 @@ export default function ProfilsPage() {
         if (!alive) return;
         setProfiles(list);
 
-        // scores + mes votes (pour permettre de changer)
+        /* Score communautaire = colonne profiles.likes (sync côté API). Une seule requête légère : mes votes. */
         if (list.length) {
           const ids = list.map((p) => p.id);
           const visitorId = getOrCreateVisitorId();
-          const vr = await supabase
-            .from("votes")
-            .select("profile_id,value")
-            .in("profile_id", ids);
-          if (vr.error) throw vr.error;
-
-          const map: Record<string, number> = {};
-          const mine: Record<string, 1 | -1 | 0> = {};
-          ((vr.data ?? []) as VoteRow[]).forEach((r) => {
-            const v = r.value === -1 ? -1 : r.value === 1 ? 1 : 0;
-            map[r.profile_id] = (map[r.profile_id] ?? 0) + v;
-          });
           const my = await supabase
             .from("votes")
             .select("profile_id,value")
             .in("profile_id", ids)
             .eq("visitor_id", visitorId);
           if (my.error) throw my.error;
+          const mine: Record<string, 1 | -1 | 0> = {};
           ((my.data ?? []) as VoteRow[]).forEach((r) => {
             mine[r.profile_id] = (r.value === -1 ? -1 : 1) as 1 | -1;
           });
           if (!alive) return;
-          setVotes(map);
           setMyVotes(mine);
         } else {
-          setVotes({});
           setMyVotes({});
         }
       } catch (e: unknown) {
@@ -127,12 +113,20 @@ export default function ProfilsPage() {
       setMessage(j?.error || "Impossible d’enregistrer le vote.");
       return;
     }
-    const j = (await r.json()) as { ok: boolean; prev: number; value: 1 | -1 };
+    const j = (await r.json()) as {
+      ok: boolean;
+      prev: number;
+      value: 1 | -1;
+      profileLikes?: number;
+    };
     setMyVotes((m) => ({ ...m, [profileId]: value }));
-    setVotes((v) => ({
-      ...v,
-      [profileId]: (v[profileId] ?? 0) + ((j.value ?? value) - (j.prev ?? prev)),
-    }));
+    if (typeof j.profileLikes === "number") {
+      setProfiles((ps) =>
+        ps.map((p) =>
+          p.id === profileId ? { ...p, likes: j.profileLikes! } : p,
+        ),
+      );
+    }
   }
 
   return (
@@ -189,8 +183,11 @@ export default function ProfilsPage() {
                   <div className="text-xs font-bold uppercase tracking-wider text-zinc-600">
                     score
                   </div>
-                  <div className="text-xl font-black" title="Somme des votes : +1 par like, −1 par dislike">
-                    {votes[p.id] ?? 0}
+                  <div
+                    className="text-xl font-black"
+                    title="Score net (colonne likes, mise à jour à chaque vote)"
+                  >
+                    {p.likes ?? 0}
                   </div>
                 </div>
               </div>

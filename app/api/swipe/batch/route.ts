@@ -8,6 +8,15 @@ function bad(msg: string, status = 400) {
   return NextResponse.json({ error: msg }, { status });
 }
 
+function shuffleInPlace<T>(arr: T[]): void {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = arr[i]!;
+    arr[i] = arr[j]!;
+    arr[j] = t;
+  }
+}
+
 type ProfileRow = {
   id: string;
   handle: string;
@@ -51,11 +60,11 @@ export async function GET(req: Request) {
     400,
   );
 
+  /* Pas de tri par score ici : ordre aléatoire côté swipe (page /profils garde le classement). */
   let q = supabaseServer
     .from("profiles")
     .select("id,handle,cv_path,likes")
     .eq("status", "published")
-    .order("likes", { ascending: false, nullsFirst: false })
     .limit(120);
 
   if (allExcludes.length > 0) {
@@ -73,12 +82,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ done: true, items: [] }, { status: 200 });
   }
 
-  /* Déjà triés par likes décroissant côté SQL — on prend les n premiers non exclus. */
-  const picked: ProfileRow[] = [];
-  for (const c of candidates) {
-    if (picked.length >= n) break;
-    picked.push(c);
-  }
+  shuffleInPlace(candidates);
+  const picked = candidates.slice(0, n);
 
   const items: { profile: { id: string; handle: string }; cvUrl: string }[] = [];
   for (const p of picked) {

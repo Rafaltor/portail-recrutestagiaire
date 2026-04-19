@@ -1,6 +1,9 @@
 -- À exécuter dans Supabase → SQL Editor (une fois + optionnel trigger)
 -- Colonne attendue : profiles.likes (bigint ou integer), table votes avec value IN (-1, 1).
 
+-- Index utile pour le tri rapide « publiés par score » (optionnel)
+-- CREATE INDEX IF NOT EXISTS idx_profiles_status_likes ON public.profiles (status, likes DESC);
+
 -- 1) Rattrapage : aligner likes sur la somme réelle des votes
 UPDATE public.profiles p
 SET likes = COALESCE(s.total, 0)
