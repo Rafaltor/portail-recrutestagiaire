@@ -1284,24 +1284,6 @@ export default function SwipePage() {
                     <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
-                    {outgoing.rhFeedback ? (
-                      <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center px-4 py-6">
-                        <p className="max-w-[min(340px,88%)] rounded-xl border border-zinc-200 bg-white/96 px-4 py-3 text-center text-[13px] font-bold leading-snug text-zinc-900 shadow-lg sm:text-sm">
-                          {outgoing.rhFeedback}
-                        </p>
-                      </div>
-                    ) : outgoing.imprint ? (
-                      <div
-                        className="pointer-events-none absolute z-30"
-                        style={{
-                          left: `${outgoing.imprint.x}%`,
-                          top: `${outgoing.imprint.y}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      >
-                        <StampImprintVisual kind={outgoing.imprint.kind} />
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               ) : null}
@@ -1408,6 +1390,39 @@ export default function SwipePage() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {/* Tampon + verdict RH : fixe au centre de l’écran ; la carte PDF tombe seule derrière. */}
+      {outgoing ? (
+        <>
+          <div
+            className="pointer-events-none fixed inset-0 z-[9705] bg-zinc-950/20"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none fixed inset-0 z-[9710] flex items-center justify-center px-4"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex max-w-[min(420px,94vw)] flex-col items-center gap-4 rounded-2xl border border-zinc-200 bg-white px-6 py-7 shadow-2xl">
+              <StampImprintVisual
+                kind={
+                  outgoing.imprint?.kind ??
+                  (outgoing.dir === 1 ? "approved" : "declined")
+                }
+              />
+              {outgoing.rhFeedback ? (
+                <p className="text-center text-[13px] font-bold leading-snug text-zinc-900 sm:text-sm">
+                  {outgoing.rhFeedback}
+                </p>
+              ) : (
+                <p className="text-center text-xs font-semibold text-zinc-500">
+                  Vote enregistré.
+                </p>
+              )}
+            </div>
+          </div>
+        </>
       ) : null}
     </div>
   );

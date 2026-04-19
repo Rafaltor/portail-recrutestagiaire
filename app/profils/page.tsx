@@ -13,7 +13,6 @@ type Profile = {
   portfolio_url: string | null;
   cv_path: string;
   created_at: string;
-  /** Score net stocké sur le profil (sync votes / trigger). */
   likes: number | null;
 };
 
@@ -65,7 +64,8 @@ export default function ProfilsPage() {
           const map: Record<string, number> = {};
           const mine: Record<string, 1 | -1 | 0> = {};
           ((vr.data ?? []) as VoteRow[]).forEach((r) => {
-            map[r.profile_id] = (map[r.profile_id] ?? 0) + (r.value ?? 0);
+            const v = r.value === -1 ? -1 : r.value === 1 ? 1 : 0;
+            map[r.profile_id] = (map[r.profile_id] ?? 0) + v;
           });
           const my = await supabase
             .from("votes")
@@ -187,10 +187,10 @@ export default function ProfilsPage() {
                 </div>
                 <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-center">
                   <div className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                    likes
+                    score
                   </div>
-                  <div className="text-xl font-black">
-                    {p.likes ?? votes[p.id] ?? 0}
+                  <div className="text-xl font-black" title="Somme des votes : +1 par like, −1 par dislike">
+                    {votes[p.id] ?? 0}
                   </div>
                 </div>
               </div>
