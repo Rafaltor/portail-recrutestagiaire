@@ -141,7 +141,7 @@ export default function SwipePage() {
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
     dir: 1 | -1;
-    imprint: StampImprint | null;
+    imprint: StampImprint;
     /** Tampon = chute verticale ; swipe doigt = même chute + trajectoire latérale (swipe-fall). */
     exitAxis: "down" | "swipe-fall";
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
@@ -152,7 +152,10 @@ export default function SwipePage() {
     slideOut: boolean;
   } | null>(null);
   const [stampDrag, setStampDrag] = useState<StampDragState | null>(null);
-  const [cardImprint, setCardImprint] = useState<StampImprint | null>(null);
+  const [cardImprint, setCardImprint] = useState<{
+    profileId: string;
+    imprint: StampImprint;
+  } | null>(null);
   const [activeStampKind, setActiveStampKind] = useState<StampKind | null>(null);
   const [stampDropping, setStampDropping] = useState(false);
 
@@ -557,9 +560,9 @@ export default function SwipePage() {
 
     const swipeFast = holdImprintMs === 0 && swipeRelease !== null;
 
-    /** Swipe doigt : tampon visuel centré sur le document. */
+    /** Swipe doigt : empreinte hors du centre du CV (évite l’effet « double tampon » visuel). */
     const resolvedImprint = swipeFast
-      ? ({ kind: baseImprint.kind, x: 50, y: 52 } as StampImprint)
+      ? ({ kind: baseImprint.kind, x: 44, y: 36 } as StampImprint)
       : baseImprint;
 
     if (swipeFast) {
@@ -567,7 +570,6 @@ export default function SwipePage() {
       const profileId = current.profile.id;
       const item = current;
 
-      setCardImprint(resolvedImprint);
       setOutgoing({
         item,
         dir: value,
@@ -578,6 +580,7 @@ export default function SwipePage() {
         exitDurationMs: STAMP_EXIT_MS,
         slideOut: false,
       });
+      setCardImprint(null);
       setDragX(0);
       startXRef.current = null;
 
@@ -616,7 +619,7 @@ export default function SwipePage() {
       const profileId = current.profile.id;
       const item = current;
 
-      setCardImprint(resolvedImprint);
+      setCardImprint({ profileId: current.profile.id, imprint: resolvedImprint });
       setDragX(0);
       startXRef.current = null;
       if (imprintHoldTimerRef.current) {
@@ -635,6 +638,7 @@ export default function SwipePage() {
           exitDurationMs: STAMP_EXIT_MS,
           slideOut: false,
         });
+        setCardImprint(null);
         consumeTopAndRefill();
         requestAnimationFrame(() => {
           setOutgoing((o) =>
@@ -669,7 +673,7 @@ export default function SwipePage() {
     const itemAfterVote = current;
     const profileId = itemAfterVote.profile.id;
 
-    setCardImprint(resolvedImprint);
+    setCardImprint({ profileId: itemAfterVote.profile.id, imprint: resolvedImprint });
     setDragX(0);
     startXRef.current = null;
     if (imprintHoldTimerRef.current) {
@@ -689,6 +693,7 @@ export default function SwipePage() {
       exitDurationMs: STAMP_EXIT_MS,
       slideOut: false,
     });
+    setCardImprint(null);
     consumeTopAndRefill();
     requestAnimationFrame(() => {
       setOutgoing((o) =>
@@ -754,7 +759,7 @@ export default function SwipePage() {
       void applyTransitionVote(kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
       return;
     }
-    setCardImprint(imprint);
+    setCardImprint({ profileId: current.profile.id, imprint });
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(24);
     }
@@ -992,11 +997,14 @@ export default function SwipePage() {
 
       {rhInsight ? (
         <div
-          className="pointer-events-none fixed right-3 top-[max(12px,env(safe-area-inset-top))] z-[9720] max-w-[min(300px,46vw)] sm:right-4"
+          className="pointer-events-none fixed right-3 z-[10260] max-w-[min(320px,52vw)] sm:right-4"
+          style={{
+            top: "calc(var(--rs-swipe-top-offset, 96px) + 8px)",
+          }}
           role="status"
           aria-live="polite"
         >
-          <p className="rounded-lg border border-white/35 bg-white/22 px-2.5 py-1.5 text-left text-[10px] font-medium leading-snug text-zinc-900 shadow-sm backdrop-blur-[6px] sm:text-[11px]">
+          <p className="rounded-lg border border-zinc-400/40 bg-white/85 px-2.5 py-1.5 text-left text-[11px] font-medium leading-snug text-zinc-900 shadow-md backdrop-blur-sm sm:text-xs">
             {rhInsight}
           </p>
         </div>
@@ -1209,16 +1217,18 @@ export default function SwipePage() {
                         />
                       </div>
 
-                      {isTop && cardImprint ? (
+                      {isTop &&
+                      cardImprint &&
+                      cardImprint.profileId === item.profile.id ? (
                         <div
                           className="pointer-events-none absolute z-30"
                           style={{
-                            left: `${cardImprint.x}%`,
-                            top: `${cardImprint.y}%`,
+                            left: `${cardImprint.imprint.x}%`,
+                            top: `${cardImprint.imprint.y}%`,
                             transform: "translate(-50%, -50%)",
                           }}
                         >
-                          <StampImprintVisual kind={cardImprint.kind} />
+                          <StampImprintVisual kind={cardImprint.imprint.kind} />
                         </div>
                       ) : null}
 
@@ -1290,24 +1300,16 @@ export default function SwipePage() {
                     <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
-                    {outgoing.imprint ? (
-                      <div
-                        className="pointer-events-none absolute z-30"
-                        style={{
-                          left: `${outgoing.imprint.x}%`,
-                          top: `${outgoing.imprint.y}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      >
-                        <StampImprintVisual kind={outgoing.imprint.kind} />
-                      </div>
-                    ) : (
-                      <div className="pointer-events-none absolute left-1/2 top-[52%] z-30 -translate-x-1/2 -translate-y-1/2">
-                        <StampImprintVisual
-                          kind={outgoing.dir === 1 ? "approved" : "declined"}
-                        />
-                      </div>
-                    )}
+                    <div
+                      className="pointer-events-none absolute z-30"
+                      style={{
+                        left: `${outgoing.imprint.x}%`,
+                        top: `${outgoing.imprint.y}%`,
+                        transform: "translate(-50%, -50%)",
+                      }}
+                    >
+                      <StampImprintVisual kind={outgoing.imprint.kind} />
+                    </div>
                   </div>
                 </div>
               ) : null}
