@@ -148,6 +148,36 @@ export async function POST(req: Request) {
   }
   const prev = prevRes.data?.value ?? 0;
 
+  /** Score agrégé sur le profil (colonne `likes` = somme des votes, hors sync manuelle). */
+  const likesRes = await supabaseServer
+    .from("profiles")
+    .select("likes")
+    .eq("id", profileId)
+    .maybeSingle();
+  if (likesRes.error) {
+    return NextResponse.json({ error: likesRes.error.message }, { status: 500 });
+  }
+  const profileLikes = Number(likesRes.data?.likes ?? 0);
+  /** Avis « reste de la communauté » avant d’appliquer le nouveau vote : on retire le vote actuel du visiteur. */
+  const othersNet = profileLikes - prev;
+
+  let aligned: boolean | null = null;
+  if (othersNet > 0) aligned = value === 1;
+  else if (othersNet < 0) aligned = value === -1;
+  else aligned = null;
+
+  let rhMessage: string;
+  if (aligned === true) {
+    rhMessage =
+      "Tu es aligné avec le ressenti majoritaire sur ce CV — bon réflexe côté recrutement.";
+  } else if (aligned === false) {
+    rhMessage =
+      "Tu te distingues de l’avis le plus partagé — ce n’est pas « faux », mais c’est un autre regard RH.";
+  } else {
+    rhMessage =
+      "Pas encore de consensus clair : ton vote compte pour faire pencher la balance.";
+  }
+
   const up = await supabaseServer.from("votes").upsert(
     {
       profile_id: profileId,
@@ -161,6 +191,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: up.error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, prev, value }, { status: 200 });
+  return NextResponse.json(
+    {
+      ok: true,
+      prev,
+      value,
+      rh: {
+        aligned,
+        othersNet,
+        message: rhMessage,
+      },
+    },
+    { status: 200 },
+  );
 }
 

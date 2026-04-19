@@ -13,6 +13,8 @@ type Profile = {
   portfolio_url: string | null;
   cv_path: string;
   created_at: string;
+  /** Score net stocké sur le profil (sync votes / trigger). */
+  likes: number | null;
 };
 
 type VoteRow = {
@@ -38,9 +40,10 @@ export default function ProfilsPage() {
         const res = await supabase
           .from("profiles")
           .select(
-            "id,handle,job_title,city,tags,portfolio_url,cv_path,created_at",
+            "id,handle,job_title,city,tags,portfolio_url,cv_path,created_at,likes",
           )
           .eq("status", "published")
+          .order("likes", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })
           .limit(100);
         if (res.error) throw res.error;
@@ -184,10 +187,10 @@ export default function ProfilsPage() {
                 </div>
                 <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-center">
                   <div className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                    score
+                    likes
                   </div>
                   <div className="text-xl font-black">
-                    {votes[p.id] ?? 0}
+                    {p.likes ?? votes[p.id] ?? 0}
                   </div>
                 </div>
               </div>

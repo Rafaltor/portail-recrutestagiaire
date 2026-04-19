@@ -12,6 +12,7 @@ type ProfileRow = {
   id: string;
   handle: string;
   cv_path: string;
+  likes: number | null;
 };
 
 export async function GET(req: Request) {
@@ -52,8 +53,9 @@ export async function GET(req: Request) {
 
   let q = supabaseServer
     .from("profiles")
-    .select("id,handle,cv_path")
+    .select("id,handle,cv_path,likes")
     .eq("status", "published")
+    .order("likes", { ascending: false, nullsFirst: false })
     .limit(120);
 
   if (allExcludes.length > 0) {
@@ -71,13 +73,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ done: true, items: [] }, { status: 200 });
   }
 
-  // shuffle-ish: pick random unique candidates up to n
+  /* Déjà triés par likes décroissant côté SQL — on prend les n premiers non exclus. */
   const picked: ProfileRow[] = [];
-  const used = new Set<string>();
-  while (picked.length < n && used.size < candidates.length) {
-    const c = candidates[Math.floor(Math.random() * candidates.length)]!;
-    if (used.has(c.id)) continue;
-    used.add(c.id);
+  for (const c of candidates) {
+    if (picked.length >= n) break;
     picked.push(c);
   }
 

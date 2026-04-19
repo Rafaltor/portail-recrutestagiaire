@@ -133,6 +133,8 @@ export default function SwipePage() {
     item: SwipeItem;
     dir: 1 | -1;
     imprint: StampImprint | null;
+    /** Message RH (API /vote) — remplace le sens « tampon seul ». */
+    rhFeedback: string | null;
     /** Tampon = chute verticale ; swipe doigt = même chute + trajectoire latérale (swipe-fall). */
     exitAxis: "down" | "swipe-fall";
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
@@ -313,13 +315,16 @@ export default function SwipePage() {
     }
   }
 
-  async function sendVote(profileId: string, value: 1 | -1) {
+  async function sendVote(
+    profileId: string,
+    value: 1 | -1,
+  ): Promise<{ ok: boolean; rhMessage?: string }> {
     if (isConnected && value === 1) {
       const currentLikes = readLocalInt(likesDayKey);
       setLikesToday(currentLikes);
       if (currentLikes >= AUTH_LIKES_PER_DAY) {
         setMessage("Limite atteinte: 10 likes par jour. Réessaie demain.");
-        return false;
+        return { ok: false };
       }
     }
     const {
@@ -338,8 +343,11 @@ export default function SwipePage() {
     if (!r.ok) {
       const j = await r.json().catch(() => ({}));
       setMessage(j?.error || "Impossible d’enregistrer le vote.");
-      return false;
+      return { ok: false };
     }
+    const j = (await r.json().catch(() => ({}))) as {
+      rh?: { message?: string };
+    };
     if (!isConnected) {
       const next = readLocalInt(swipeCountKey) + 1;
       writeLocalInt(swipeCountKey, next);
@@ -352,7 +360,7 @@ export default function SwipePage() {
       writeLocalInt(likesDayKey, nextLikes);
       setLikesToday(nextLikes);
     }
-    return true;
+    return { ok: true, rhMessage: j.rh?.message };
   }
 
   const current = deck[0] ?? null;
@@ -567,44 +575,39 @@ export default function SwipePage() {
       const profileId = current.profile.id;
       const item = current;
 
-      setCardImprint(resolvedImprint);
-      setOutgoing({
-        item,
-        dir: value,
-        imprint: resolvedImprint,
-        exitAxis: "swipe-fall",
-        exitStartX: swipeRelease.x,
-        exitStartTilt: swipeRelease.tilt,
-        exitDurationMs: STAMP_EXIT_MS,
-        slideOut: false,
-      });
-      setDragX(0);
-      startXRef.current = null;
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setOutgoing((o) =>
-            o && o.item.profile.id === profileId
-              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-              : o,
-          );
-        });
-      });
-
-      consumeTopAndRefill();
-
       void (async () => {
-        const voteOk = await sendVote(profileId, value);
-        if (!voteOk) {
-          setDeck((prev) => {
-            if (prev[0]?.profile.id === item.profile.id) return prev;
-            return [item, ...prev];
-          });
-          setOutgoing(null);
-          setCardImprint(null);
+        const vr = await sendVote(profileId, value);
+        if (!vr.ok) {
           transitionInFlightRef.current = false;
           return;
         }
+        setCardImprint(resolvedImprint);
+        setOutgoing({
+          item,
+          dir: value,
+          imprint: resolvedImprint,
+          rhFeedback: vr.rhMessage ?? null,
+          exitAxis: "swipe-fall",
+          exitStartX: swipeRelease.x,
+          exitStartTilt: swipeRelease.tilt,
+          exitDurationMs: STAMP_EXIT_MS,
+          slideOut: false,
+        });
+        setDragX(0);
+        startXRef.current = null;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setOutgoing((o) =>
+              o && o.item.profile.id === profileId
+                ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+                : o,
+            );
+          });
+        });
+
+        consumeTopAndRefill();
+
         window.setTimeout(() => {
           completeOutgoingCleanup();
         }, STAMP_EXIT_MS + 72);
@@ -626,28 +629,9 @@ export default function SwipePage() {
       }
 
       imprintHoldTimerRef.current = window.setTimeout(() => {
-        setOutgoing({
-          item,
-          dir: value,
-          imprint: resolvedImprint,
-          exitAxis: "down",
-          exitStartX: 0,
-          exitStartTilt: 0,
-          exitDurationMs: STAMP_EXIT_MS,
-          slideOut: false,
-        });
-        consumeTopAndRefill();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setOutgoing((o) =>
-              o && o.item.profile.id === profileId
-                ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-                : o,
-            );
-          });
-        });
-        void sendVote(profileId, value).then((voteOk) => {
-          if (!voteOk) {
+        void (async () => {
+          const vr = await sendVote(profileId, value);
+          if (!vr.ok) {
             setDeck((prev) => {
               if (prev[0]?.profile.id === item.profile.id) return prev;
               return [item, ...prev];
@@ -655,19 +639,41 @@ export default function SwipePage() {
             setOutgoing(null);
             setCardImprint(null);
             transitionInFlightRef.current = false;
+            return;
           }
-        });
-        window.setTimeout(() => {
-          completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 72);
+          setOutgoing({
+            item,
+            dir: value,
+            imprint: resolvedImprint,
+            rhFeedback: vr.rhMessage ?? null,
+            exitAxis: "down",
+            exitStartX: 0,
+            exitStartTilt: 0,
+            exitDurationMs: STAMP_EXIT_MS,
+            slideOut: false,
+          });
+          consumeTopAndRefill();
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setOutgoing((o) =>
+                o && o.item.profile.id === profileId
+                  ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+                  : o,
+              );
+            });
+          });
+          window.setTimeout(() => {
+            completeOutgoingCleanup();
+          }, STAMP_EXIT_MS + 72);
+        })();
       }, holdImprintMs);
       return;
     }
 
     transitionInFlightRef.current = true;
     const itemAfterVote = current;
-    const voteOk = await sendVote(itemAfterVote.profile.id, value);
-    if (!voteOk) {
+    const vr = await sendVote(itemAfterVote.profile.id, value);
+    if (!vr.ok) {
       setCardImprint(null);
       setStampDropping(false);
       transitionInFlightRef.current = false;
@@ -683,6 +689,7 @@ export default function SwipePage() {
     }
 
     const votedProfileId = itemAfterVote.profile.id;
+    const rhMsg = vr.rhMessage ?? null;
     imprintHoldTimerRef.current = window.setTimeout(() => {
       const exitStartX = swipeRelease?.x ?? 0;
       const exitStartTilt = swipeRelease?.tilt ?? 0;
@@ -690,6 +697,7 @@ export default function SwipePage() {
         item: itemAfterVote,
         dir: value,
         imprint: resolvedImprint,
+        rhFeedback: rhMsg,
         exitAxis: "swipe-fall",
         exitStartX,
         exitStartTilt,
@@ -1276,7 +1284,13 @@ export default function SwipePage() {
                     <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
-                    {outgoing.imprint ? (
+                    {outgoing.rhFeedback ? (
+                      <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center px-4 py-6">
+                        <p className="max-w-[min(340px,88%)] rounded-xl border border-zinc-200 bg-white/96 px-4 py-3 text-center text-[13px] font-bold leading-snug text-zinc-900 shadow-lg sm:text-sm">
+                          {outgoing.rhFeedback}
+                        </p>
+                      </div>
+                    ) : outgoing.imprint ? (
                       <div
                         className="pointer-events-none absolute z-30"
                         style={{
