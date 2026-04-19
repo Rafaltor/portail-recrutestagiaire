@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { getOrCreateVisitorId } from "@/lib/visitor";
+import ProfilCvThumb from "@/components/ProfilCvThumb";
+import "./profils-list.css";
 
 type Profile = {
   id: string;
@@ -16,15 +17,9 @@ type Profile = {
   likes: number | null;
 };
 
-type VoteRow = {
-  profile_id: string;
-  value: number;
-};
-
 export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [myVotes, setMyVotes] = useState<Record<string, 1 | -1 | 0>>({});
   const [q, setQ] = useState("");
   const [message, setMessage] = useState<string>("");
 
@@ -49,26 +44,6 @@ export default function ProfilsPage() {
         const list = (res.data ?? []) as Profile[];
         if (!alive) return;
         setProfiles(list);
-
-        /* Score communautaire = colonne profiles.likes (sync côté API). Une seule requête légère : mes votes. */
-        if (list.length) {
-          const ids = list.map((p) => p.id);
-          const visitorId = getOrCreateVisitorId();
-          const my = await supabase
-            .from("votes")
-            .select("profile_id,value")
-            .in("profile_id", ids)
-            .eq("visitor_id", visitorId);
-          if (my.error) throw my.error;
-          const mine: Record<string, 1 | -1 | 0> = {};
-          ((my.data ?? []) as VoteRow[]).forEach((r) => {
-            mine[r.profile_id] = (r.value === -1 ? -1 : 1) as 1 | -1;
-          });
-          if (!alive) return;
-          setMyVotes(mine);
-        } else {
-          setMyVotes({});
-        }
       } catch (e: unknown) {
         setMessage(e instanceof Error ? e.message : "Erreur inconnue");
       } finally {
@@ -98,160 +73,131 @@ export default function ProfilsPage() {
     });
   }, [profiles, q]);
 
-  async function vote(profileId: string, value: 1 | -1) {
-    setMessage("");
-    const visitorId = getOrCreateVisitorId();
-    const prev = myVotes[profileId] ?? 0;
-    if (prev === value) return;
-    const r = await fetch("/api/vote", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ profileId, value, visitorId }),
-    });
-    if (!r.ok) {
-      const j = await r.json().catch(() => ({}));
-      setMessage(j?.error || "Impossible d’enregistrer le vote.");
-      return;
-    }
-    const j = (await r.json()) as {
-      ok: boolean;
-      prev: number;
-      value: 1 | -1;
-      profileLikes?: number;
-    };
-    setMyVotes((m) => ({ ...m, [profileId]: value }));
-    if (typeof j.profileLikes === "number") {
-      setProfiles((ps) =>
-        ps.map((p) =>
-          p.id === profileId ? { ...p, likes: j.profileLikes! } : p,
-        ),
-      );
-    }
-  }
-
   return (
-    <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-xl font-black tracking-tight">Profils</h1>
-            <p className="mt-1 text-sm text-zinc-700">
-              Classement communautaire (MVP). Pas de photo.
+    <div className="mx-auto w-full max-w-7xl space-y-6 pb-2">
+      <header className="rs-panel overflow-hidden rounded-xl p-5 sm:p-7 md:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#1b55c4)]">
+              Candidats publiés
+            </p>
+            <h1 className="rs-profils-list__hero-title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+              Profils
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
+              Parcours les CV comme sur une vitrine d’offres : aperçu du PDF sur la
+              gauche, détail et score à droite (sur mobile : un profil par ligne,
+              aperçu en haut).
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
+            <label className="sr-only" htmlFor="rs-profils-filter">
+              Filtrer les profils
+            </label>
             <input
+              id="rs-profils-filter"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Filtrer… (métier, ville, tag)"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm md:w-80"
+              placeholder="Métier, ville, tag…"
+              className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#001a57)] placeholder:text-zinc-400"
             />
-            <a href="/depot" className="rs-btn rs-btn--primary whitespace-nowrap">
-              Déposer
+            <a
+              href="/depot"
+              className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
+            >
+              Déposer un CV
             </a>
           </div>
         </div>
         {message ? (
-          <p className="mt-3 text-sm text-red-700">{message}</p>
+          <p className="mt-4 text-sm text-red-700">{message}</p>
         ) : null}
-      </div>
+      </header>
 
       {loading ? (
-        <div className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
-          Chargement…
+        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#001a57)]">
+          Chargement des profils…
         </div>
       ) : filtered.length ? (
-        <div className="grid gap-4 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-5">
           {filtered.map((p) => (
-            <article
-              key={p.id}
-              className="rs-panel rounded-lg p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-sm font-black text-zinc-900">
-                    @{p.handle.replace(/^@/, "")}
+            <li key={p.id}>
+              <article className="rs-panel rs-profils-card overflow-hidden rounded-xl">
+                <div className="flex flex-col lg:min-h-[300px] lg:flex-row lg:items-stretch">
+                  <div className="rs-profils-card__preview relative h-[220px] w-full shrink-0 overflow-hidden bg-[#fbfbfd] sm:h-[260px] lg:h-auto lg:min-h-[300px] lg:w-[min(44%,480px)] lg:max-w-[520px]">
+                    <ProfilCvThumb profileId={p.id} />
                   </div>
-                  <div className="mt-1 text-lg font-black leading-snug">
-                    {p.job_title}
-                  </div>
-                  <div className="mt-1 text-sm text-zinc-700">
-                    {p.city ? p.city : "—"}
+
+                  <div className="flex min-w-0 flex-1 flex-col justify-between gap-5 p-5 sm:p-6">
+                    <div>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
+                            @{p.handle.replace(/^@/, "")}
+                          </p>
+                          <h2 className="mt-1 text-lg font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:text-xl">
+                            {p.job_title}
+                          </h2>
+                          <p className="mt-1.5 text-sm text-zinc-600">
+                            {p.city ?? "—"}
+                          </p>
+                        </div>
+                        <div
+                          className="rs-profils-score shrink-0 rounded-lg px-3 py-2 text-center"
+                          title="Score net (votes de la communauté)"
+                        >
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
+                            Score
+                          </div>
+                          <div className="text-[22px] font-black leading-none tabular-nums">
+                            {p.likes ?? 0}
+                          </div>
+                        </div>
+                      </div>
+
+                      {p.tags?.length ? (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {p.tags.slice(0, 10).map((t) => (
+                            <span
+                              key={t}
+                              className="rs-profils-tag rounded-full border px-3 py-1 text-xs font-semibold"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-zinc-200/90 pt-4">
+                      {p.portfolio_url ? (
+                        <a
+                          href={p.portfolio_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rs-btn rs-btn--ghost text-[13px]"
+                        >
+                          Portfolio
+                        </a>
+                      ) : null}
+                      <a
+                        href={`/profil/${p.id}`}
+                        className="rs-btn rs-btn--primary text-[13px]"
+                      >
+                        Ouvrir le CV
+                      </a>
+                    </div>
                   </div>
                 </div>
-                <div className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-center">
-                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-600">
-                    score
-                  </div>
-                  <div
-                    className="text-xl font-black"
-                    title="Score net (colonne likes, mise à jour à chaque vote)"
-                  >
-                    {p.likes ?? 0}
-                  </div>
-                </div>
-              </div>
-
-              {p.tags?.length ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {p.tags.slice(0, 8).map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-700"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {p.portfolio_url ? (
-                  <a
-                    href={p.portfolio_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rs-btn rs-btn--ghost"
-                  >
-                    Portfolio
-                  </a>
-                ) : null}
-
-                <a
-                  href={`/profil/${p.id}`}
-                  className="rs-btn rs-btn--ghost"
-                >
-                  Voir le CV
-                </a>
-
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    onClick={() => vote(p.id, 1)}
-                    className={`rs-btn ${
-                      (myVotes[p.id] ?? 0) === 1 ? "rs-btn--primary" : "rs-btn--ghost"
-                    }`}
-                  >
-                    Like
-                  </button>
-                  <button
-                    onClick={() => vote(p.id, -1)}
-                    className={`rs-btn ${
-                      (myVotes[p.id] ?? 0) === -1 ? "rs-btn--danger" : "rs-btn--ghost"
-                    }`}
-                  >
-                    Dislike
-                  </button>
-                </div>
-              </div>
-            </article>
+              </article>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
-        <div className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
+        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#001a57)]">
           Aucun profil publié pour le moment.
         </div>
       )}
     </div>
   );
 }
-

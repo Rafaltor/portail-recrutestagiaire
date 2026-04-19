@@ -5,10 +5,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const intent = new URL(req.url).searchParams.get("intent");
+  const isListPreview = intent === "preview";
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) {
     return NextResponse.json(
@@ -50,20 +52,22 @@ export async function GET(
     );
   }
 
-  // Best effort: increment views counter when column exists.
-  const viewsRes = await supabaseServer
-    .from("profiles")
-    .select("views_count")
-    .eq("id", id)
-    .maybeSingle();
-  if (!viewsRes.error && viewsRes.data) {
-    const current = Number(
-      (viewsRes.data as { views_count?: number | null }).views_count ?? 0,
-    );
-    await supabaseServer
+  /* Ne pas compter une « vue » pour les miniatures liste (/profils). */
+  if (!isListPreview) {
+    const viewsRes = await supabaseServer
       .from("profiles")
-      .update({ views_count: current + 1 })
-      .eq("id", id);
+      .select("views_count")
+      .eq("id", id)
+      .maybeSingle();
+    if (!viewsRes.error && viewsRes.data) {
+      const current = Number(
+        (viewsRes.data as { views_count?: number | null }).views_count ?? 0,
+      );
+      await supabaseServer
+        .from("profiles")
+        .update({ views_count: current + 1 })
+        .eq("id", id);
+    }
   }
 
   return NextResponse.json({ url: signed.data.signedUrl }, { status: 200 });

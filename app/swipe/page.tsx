@@ -114,6 +114,10 @@ function StampImprintVisual({ kind }: { kind: StampKind }) {
 const STACK_DECK_BACK = "translate(10px, 12px) scale(0.94)";
 const STACK_DECK_MID = "translate(5px, 6px) scale(0.97)";
 
+/** Message RH : durée d’affichage puis fondu de sortie (ms). */
+const RH_INSIGHT_DISPLAY_MS = 3000;
+const RH_INSIGHT_FADE_MS = 280;
+
 export default function SwipePage() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
   const [session, setSession] = useState<Session | null>(null);
@@ -135,8 +139,9 @@ export default function SwipePage() {
 
   // When a swipe is committed, we keep rendering the outgoing card on top
   // while we immediately reveal the next card underneath.
-  /** Message RH (API /vote) — panneau haut droite, persiste jusqu’au prochain vote. */
+  /** Message RH (API /vote) — panneau haut droite, fondu puis disparition auto. */
   const [rhInsight, setRhInsight] = useState<string | null>(null);
+  const [rhInsightFadedIn, setRhInsightFadedIn] = useState(false);
 
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
@@ -447,6 +452,30 @@ export default function SwipePage() {
       document.documentElement.removeAttribute("data-rs-swipe");
     };
   }, []);
+
+  useEffect(() => {
+    if (!rhInsight) {
+      setRhInsightFadedIn(false);
+      return;
+    }
+    setRhInsightFadedIn(false);
+    let raf2 = 0;
+    const raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => setRhInsightFadedIn(true));
+    });
+    const hideTimer = window.setTimeout(() => {
+      setRhInsightFadedIn(false);
+    }, RH_INSIGHT_DISPLAY_MS);
+    const clearTimer = window.setTimeout(() => {
+      setRhInsight(null);
+    }, RH_INSIGHT_DISPLAY_MS + RH_INSIGHT_FADE_MS);
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+      window.clearTimeout(hideTimer);
+      window.clearTimeout(clearTimer);
+    };
+  }, [rhInsight]);
 
   useLayoutEffect(() => {
     const el = sheetMeasureRef.current;
@@ -997,9 +1026,12 @@ export default function SwipePage() {
 
       {rhInsight ? (
         <div
-          className="pointer-events-none fixed right-3 z-[10260] max-w-[min(320px,52vw)] sm:right-4"
+          className={`pointer-events-none fixed right-3 z-[10260] max-w-[min(320px,52vw)] transition-opacity ease-out sm:right-4 ${
+            rhInsightFadedIn ? "opacity-100" : "opacity-0"
+          }`}
           style={{
             top: "calc(var(--rs-swipe-top-offset, 96px) + 8px)",
+            transitionDuration: `${RH_INSIGHT_FADE_MS}ms`,
           }}
           role="status"
           aria-live="polite"
