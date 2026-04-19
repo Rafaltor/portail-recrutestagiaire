@@ -1,6 +1,24 @@
 -- À exécuter dans Supabase → SQL Editor (une fois + optionnel trigger)
 -- Colonne attendue : profiles.likes (bigint ou integer), table votes avec value IN (-1, 1).
 
+-- Diagnostic : écarts entre somme des votes et colonne likes (avant rattrapage)
+-- SELECT p.id, p.handle, p.likes AS likes_col,
+--        COALESCE(s.total, 0) AS sum_votes
+-- FROM public.profiles p
+-- LEFT JOIN (
+--   SELECT profile_id, SUM(value)::bigint AS total
+--   FROM public.votes
+--   GROUP BY profile_id
+-- ) s ON s.profile_id = p.id
+-- WHERE COALESCE(p.likes, -999999) <> COALESCE(s.total, 0)
+--    OR (p.likes IS NULL AND s.total IS NOT NULL);
+
+-- Votes orphelins (profile_id absent de profiles) — à traiter à la main si besoin
+-- SELECT v.profile_id, COUNT(*) FROM public.votes v
+-- LEFT JOIN public.profiles p ON p.id = v.profile_id
+-- WHERE p.id IS NULL
+-- GROUP BY v.profile_id;
+
 -- Index utile pour le tri rapide « publiés par score » (optionnel)
 -- CREATE INDEX IF NOT EXISTS idx_profiles_status_likes ON public.profiles (status, likes DESC);
 

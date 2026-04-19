@@ -55,7 +55,7 @@ function readLinkedVisitorIds(raw: unknown) {
 function sumVoteValues(rows: { value: unknown }[] | null | undefined): number {
   let s = 0;
   for (const r of rows ?? []) {
-    const v = r.value;
+    const v = Number(r.value);
     if (v === -1) s -= 1;
     else if (v === 1) s += 1;
   }
@@ -202,8 +202,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: up.error.message }, { status: 500 });
   }
 
-  /** Nouvelle somme après upsert : évite une relecture complète ; cohérent avec SUM(votes). */
-  const newLikesSum = sumAll - prevNorm + value;
+  /** Somme réelle après upsert (relecture = même résultat que SUM en SQL ; évite tout décalage). */
+  const votesAfterRes = await supabaseServer
+    .from("votes")
+    .select("value")
+    .eq("profile_id", profileId);
+  if (votesAfterRes.error) {
+    return NextResponse.json({ error: votesAfterRes.error.message }, { status: 500 });
+  }
+  const newLikesSum = sumVoteValues(votesAfterRes.data);
 
   const upProf = await supabaseServer
     .from("profiles")
