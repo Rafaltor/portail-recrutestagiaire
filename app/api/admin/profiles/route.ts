@@ -3,6 +3,9 @@ import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+const CV_BUCKET = "cvs";
+const CV_BACKUP_BUCKET =
+  process.env.ADMIN_CV_BACKUP_BUCKET?.trim() || "cvs-original-backups";
 
 function unauthorized() {
   return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -49,17 +52,34 @@ async function buildPendingPreviewItem(
 ) {
   const cleanPath = String(item.cv_path || "").trim().replace(/^\/+/, "");
   let cv_preview_url = "";
+  let cv_original_url = "";
   if (cleanPath) {
     const signed = await supabaseServer.storage
-      .from("cvs")
+      .from(CV_BUCKET)
       .createSignedUrl(cleanPath, 60 * 20);
     if (!signed.error && signed.data?.signedUrl) {
       cv_preview_url = signed.data.signedUrl;
     }
   }
+
+  const backupFolder = `profiles/${item.id}`;
+  const backupList = await supabaseServer.storage.from(CV_BACKUP_BUCKET).list(backupFolder, {
+    limit: 1,
+    sortBy: { column: "name", order: "desc" },
+  });
+  if (!backupList.error && backupList.data?.[0]?.name) {
+    const latestPath = `${backupFolder}/${backupList.data[0].name}`;
+    const backupSigned = await supabaseServer.storage
+      .from(CV_BACKUP_BUCKET)
+      .createSignedUrl(latestPath, 60 * 20);
+    if (!backupSigned.error && backupSigned.data?.signedUrl) {
+      cv_original_url = backupSigned.data.signedUrl;
+    }
+  }
   return {
     ...item,
     cv_preview_url,
+    cv_original_url,
   };
 }
 

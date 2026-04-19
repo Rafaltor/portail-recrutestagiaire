@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import PdfPreview from "@/components/PdfPreview";
 
@@ -15,8 +15,294 @@ type AdminProfile = {
   status: string;
   rejection_reason?: string | null;
   cv_preview_url: string;
+  cv_original_url: string;
   job_category: string;
 };
+
+type RedactionRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+function clamp01(v: number) {
+  if (!Number.isFinite(v)) return 0;
+  return Math.max(0, Math.min(1, v));
+}
+
+function RedactionEditorModal({
+  open,
+  profile,
+  authHeader,
+  onClose,
+  onApplied,
+}: {
+  open: boolean;
+  profile: AdminProfile | null;
+  authHeader: string;
+  onClose: () => void;
+  onApplied: (nextItem: { id: string; cv_preview_url: string; cv_original_url: string }) => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [renderError, setRenderError] = useState("");
+  const [rendering, setRendering] = useState(false);
+  const [rects, setRects] = useState<RedactionRect[]>([]);
+  const [draftRect, setDraftRect] = useState<RedactionRect | null>(null);
+  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
+  const [applyBusy, setApplyBusy] = useState(false);
+  const [applyError, setApplyError] = useState("");
+
+  const renderPdf = useCallback(async () => {
+    if (!open || !profile?.cv_preview_url) return;
+    const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+    if (!canvas || !wrap) return;
+    setRendering(true);
+    setRenderError("");
+    try {
+      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      const pdfjsAny = pdfjs as unknown as {
+        GlobalWorkerOptions: { workerSrc?: string };
+        getDocument: (arg: unknown) => {
+          promise: Promise<{ getPage: (n: number) => Promise<unknown> }>;
+        };
+      };
+      if (!pdfjsAny.GlobalWorkerOptions.workerSrc) {
+        pdfjsAny.GlobalWorkerOptions.workerSrc = new URL(
+          "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
+          import.meta.url,
+        ).toString();
+      }
+      const doc = await pdfjsAny.getDocument({ url: profile.cv_preview_url }).promise;
+      const page = (await doc.getPage(1)) as {
+        getViewport: (arg: { scale: number }) => { width: number; height: number };
+        render: (arg: {
+          canvasContext: CanvasRenderingContext2D;
+          viewport: { width: number; height: number };
+        }) => { promise: Promise<void> };
+      };
+      const viewportBase = page.getViewport({ scale: 1 });
+      const area = wrap.getBoundingClientRect();
+      const scale = Math.max(
+        0.2,
+        Math.min(area.width / viewportBase.width, area.height / viewportBase.height),
+      );
+      const viewport = page.getViewport({ scale });
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width = `${Math.floor(viewport.width)}px`;
+      canvas.style.height = `${Math.floor(viewport.height)}px`;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("canvas_context_missing");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+    } catch (e: unknown) {
+      setRenderError(
+        e instanceof Error ? e.message : "Impossible de charger le PDF pour l'édition.",
+      );
+    } finally {
+      setRendering(false);
+    }
+  }, [open, profile?.cv_preview_url]);
+
+  useEffect(() => {
+    if (!open) return;
+    void renderPdf();
+    const onResize = () => {
+      void renderPdf();
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open, renderPdf]);
+
+  useEffect(() => {
+    if (!open || !profile) return;
+    setRects([]);
+    setDraftRect(null);
+    setDrawStart(null);
+    setApplyError("");
+  }, [open, profile]);
+
+  const getNormPoint = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const overlay = event.currentTarget.getBoundingClientRect();
+    const x = clamp01((event.clientX - overlay.left) / Math.max(1, overlay.width));
+    const y = clamp01((event.clientY - overlay.top) / Math.max(1, overlay.height));
+    return { x, y };
+  }, []);
+
+  async function applyMasking() {
+    if (!profile) return;
+    if (!rects.length) {
+      setApplyError("Ajoute au moins un rectangle noir avant d'appliquer.");
+      return;
+    }
+    setApplyError("");
+    setApplyBusy(true);
+    try {
+      const r = await fetch("/api/admin/profiles/redact", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(authHeader ? { authorization: authHeader } : {}),
+        },
+        body: JSON.stringify({
+          profileId: profile.id,
+          page: 1,
+          rectangles: rects,
+        }),
+      });
+      const j = (await r.json().catch(() => ({}))) as {
+        error?: string;
+        item?: { id: string; cv_preview_url: string; cv_original_url: string };
+      };
+      if (!r.ok || !j.item) {
+        throw new Error(j.error || "Échec du masquage");
+      }
+      onApplied(j.item);
+      onClose();
+    } catch (e: unknown) {
+      setApplyError(e instanceof Error ? e.message : "Échec du masquage");
+    } finally {
+      setApplyBusy(false);
+    }
+  }
+
+  if (!open || !profile) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/75 p-3 sm:p-6">
+      <div className="flex h-full flex-col rounded-lg border border-zinc-700 bg-zinc-950/95">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-4 py-3 text-zinc-100">
+          <div>
+            <p className="text-sm font-semibold">Mode édition — @{profile.handle.replace(/^@/, "")}</p>
+            <p className="text-xs text-zinc-400">
+              Dessine des zones noires (téléphone, email, adresse), puis applique.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setRects((prev) => prev.slice(0, -1))}
+              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+            >
+              Annuler le dernier
+            </button>
+            <button
+              onClick={() => setRects([])}
+              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+            >
+              Tout effacer
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 p-2 sm:p-4">
+          <div ref={wrapRef} className="relative flex h-full w-full items-center justify-center overflow-auto">
+            <div className="relative">
+              <canvas ref={canvasRef} className="block max-h-[80vh] max-w-full bg-white shadow-xl" />
+              <div
+                className="absolute inset-0 cursor-crosshair"
+                onPointerDown={(event) => {
+                  const point = getNormPoint(event);
+                  setDrawStart(point);
+                  setDraftRect({
+                    x: point.x,
+                    y: point.y,
+                    width: 0,
+                    height: 0,
+                  });
+                }}
+                onPointerMove={(event) => {
+                  if (!drawStart) return;
+                  const point = getNormPoint(event);
+                  const x = Math.min(drawStart.x, point.x);
+                  const y = Math.min(drawStart.y, point.y);
+                  const width = Math.abs(point.x - drawStart.x);
+                  const height = Math.abs(point.y - drawStart.y);
+                  setDraftRect({ x, y, width, height });
+                }}
+                onPointerUp={() => {
+                  if (draftRect && draftRect.width > 0.005 && draftRect.height > 0.005) {
+                    setRects((prev) => [...prev, draftRect]);
+                  }
+                  setDraftRect(null);
+                  setDrawStart(null);
+                }}
+                onPointerLeave={() => {
+                  if (drawStart && draftRect && draftRect.width > 0.005 && draftRect.height > 0.005) {
+                    setRects((prev) => [...prev, draftRect]);
+                  }
+                  setDraftRect(null);
+                  setDrawStart(null);
+                }}
+              >
+                {rects.map((rect, index) => (
+                  <div
+                    key={`${rect.x}-${rect.y}-${rect.width}-${rect.height}-${index}`}
+                    className="absolute border border-red-300 bg-black/85"
+                    style={{
+                      left: `${rect.x * 100}%`,
+                      top: `${rect.y * 100}%`,
+                      width: `${rect.width * 100}%`,
+                      height: `${rect.height * 100}%`,
+                    }}
+                  />
+                ))}
+                {draftRect ? (
+                  <div
+                    className="absolute border border-amber-300 bg-black/70"
+                    style={{
+                      left: `${draftRect.x * 100}%`,
+                      top: `${draftRect.y * 100}%`,
+                      width: `${draftRect.width * 100}%`,
+                      height: `${draftRect.height * 100}%`,
+                    }}
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-zinc-800 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => void applyMasking()}
+              disabled={!rects.length || applyBusy}
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {applyBusy ? "Masquage..." : "Appliquer le masquage"}
+            </button>
+            {profile.cv_original_url ? (
+              <a
+                href={profile.cv_original_url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-zinc-800"
+              >
+                Voir l&apos;original (admin)
+              </a>
+            ) : null}
+            <span className="text-xs text-zinc-400">{rects.length} zone(s) à masquer</span>
+          </div>
+          {rendering ? <p className="mt-2 text-xs text-zinc-400">Chargement du PDF...</p> : null}
+          {renderError ? <p className="mt-2 text-xs text-red-400">{renderError}</p> : null}
+          {applyError ? <p className="mt-2 text-xs text-red-400">{applyError}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [authReady, setAuthReady] = useState(false);
@@ -26,6 +312,7 @@ export default function AdminPage() {
   const [items, setItems] = useState<AdminProfile[]>([]);
   const [message, setMessage] = useState<string>("");
   const [rejectionById, setRejectionById] = useState<Record<string, string>>({});
+  const [editingId, setEditingId] = useState<string>("");
 
   const authHeader = useMemo(() => {
     if (!accessToken) return "";
@@ -143,6 +430,21 @@ export default function AdminPage() {
     setItems((xs) => xs.filter((x) => x.id !== id));
   }
 
+  function onMaskApplied(nextItem: { id: string; cv_preview_url: string; cv_original_url: string }) {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === nextItem.id
+          ? {
+              ...item,
+              cv_preview_url: nextItem.cv_preview_url || item.cv_preview_url,
+              cv_original_url: nextItem.cv_original_url || item.cv_original_url,
+            }
+          : item,
+      ),
+    );
+    setMessage("Masquage appliqué avec succès.");
+  }
+
   useEffect(() => {
     if (!authReady || !isAdmin || !authHeader) return;
     void load();
@@ -241,6 +543,24 @@ export default function AdminPage() {
                     <div className="mt-1 text-sm text-zinc-700">
                       Ville: {p.city ? p.city : "—"}
                     </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => setEditingId(p.id)}
+                        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                      >
+                        Mode édition
+                      </button>
+                      {p.cv_original_url ? (
+                        <a
+                          href={p.cv_original_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                        >
+                          Voir l&apos;original (admin)
+                        </a>
+                      ) : null}
+                    </div>
                     {p.portfolio_url ? (
                       <a
                         href={p.portfolio_url}
@@ -292,6 +612,13 @@ export default function AdminPage() {
           </p>
         )}
       </div>
+      <RedactionEditorModal
+        open={!!editingId}
+        profile={items.find((item) => item.id === editingId) ?? null}
+        authHeader={authHeader}
+        onClose={() => setEditingId("")}
+        onApplied={onMaskApplied}
+      />
     </div>
   );
 }
