@@ -10,7 +10,6 @@ type Profile = {
   handle: string;
   job_title: string;
   city: string | null;
-  tags: string[] | null;
   portfolio_url: string | null;
   cv_path: string;
   created_at: string;
@@ -32,7 +31,7 @@ export default function ProfilsPage() {
         const res = await supabase
           .from("profiles")
           .select(
-            "id,handle,job_title,city,tags,portfolio_url,cv_path,created_at",
+            "id,handle,job_title,city,portfolio_url,cv_path,created_at",
           )
           .eq("status", "published")
           .order("created_at", { ascending: false })
@@ -59,12 +58,7 @@ export default function ProfilsPage() {
     const s = q.trim().toLowerCase();
     if (!s) return profiles;
     return profiles.filter((p) => {
-      const hay = [
-        p.handle,
-        p.job_title,
-        p.city ?? "",
-        ...(p.tags ?? []),
-      ]
+      const hay = [p.handle, p.job_title, p.city ?? ""]
         .join(" ")
         .toLowerCase();
       return hay.includes(s);
@@ -96,7 +90,7 @@ export default function ProfilsPage() {
               id="rs-profils-filter"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Métier, ville, tag…"
+              placeholder="Métier, ville…"
               className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#001a57)] placeholder:text-zinc-400"
             />
             <a
@@ -122,31 +116,16 @@ export default function ProfilsPage() {
             <li key={p.id} className="flex min-h-0 h-full">
               <article className="rs-panel rs-profils-card flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl md:min-h-[300px] md:flex-row md:items-stretch">
                 <div className="flex min-w-0 flex-shrink-0 flex-col justify-between gap-4 border-b border-[var(--rs-panel-border,#c5d5e4)] p-5 sm:p-6 md:w-[min(46%,280px)] md:max-w-[50%] md:border-b-0">
-                  <div>
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
-                        @{p.handle.replace(/^@/, "")}
-                      </p>
-                      <h2 className="mt-1 text-lg font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:text-xl">
-                        {p.job_title}
-                      </h2>
-                      <p className="mt-1.5 text-sm text-zinc-600">
-                        {p.city ?? "—"}
-                      </p>
-                    </div>
-
-                    {p.tags?.length ? (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {p.tags.slice(0, 10).map((t) => (
-                          <span
-                            key={t}
-                            className="rs-profils-tag rounded-full border px-3 py-1 text-xs font-semibold"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
+                      @{p.handle.replace(/^@/, "")}
+                    </p>
+                    <h2 className="mt-1 text-lg font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:text-xl">
+                      {p.job_title}
+                    </h2>
+                    <p className="mt-1.5 text-sm text-zinc-600">
+                      {p.city ?? "—"}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-zinc-200/90 pt-4">

@@ -42,8 +42,7 @@
   }
 }
 
-.rs-profils-tag {
-  border-color: rgba(0, 51, 171, 0.14);
-  background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-  color: var(--rs-logo-blue-deep, #001a57);
+/* Aperçu PDF : éviter le flou dû au redimensionnement CSS (couche composite nette). */
+.rs-profils-card__preview .rs-pdf-canvas {
+  transform: translateZ(0);
 }

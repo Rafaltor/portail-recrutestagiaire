@@ -53,8 +53,13 @@ export default function ProfilCvThumb({ profileId }: Props) {
   }
 
   return (
-    <div className="h-full min-h-[200px] w-full overflow-hidden bg-white">
-      <PdfPreview url={url} mode="cover-height" immersive />
+    <div className="h-full min-h-[200px] w-full min-w-0 overflow-hidden bg-white">
+      <PdfPreview
+        url={url}
+        mode="cover-height"
+        immersive
+        pixelRatioMin={1.5}
+      />
     </div>
   );
 }
