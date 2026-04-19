@@ -28,7 +28,9 @@ export function HeaderAccountLink() {
   return (
     <Link
       href={href}
-      className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-decoration-none"
+      rel="noopener noreferrer"
+      className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none"
+      aria-label="Mon espace"
     >
       <svg
         className="rs-icon-account"

@@ -114,8 +114,8 @@ export default function ProfilsPage() {
         <ul className="grid grid-cols-1 items-stretch gap-4 sm:gap-5 md:grid-cols-2">
           {filtered.map((p) => (
             <li key={p.id} className="flex min-h-0 h-full min-w-0">
-              <article className="rs-panel rs-profils-card flex h-full min-h-[200px] w-full min-w-0 flex-row items-stretch overflow-hidden rounded-xl">
-                <div className="flex w-[min(42%,132px)] min-w-0 max-w-[46%] flex-shrink-0 flex-col gap-2 border-r border-[var(--rs-panel-border,#c5d5e4)] p-3 sm:w-[min(44%,200px)] sm:max-w-[48%] sm:p-4 md:w-[min(46%,280px)] md:max-w-[50%] md:gap-3 md:p-5">
+              <article className="rs-panel rs-profils-card grid h-full min-h-[200px] w-full min-w-0 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-stretch overflow-hidden rounded-xl">
+                <div className="flex min-w-0 flex-col gap-2 border-r border-[var(--rs-panel-border,#c5d5e4)] p-3 sm:p-4 md:gap-3 md:p-5">
                   <div className="min-w-0">
                     <p className="text-[11px] font-black leading-tight text-[var(--rs-logo-blue-mid,#1b55c4)] sm:text-[13px]">
                       @{p.handle.replace(/^@/, "")}
@@ -148,7 +148,7 @@ export default function ProfilsPage() {
                   </div>
                 </div>
 
-                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex min-h-[160px] min-w-0 flex-1 flex-col overflow-hidden bg-[#fbfbfd] sm:min-h-[180px] md:min-h-0">
+                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex min-h-[140px] min-w-0 flex-col overflow-hidden bg-[#fbfbfd] sm:min-h-[160px] md:min-h-0">
                   <ProfilCvThumb profileId={p.id} />
                 </div>
               </article>

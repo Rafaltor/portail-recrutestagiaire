@@ -51,8 +51,9 @@ export default function RootLayout({
       <body className="rs-portal-body flex min-h-dvh flex-col text-[#212529]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
-        <header
+        <div
           className="header-wrap rs-header rs-header--banner"
+          role="banner"
           style={
             {
               ["--rs-header-bg-img"]: `url(//recrutestagiaire.eu/cdn/shop/files/geometric-glass-city-architecture.jpg?v=1776117913&width=2400)`,
@@ -62,6 +63,13 @@ export default function RootLayout({
           <div
             className="rs-header-kitsch-pop rs-header-kitsch-pop--brand"
             aria-hidden="true"
+            style={
+              {
+                ["--rs-kitsch-pop-a"]: "#ffd230",
+                ["--rs-kitsch-pop-b"]: "#4d79ff",
+                ["--rs-kitsch-pop-fg"]: "#0015a3",
+              } as CSSProperties
+            }
           >
             <span
               className="rs-header-kitsch-pop__deco rs-header-kitsch-pop__deco--a"
@@ -76,17 +84,24 @@ export default function RootLayout({
               ✦
             </span>
             <div className="rs-header-kitsch-pop__track">
-              <span className="rs-header-kitsch-pop__chunk">
-                ★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★ •
-              </span>
-              <span className="rs-header-kitsch-pop__chunk">
-                ★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★ •
-              </span>
+              {[
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
+              ].map((t, i) => (
+                <span key={i} className="rs-header-kitsch-pop__chunk">
+                  {t}
+                  &nbsp;•&nbsp;
+                </span>
+              ))}
             </div>
           </div>
 
           <div className="container">
-            <div className="rs-header-two-tier" aria-label="En-tête du site">
+            <header className="rs-header-two-tier" aria-label="En-tête du site">
               <div className="rs-header-main-row">
                 <div className="rs-header-top-line">
                   <div className="rs-banner-top rs-header-pole-brand">
@@ -99,9 +114,9 @@ export default function RootLayout({
                         src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
                         alt="Recrute Stagiaire"
                         width={76}
-                        height={44}
+                        height={40}
                         priority
-                        style={{ height: 44, width: "auto" }}
+                        style={{ maxHeight: 40, height: "auto", width: "auto" }}
                       />
                       <span className="rs-nav-brand__name logo">
                         RECRUTE STAGIAIRE
@@ -112,7 +127,8 @@ export default function RootLayout({
                   <div className="rs-banner-top__actions d-inline-flex align-items-center">
                     <a
                       href="https://recrutestagiaire.eu/cart"
-                      className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-decoration-none"
+                      className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none"
+                      aria-label="Mon dossier"
                     >
                       <svg
                         className="rs-icon-dossier"
@@ -180,7 +196,7 @@ export default function RootLayout({
                         <Link href="/depot">Déposer sa candidature</Link>
                       </li>
                       <li>
-                        <Link href="/swipe">Voter (Swipe)</Link>
+                        <Link href="/swipe">Vote (swipe)</Link>
                       </li>
                     </ul>
                   </li>
@@ -201,9 +217,9 @@ export default function RootLayout({
                 </ul>
                 </nav>
               </div>
-            </div>
+            </header>
           </div>
-        </header>
+        </div>
 
         <main className="rs-portal-main mx-auto w-full max-w-[980px] flex-1">
           {children}
