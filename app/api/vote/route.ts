@@ -51,6 +51,17 @@ function readLinkedVisitorIds(raw: unknown) {
   return out;
 }
 
+/** Somme des `value` (+1 / -1) pour un profil — source de vérité pour `profiles.likes`. */
+function sumVoteValues(rows: { value: unknown }[] | null | undefined): number {
+  let s = 0;
+  for (const r of rows ?? []) {
+    const v = r.value;
+    if (v === -1) s -= 1;
+    else if (v === 1) s += 1;
+  }
+  return s;
+}
+
 export async function POST(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) {
@@ -146,20 +157,20 @@ export async function POST(req: Request) {
   if (prevRes.error) {
     return NextResponse.json({ error: prevRes.error.message }, { status: 500 });
   }
-  const prev = prevRes.data?.value ?? 0;
+  const prev = Number(prevRes.data?.value ?? 0);
+  const prevNorm = prev === -1 ? -1 : prev === 1 ? 1 : 0;
 
-  /** Score agrégé sur le profil (colonne `likes` = somme des votes, hors sync manuelle). */
-  const likesRes = await supabaseServer
-    .from("profiles")
-    .select("likes")
-    .eq("id", profileId)
-    .maybeSingle();
-  if (likesRes.error) {
-    return NextResponse.json({ error: likesRes.error.message }, { status: 500 });
+  /** Somme actuelle des votes en base (inclut le vote actuel du visiteur s’il existe). */
+  const votesSumRes = await supabaseServer
+    .from("votes")
+    .select("value")
+    .eq("profile_id", profileId);
+  if (votesSumRes.error) {
+    return NextResponse.json({ error: votesSumRes.error.message }, { status: 500 });
   }
-  const profileLikes = Number(likesRes.data?.likes ?? 0);
-  /** Avis « reste de la communauté » avant d’appliquer le nouveau vote : on retire le vote actuel du visiteur. */
-  const othersNet = profileLikes - prev;
+  const sumAll = sumVoteValues(votesSumRes.data);
+  /** Avis des autres avant le nouveau vote : on retire la contribution actuelle du visiteur. */
+  const othersNet = sumAll - prevNorm;
 
   let aligned: boolean | null = null;
   if (othersNet > 0) aligned = value === 1;
@@ -191,11 +202,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: up.error.message }, { status: 500 });
   }
 
+  /** Nouvelle somme après upsert : évite une relecture complète ; cohérent avec SUM(votes). */
+  const newLikesSum = sumAll - prevNorm + value;
+
+  const upProf = await supabaseServer
+    .from("profiles")
+    .update({ likes: newLikesSum })
+    .eq("id", profileId);
+  if (upProf.error) {
+    return NextResponse.json({ error: upProf.error.message }, { status: 500 });
+  }
+
   return NextResponse.json(
     {
       ok: true,
-      prev,
+      prev: prevNorm,
       value,
+      profileLikes: newLikesSum,
       rh: {
         aligned,
         othersNet,
