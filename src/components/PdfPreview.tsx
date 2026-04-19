@@ -21,6 +21,11 @@ type Props = {
   immersive?: boolean;
   /** Borne minimale de densité (ex. 1.5) pour éviter un rendu trop flou sur écrans 1x. */
   pixelRatioMin?: number;
+  /**
+   * Liste profils : largeur du PDF = largeur du conteneur (mode fit-width), pas de max-h
+   * sur le canvas pour éviter l’écrasement ; le dépassement vertical est rogné par le parent.
+   */
+  listThumb?: boolean;
 };
 
 export default function PdfPreview({
@@ -28,6 +33,7 @@ export default function PdfPreview({
   mode = "cover-height",
   immersive = false,
   pixelRatioMin,
+  listThumb = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -106,13 +112,15 @@ export default function PdfPreview({
         const containerWidth = Math.max(1, rect.width);
         const containerHeight = Math.max(1, rect.height);
 
+        const renderMode = listThumb ? "fit-width" : mode;
+
         const vp1 = page.getViewport({ scale: 1 });
         const byWidth = containerWidth / vp1.width;
         const byHeight = containerHeight / vp1.height;
         const raw =
-          mode === "fit-width"
+          renderMode === "fit-width"
             ? byWidth
-            : mode === "fit-cover"
+            : renderMode === "fit-cover"
               ? Math.max(byWidth, byHeight)
               : Math.min(byWidth, byHeight);
         const scale = Math.max(0.45, Math.min(3.2, raw));
@@ -227,7 +235,7 @@ export default function PdfPreview({
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       layoutPrimedForUrlRef.current = null;
     };
-  }, [url, mode, pixelRatioMin]);
+  }, [url, mode, pixelRatioMin, listThumb]);
 
   return (
     <div
@@ -242,8 +250,12 @@ export default function PdfPreview({
       ) : (
         <div
           ref={wrapRef}
-          className={`relative flex min-h-0 w-full min-w-0 flex-1 items-center justify-center overflow-hidden ${
-            immersive ? "h-full bg-white p-0" : "min-h-[200px] bg-zinc-50 p-2"
+          className={`relative flex min-h-0 w-full min-w-0 flex-1 overflow-hidden ${
+            immersive
+              ? listThumb
+                ? "h-full items-start justify-end bg-white p-0"
+                : "h-full items-center justify-center bg-white p-0"
+              : "min-h-[200px] items-center justify-center bg-zinc-50 p-2"
           }`}
         >
           {loading ? (
@@ -253,7 +265,11 @@ export default function PdfPreview({
           ) : null}
           <canvas
             ref={canvasRef}
-            className="rs-pdf-canvas block max-h-full max-w-full min-w-0 shrink-0"
+            className={
+              listThumb
+                ? "rs-pdf-canvas block w-full max-w-full min-w-0 shrink-0"
+                : "rs-pdf-canvas block max-h-full max-w-full min-w-0 shrink-0"
+            }
           />
         </div>
       )}
