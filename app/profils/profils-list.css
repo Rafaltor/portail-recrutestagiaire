@@ -30,16 +30,9 @@
     0 18px 44px -18px rgba(25, 55, 120, 0.22);
 }
 
-.rs-profils-card__preview {
-  border-bottom: 1px solid var(--rs-panel-border, #c5d5e4);
-}
-
-/* Colonne mobile : séparation sous le bloc infos (border-b sur le panneau gauche). */
-@media (min-width: 768px) {
-  .rs-profils-card__preview--beside {
-    border-bottom: none;
-    border-left: 1px solid var(--rs-panel-border, #c5d5e4);
-  }
+.rs-profils-card__preview--beside {
+  border-bottom: none;
+  border-left: 1px solid var(--rs-panel-border, #c5d5e4);
 }
 
 /* Aperçu PDF : éviter le flou dû au redimensionnement CSS (couche composite nette). */

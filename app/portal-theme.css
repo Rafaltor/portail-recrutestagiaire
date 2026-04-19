@@ -10,7 +10,14 @@
   --rs-portal-main-shadow: 0 0 0 1px rgba(0, 51, 171, 0.06), 0 22px 48px -18px rgba(20, 45, 95, 0.14);
 }
 
+html {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 body.rs-portal-body {
+  overflow-x: clip;
+  max-width: 100%;
   background: linear-gradient(
     180deg,
     var(--rs-portal-bg-top) 0%,
@@ -28,6 +35,9 @@ html[data-rs-swipe="1"] .header-wrap a.rs-banner-top__cart {
 
 /* Colonne contenu : carte claire façon section boutique */
 main.rs-portal-main {
+  min-width: 0;
+  overflow-x: clip;
+  max-width: 100%;
   background: linear-gradient(180deg, #fbfcff 0%, #ffffff 18%, #ffffff 100%);
   border-left: 1px solid var(--rs-panel-border, #c5d5e4);
   border-right: 1px solid var(--rs-panel-border, #c5d5e4);

@@ -88,22 +88,69 @@ export default function RootLayout({
           <div className="container">
             <div className="rs-header-two-tier" aria-label="En-tête du site">
               <div className="rs-header-main-row">
-                <div className="rs-banner-top rs-header-pole-brand">
-                  <a className="nav-brand rs-nav-brand" href="https://recrutestagiaire.eu">
-                    <Image
-                      className="rs-nav-brand__img"
-                      src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
-                      alt="Recrute Stagiaire"
-                      width={76}
-                      height={44}
-                      priority
-                      style={{ height: 44, width: "auto" }}
-                    />
-                    <span className="rs-nav-brand__name logo">RECRUTE STAGIAIRE</span>
-                  </a>
+                <div className="rs-header-top-line">
+                  <div className="rs-banner-top rs-header-pole-brand">
+                    <a
+                      className="nav-brand rs-nav-brand"
+                      href="https://recrutestagiaire.eu"
+                    >
+                      <Image
+                        className="rs-nav-brand__img"
+                        src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
+                        alt="Recrute Stagiaire"
+                        width={76}
+                        height={44}
+                        priority
+                        style={{ height: 44, width: "auto" }}
+                      />
+                      <span className="rs-nav-brand__name logo">
+                        RECRUTE STAGIAIRE
+                      </span>
+                    </a>
+                  </div>
+
+                  <div className="rs-banner-top__actions d-inline-flex align-items-center">
+                    <a
+                      href="https://recrutestagiaire.eu/cart"
+                      className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-decoration-none"
+                    >
+                      <svg
+                        className="rs-icon-dossier"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                        stroke="currentColor"
+                        strokeWidth="1.85"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
+                      </svg>
+                      <span className="rs-caf-btn-dossier__label">
+                        <span className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--full">
+                          Mon dossier
+                        </span>
+                        <span
+                          className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--short"
+                          aria-hidden="true"
+                        >
+                          Dossier
+                        </span>
+                      </span>
+                    </a>
+
+                    <HeaderAccountLink />
+                  </div>
                 </div>
 
-                <nav className="rs-banner-nav rs-header-pole-tabs" aria-label="Navigation principale">
+                <nav
+                  className="rs-banner-nav rs-header-pole-tabs"
+                  aria-label="Navigation principale"
+                >
                 <ul className="rs-subnav rs-subnav--buttons" role="menubar">
                   <li className="rs-subnav__item">
                     <button type="button" className="rs-subnav__trigger">
@@ -153,33 +200,6 @@ export default function RootLayout({
                   </li>
                 </ul>
                 </nav>
-
-                <div className="rs-banner-top__actions">
-                  <a
-                    href="https://recrutestagiaire.eu/cart"
-                    className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-decoration-none"
-                  >
-                    <svg
-                      className="rs-icon-dossier"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      focusable="false"
-                      stroke="currentColor"
-                      strokeWidth="1.85"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
-                    </svg>
-                    <span className="rs-caf-btn-dossier__label">Mon dossier</span>
-                  </a>
-
-                  <HeaderAccountLink />
-                </div>
               </div>
             </div>
           </div>

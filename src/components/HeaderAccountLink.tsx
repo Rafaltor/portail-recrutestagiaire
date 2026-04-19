@@ -47,7 +47,17 @@ export function HeaderAccountLink() {
         <path d="M20 21a8 8 0 0 0-16 0" />
         <path d="M12 13a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
       </svg>
-      <span className="rs-caf-btn-dossier__label">Mon espace</span>
+      <span className="rs-caf-btn-dossier__label">
+        <span className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--full">
+          Mon espace
+        </span>
+        <span
+          className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--short"
+          aria-hidden="true"
+        >
+          Espace
+        </span>
+      </span>
     </Link>
   );
 }
