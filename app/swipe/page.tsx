@@ -135,12 +135,13 @@ export default function SwipePage() {
 
   // When a swipe is committed, we keep rendering the outgoing card on top
   // while we immediately reveal the next card underneath.
+  /** Message RH (API /vote) — panneau haut droite, persiste jusqu’au prochain vote. */
+  const [rhInsight, setRhInsight] = useState<string | null>(null);
+
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
     dir: 1 | -1;
     imprint: StampImprint | null;
-    /** Message RH (API /vote) — remplace le sens « tampon seul ». */
-    rhFeedback: string | null;
     /** Tampon = chute verticale ; swipe doigt = même chute + trajectoire latérale (swipe-fall). */
     exitAxis: "down" | "swipe-fall";
     /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
@@ -151,11 +152,6 @@ export default function SwipePage() {
     slideOut: boolean;
   } | null>(null);
   const [stampDrag, setStampDrag] = useState<StampDragState | null>(null);
-  const [stampImpact, setStampImpact] = useState<{
-    kind: StampKind;
-    x: number;
-    y: number;
-  } | null>(null);
   const [cardImprint, setCardImprint] = useState<StampImprint | null>(null);
   const [activeStampKind, setActiveStampKind] = useState<StampKind | null>(null);
   const [stampDropping, setStampDropping] = useState(false);
@@ -164,8 +160,6 @@ export default function SwipePage() {
   const cardDropRef = useRef<HTMLDivElement | null>(null);
   const stampDragRef = useRef<StampDragState | null>(null);
   const stampReturnTimerRef = useRef<number | null>(null);
-  const stampImpactTimerRef = useRef<number | null>(null);
-  const stampCommitTimerRef = useRef<number | null>(null);
   const imprintHoldTimerRef = useRef<number | null>(null);
   const suppressClickUntilRef = useRef(0);
   const refillInFlightRef = useRef(false);
@@ -192,13 +186,10 @@ export default function SwipePage() {
 
   const DECK_SIZE = 7;
   const PROFILE_FETCH_TIMEOUT_MS = 5000;
-  const STAMP_DROP_DELAY_MS = 6;
-  /** Durée de l’effet « coup de tampon » (ondes + écrasement). */
-  const STAMP_IMPACT_MS = 220;
-  /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
-  const STAMP_IMPRINT_HOLD_MS = 28;
+  /** Court délai pour laisser l’empreinte visible sur la carte avant la chute (sans attendre l’API). */
+  const STAMP_IMPRINT_HOLD_MS = 10;
   /** Sortie vers le bas — durée commune tampon + swipe-fall. */
-  const STAMP_EXIT_MS = 1180;
+  const STAMP_EXIT_MS = 880;
   const CARD_TRANSITION_MS = 300;
   /** Retour au centre si swipe insuffisant (ressort). */
   const SWIPE_SPRING_MS = 280;
@@ -250,6 +241,7 @@ export default function SwipePage() {
   async function prime() {
     setLoading(true);
     setMessage("");
+    setRhInsight(null);
     setLoadError("");
     setNextCardLoading(false);
     if (!isConnected) {
@@ -504,14 +496,6 @@ export default function SwipePage() {
       window.clearTimeout(stampReturnTimerRef.current);
       stampReturnTimerRef.current = null;
     }
-    if (stampImpactTimerRef.current) {
-      window.clearTimeout(stampImpactTimerRef.current);
-      stampImpactTimerRef.current = null;
-    }
-    if (stampCommitTimerRef.current) {
-      window.clearTimeout(stampCommitTimerRef.current);
-      stampCommitTimerRef.current = null;
-    }
   }
 
   function resetStampDragState() {
@@ -561,6 +545,8 @@ export default function SwipePage() {
   ) {
     if (!current || outgoing || transitionInFlightRef.current) return;
 
+    setRhInsight(null);
+
     const baseImprint =
       imprint ??
       ({
@@ -581,43 +567,47 @@ export default function SwipePage() {
       const profileId = current.profile.id;
       const item = current;
 
-      void (async () => {
-        const vr = await sendVote(profileId, value);
+      setCardImprint(resolvedImprint);
+      setOutgoing({
+        item,
+        dir: value,
+        imprint: resolvedImprint,
+        exitAxis: "swipe-fall",
+        exitStartX: swipeRelease.x,
+        exitStartTilt: swipeRelease.tilt,
+        exitDurationMs: STAMP_EXIT_MS,
+        slideOut: false,
+      });
+      setDragX(0);
+      startXRef.current = null;
+
+      requestAnimationFrame(() => {
+        setOutgoing((o) =>
+          o && o.item.profile.id === profileId
+            ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+            : o,
+        );
+      });
+
+      consumeTopAndRefill();
+
+      void sendVote(profileId, value).then((vr) => {
         if (!vr.ok) {
           transitionInFlightRef.current = false;
+          setDeck((prev) => {
+            if (prev.some((x) => x.profile.id === profileId)) return prev;
+            return [item, ...prev];
+          });
+          setOutgoing(null);
+          setCardImprint(null);
           return;
         }
-        setCardImprint(resolvedImprint);
-        setOutgoing({
-          item,
-          dir: value,
-          imprint: resolvedImprint,
-          rhFeedback: vr.rhMessage ?? null,
-          exitAxis: "swipe-fall",
-          exitStartX: swipeRelease.x,
-          exitStartTilt: swipeRelease.tilt,
-          exitDurationMs: STAMP_EXIT_MS,
-          slideOut: false,
-        });
-        setDragX(0);
-        startXRef.current = null;
+        setRhInsight(vr.rhMessage ?? null);
+      });
 
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setOutgoing((o) =>
-              o && o.item.profile.id === profileId
-                ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-                : o,
-            );
-          });
-        });
-
-        consumeTopAndRefill();
-
-        window.setTimeout(() => {
-          completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 72);
-      })();
+      window.setTimeout(() => {
+        completeOutgoingCleanup();
+      }, STAMP_EXIT_MS + 72);
       return;
     }
 
@@ -635,11 +625,29 @@ export default function SwipePage() {
       }
 
       imprintHoldTimerRef.current = window.setTimeout(() => {
-        void (async () => {
-          const vr = await sendVote(profileId, value);
+        setOutgoing({
+          item,
+          dir: value,
+          imprint: resolvedImprint,
+          exitAxis: "down",
+          exitStartX: 0,
+          exitStartTilt: 0,
+          exitDurationMs: STAMP_EXIT_MS,
+          slideOut: false,
+        });
+        consumeTopAndRefill();
+        requestAnimationFrame(() => {
+          setOutgoing((o) =>
+            o && o.item.profile.id === profileId
+              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+              : o,
+          );
+        });
+
+        void sendVote(profileId, value).then((vr) => {
           if (!vr.ok) {
             setDeck((prev) => {
-              if (prev[0]?.profile.id === item.profile.id) return prev;
+              if (prev.some((x) => x.profile.id === item.profile.id)) return prev;
               return [item, ...prev];
             });
             setOutgoing(null);
@@ -647,44 +655,19 @@ export default function SwipePage() {
             transitionInFlightRef.current = false;
             return;
           }
-          setOutgoing({
-            item,
-            dir: value,
-            imprint: resolvedImprint,
-            rhFeedback: vr.rhMessage ?? null,
-            exitAxis: "down",
-            exitStartX: 0,
-            exitStartTilt: 0,
-            exitDurationMs: STAMP_EXIT_MS,
-            slideOut: false,
-          });
-          consumeTopAndRefill();
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              setOutgoing((o) =>
-                o && o.item.profile.id === profileId
-                  ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-                  : o,
-              );
-            });
-          });
-          window.setTimeout(() => {
-            completeOutgoingCleanup();
-          }, STAMP_EXIT_MS + 72);
-        })();
+          setRhInsight(vr.rhMessage ?? null);
+        });
+
+        window.setTimeout(() => {
+          completeOutgoingCleanup();
+        }, STAMP_EXIT_MS + 72);
       }, holdImprintMs);
       return;
     }
 
     transitionInFlightRef.current = true;
     const itemAfterVote = current;
-    const vr = await sendVote(itemAfterVote.profile.id, value);
-    if (!vr.ok) {
-      setCardImprint(null);
-      setStampDropping(false);
-      transitionInFlightRef.current = false;
-      return;
-    }
+    const profileId = itemAfterVote.profile.id;
 
     setCardImprint(resolvedImprint);
     setDragX(0);
@@ -694,36 +677,45 @@ export default function SwipePage() {
       imprintHoldTimerRef.current = null;
     }
 
-    const votedProfileId = itemAfterVote.profile.id;
-    const rhMsg = vr.rhMessage ?? null;
-    imprintHoldTimerRef.current = window.setTimeout(() => {
-      const exitStartX = swipeRelease?.x ?? 0;
-      const exitStartTilt = swipeRelease?.tilt ?? 0;
-      setOutgoing({
-        item: itemAfterVote,
-        dir: value,
-        imprint: resolvedImprint,
-        rhFeedback: rhMsg,
-        exitAxis: "swipe-fall",
-        exitStartX,
-        exitStartTilt,
-        exitDurationMs: STAMP_EXIT_MS,
-        slideOut: false,
-      });
-      consumeTopAndRefill();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setOutgoing((o) =>
-            o && o.item.profile.id === votedProfileId
-              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-              : o,
-          );
+    const exitStartX = swipeRelease?.x ?? 0;
+    const exitStartTilt = swipeRelease?.tilt ?? 0;
+    setOutgoing({
+      item: itemAfterVote,
+      dir: value,
+      imprint: resolvedImprint,
+      exitAxis: "swipe-fall",
+      exitStartX,
+      exitStartTilt,
+      exitDurationMs: STAMP_EXIT_MS,
+      slideOut: false,
+    });
+    consumeTopAndRefill();
+    requestAnimationFrame(() => {
+      setOutgoing((o) =>
+        o && o.item.profile.id === profileId
+          ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
+          : o,
+      );
+    });
+
+    void sendVote(profileId, value).then((vr) => {
+      if (!vr.ok) {
+        setCardImprint(null);
+        setStampDropping(false);
+        transitionInFlightRef.current = false;
+        setDeck((prev) => {
+          if (prev.some((x) => x.profile.id === profileId)) return prev;
+          return [itemAfterVote, ...prev];
         });
-      });
-      window.setTimeout(() => {
-        completeOutgoingCleanup();
-      }, STAMP_EXIT_MS + 72);
-    }, 0);
+        setOutgoing(null);
+        return;
+      }
+      setRhInsight(vr.rhMessage ?? null);
+    });
+
+    window.setTimeout(() => {
+      completeOutgoingCleanup();
+    }, STAMP_EXIT_MS + 72);
   }
 
   function returnStampClone() {
@@ -763,18 +755,14 @@ export default function SwipePage() {
       return;
     }
     setCardImprint(imprint);
-    setStampImpact({ kind, x: clientX, y: clientY });
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(24);
     }
     suppressClickUntilRef.current = Date.now() + 350;
-    stampImpactTimerRef.current = window.setTimeout(() => {
-      setStampImpact(null);
-    }, STAMP_IMPACT_MS);
-    stampCommitTimerRef.current = window.setTimeout(() => {
+    requestAnimationFrame(() => {
       const vote = kind === "approved" ? 1 : -1;
       void applyTransitionVote(kind, vote, imprint, STAMP_IMPRINT_HOLD_MS);
-    }, STAMP_DROP_DELAY_MS);
+    });
   }
 
   function startStampDrag(
@@ -999,6 +987,18 @@ export default function SwipePage() {
               {message}
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {rhInsight ? (
+        <div
+          className="pointer-events-none fixed right-3 top-[max(12px,env(safe-area-inset-top))] z-[9720] max-w-[min(300px,46vw)] sm:right-4"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="rounded-lg border border-white/35 bg-white/22 px-2.5 py-1.5 text-left text-[10px] font-medium leading-snug text-zinc-900 shadow-sm backdrop-blur-[6px] sm:text-[11px]">
+            {rhInsight}
+          </p>
         </div>
       ) : null}
 
@@ -1290,13 +1290,6 @@ export default function SwipePage() {
                     <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
-                    {outgoing.rhFeedback ? (
-                      <div className="pointer-events-none absolute inset-x-2 bottom-8 z-[35] flex justify-center sm:bottom-9">
-                        <p className="max-w-[96%] rounded-md border border-white/20 bg-white/20 px-2 py-1 text-center text-[10px] font-medium leading-snug text-zinc-900 shadow-sm backdrop-blur-[3px] sm:text-[11px]">
-                          {outgoing.rhFeedback}
-                        </p>
-                      </div>
-                    ) : null}
                     {outgoing.imprint ? (
                       <div
                         className="pointer-events-none absolute z-30"
@@ -1399,27 +1392,6 @@ export default function SwipePage() {
           }}
         >
           <StampVisual kind={stampDrag.kind} floating />
-        </div>
-      ) : null}
-
-      {stampImpact ? (
-        <div
-          className={`pointer-events-none fixed z-[9650] rs-stamp-impact-wrap rs-stamp-impact-wrap--${stampImpact.kind}`}
-          style={{
-            left: `${stampImpact.x}px`,
-            top: `${stampImpact.y}px`,
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <div className="rs-stamp-impact-flash" aria-hidden="true" />
-          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--1" aria-hidden="true" />
-          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--2" aria-hidden="true" />
-          <div className="rs-stamp-impact-ring rs-stamp-impact-ring--3" aria-hidden="true" />
-          <div className="rs-stamp-impact-body">
-            <div className={`rs-stamp-impact-drop rs-stamp-impact-drop--${stampImpact.kind}`}>
-              <StampVisual kind={stampImpact.kind} />
-            </div>
-          </div>
         </div>
       ) : null}
     </div>
