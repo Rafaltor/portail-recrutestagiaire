@@ -85,9 +85,9 @@ export default function ProfilsPage() {
               Profils
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
-              Parcours les CV comme sur une vitrine d’offres : aperçu du PDF sur la
-              gauche, détail et score à droite (sur mobile : un profil par ligne,
-              aperçu en haut).
+              Parcours les CV comme sur une vitrine d’offres : deux profils par
+              ligne sur ordinateur, un par ligne sur mobile. Dans chaque carte :
+              aperçu du PDF et détail avec score (sur mobile, aperçu en haut).
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
@@ -119,7 +119,7 @@ export default function ProfilsPage() {
           Chargement des profils…
         </div>
       ) : filtered.length ? (
-        <ul className="grid grid-cols-1 gap-5">
+        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {filtered.map((p) => (
             <li key={p.id}>
               <article className="rs-panel rs-profils-card overflow-hidden rounded-xl">
