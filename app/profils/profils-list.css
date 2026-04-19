@@ -32,7 +32,14 @@
 
 .rs-profils-card__preview {
   border-bottom: 1px solid var(--rs-panel-border, #c5d5e4);
-  /* Aperçu PDF pleine largeur de la carte ; hauteur gérée par flex + min-height dans le TSX */
+}
+
+/* Colonne mobile : séparation sous le bloc infos (border-b sur le panneau gauche). */
+@media (min-width: 768px) {
+  .rs-profils-card__preview--beside {
+    border-bottom: none;
+    border-left: 1px solid var(--rs-panel-border, #c5d5e4);
+  }
 }
 
 .rs-profils-tag {

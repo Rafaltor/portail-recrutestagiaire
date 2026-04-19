@@ -84,8 +84,8 @@ export default function ProfilsPage() {
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
               Parcours les CV comme sur une vitrine d’offres : deux profils par
-              ligne sur ordinateur, un sur mobile. Chaque carte met l’aperçu du
-              PDF en avant, puis le détail du profil.
+              ligne sur ordinateur, un sur mobile. Dans chaque carte : infos à
+              gauche, aperçu du PDF à droite (sur petit écran : infos puis CV).
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
@@ -120,12 +120,8 @@ export default function ProfilsPage() {
         <ul className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2">
           {filtered.map((p) => (
             <li key={p.id} className="flex min-h-0 h-full">
-              <article className="rs-panel rs-profils-card flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl">
-                <div className="rs-profils-card__preview relative flex min-h-[300px] flex-1 flex-col overflow-hidden bg-[#fbfbfd] md:min-h-[340px]">
-                  <ProfilCvThumb profileId={p.id} />
-                </div>
-
-                <div className="flex min-w-0 flex-shrink-0 flex-col justify-between gap-4 p-5 sm:p-6">
+              <article className="rs-panel rs-profils-card flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl md:min-h-[300px] md:flex-row md:items-stretch">
+                <div className="flex min-w-0 flex-shrink-0 flex-col justify-between gap-4 border-b border-[var(--rs-panel-border,#c5d5e4)] p-5 sm:p-6 md:w-[min(46%,280px)] md:max-w-[50%] md:border-b-0">
                   <div>
                     <div className="min-w-0">
                       <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
@@ -171,6 +167,10 @@ export default function ProfilsPage() {
                       Ouvrir le CV
                     </a>
                   </div>
+                </div>
+
+                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex min-h-[280px] flex-1 flex-col overflow-hidden bg-[#fbfbfd] md:min-h-0">
+                  <ProfilCvThumb profileId={p.id} />
                 </div>
               </article>
             </li>
