@@ -20,7 +20,6 @@ type StepTwoState = {
   jobTitle: string;
   skills: string;
   city: string;
-  hasPhoto: boolean;
   manualFallback: boolean;
 };
 
@@ -53,8 +52,7 @@ export default function DepotPage() {
       form.accepted &&
       form.handle.trim().length > 1 &&
       !!file &&
-      !!stepTwo &&
-      !stepTwo.hasPhoto
+      !!stepTwo
     );
   }, [form.accepted, form.handle, file, stepTwo]);
 
@@ -108,7 +106,6 @@ export default function DepotPage() {
           jobTitle: string;
           skills: string[];
           city: string;
-          hasPhoto: boolean;
         };
       } = await r.json();
       if (!j.ok || !j.parsed) throw new Error("affinda_invalid_payload");
@@ -118,15 +115,8 @@ export default function DepotPage() {
         jobTitle: j.parsed.jobTitle || "",
         skills: (j.parsed.skills || []).slice(0, 5).join(", "),
         city: j.parsed.city || "",
-        hasPhoto: !!j.parsed.hasPhoto,
         manualFallback: false,
       });
-      if (j.parsed.hasPhoto) {
-        setStatus("error");
-        setMessage(
-          "Photo détectée dans le CV. Dépôt bloqué. Merci d’envoyer un PDF sans photo.",
-        );
-      }
     } catch (e: unknown) {
       const raw = e instanceof Error ? e.message : "Erreur inconnue";
       if (raw === "affinda_not_configured") {
@@ -140,7 +130,6 @@ export default function DepotPage() {
           jobTitle: "",
           skills: "",
           city: "",
-          hasPhoto: false,
           manualFallback: true,
         });
       } else if (raw.startsWith("affinda_failed_")) {
@@ -154,7 +143,6 @@ export default function DepotPage() {
           jobTitle: "",
           skills: "",
           city: "",
-          hasPhoto: false,
           manualFallback: true,
         });
       } else if (raw === "affinda_invalid_payload") {
@@ -168,7 +156,6 @@ export default function DepotPage() {
           jobTitle: "",
           skills: "",
           city: "",
-          hasPhoto: false,
           manualFallback: true,
         });
       } else {
@@ -192,9 +179,6 @@ export default function DepotPage() {
         throw new Error("Le CV doit être au format PDF.");
       }
       if (!stepTwo) throw new Error("Analyse ou saisie manuelle requise avant validation.");
-      if (stepTwo.hasPhoto) {
-        throw new Error("Photo détectée. Dépôt refusé (charte).");
-      }
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
       const fd = new FormData();
@@ -204,7 +188,6 @@ export default function DepotPage() {
       fd.set("parsedJobTitle", stepTwo.jobTitle || "");
       fd.set("parsedSkills", stepTwo.skills || "");
       fd.set("parsedCity", stepTwo.city || "");
-      fd.set("photoDetected", String(stepTwo.hasPhoto));
       fd.set("accepted", String(!!form.accepted));
       fd.set("cv", file);
 
@@ -237,9 +220,6 @@ export default function DepotPage() {
         }
         if (code === "handle_required") {
           throw new Error("Pseudo Instagram obligatoire.");
-        }
-        if (code === "photo_forbidden") {
-          throw new Error("Photo détectée. Dépôt bloqué (charte).");
         }
 
         throw new Error(code);
@@ -399,7 +379,7 @@ export default function DepotPage() {
                       prev ? { ...prev, city: e.target.value } : prev,
                     )
                   }
-                  placeholder="Non détecté — à compléter"
+                  placeholder="Détectée ou préfecture si code postal trouvé"
                   className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
                 />
               </label>
@@ -408,12 +388,6 @@ export default function DepotPage() {
             {stepTwo.manualFallback ? (
               <p className="mt-3 text-sm text-zinc-600">
                 Analyse indisponible : renseigne les champs manuellement.
-              </p>
-            ) : null}
-
-            {stepTwo.hasPhoto ? (
-              <p className="mt-2 font-semibold text-rose-700">
-                Photo détectée: dépôt bloqué.
               </p>
             ) : null}
 

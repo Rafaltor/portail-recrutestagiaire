@@ -67,7 +67,6 @@ export async function POST(req: Request) {
   const parsedJobTitle = String(form.get("parsedJobTitle") || "").trim();
   const parsedSkillsRaw = String(form.get("parsedSkills") || "").trim();
   const parsedCity = String(form.get("parsedCity") || "").trim();
-  const photoDetected = String(form.get("photoDetected") || "") === "true";
   const accepted = String(form.get("accepted") || "") === "true";
   const file = form.get("cv");
 
@@ -76,7 +75,6 @@ export async function POST(req: Request) {
   if (!file || !(file instanceof File)) return bad("file_required");
   if (file.type !== "application/pdf") return bad("pdf_only");
   if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
-  if (photoDetected) return bad("photo_forbidden");
 
   const parsedSkills = parsedSkillsRaw
     .split(",")
@@ -169,7 +167,6 @@ export async function PUT(req: Request) {
           jobTitle: parsed.preview.jobTitle || "",
           skills: parsed.preview.skills || [],
           city: parsed.preview.city || "",
-          hasPhoto: !!parsed.preview.hasPhoto,
         },
       },
       { status: 200 },

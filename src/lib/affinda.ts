@@ -1,3 +1,8 @@
+import {
+  departmentFromPostalCode,
+  prefectureCityForDepartment,
+} from "@/lib/fr-dept-prefecture";
+
 type UnknownRecord = Record<string, unknown>;
 
 export type AffindaParsedPreview = {
@@ -6,7 +11,6 @@ export type AffindaParsedPreview = {
   jobTitle: string;
   skills: string[];
   city: string;
-  hasPhoto: boolean;
 };
 
 type AffindaParseResult = {
@@ -373,12 +377,35 @@ function extractCity(data: UnknownRecord): string {
   return "";
 }
 
-function extractHasPhoto(data: UnknownRecord): boolean {
-  const compact = data.headshot;
-  if (typeof compact === "string" && compact.trim()) return true;
-  const legacy = data.headShot;
-  if (typeof legacy === "string" && legacy.trim()) return true;
-  return false;
+/** Code postal FR (5 chiffres) depuis l’adresse structurée ou le texte du CV. */
+function extractPostalCode(data: UnknownRecord): string {
+  const rawAddress = asRecord(data.address);
+  const fromAddr = String(
+    rawAddress?.postalCode ??
+      rawAddress?.postal_code ??
+      rawAddress?.zipCode ??
+      "",
+  )
+    .replace(/\s/g, "")
+    .slice(0, 5);
+  if (/^\d{5}$/.test(fromAddr)) return fromAddr;
+
+  const location = asRecord(data.location);
+  const compactLocation = firstString(location?.text ?? data.location?.toString?.());
+  const rawLocation = firstString(data.locations);
+  const hay = `${compactLocation} ${rawLocation}`;
+  const m = hay.match(/\b(\d{5})\b/);
+  return m ? m[1] : "";
+}
+
+/** Ville explicite dans le CV ; sinon préfecture déduite du code postal → département. */
+function resolveCity(parsed: UnknownRecord): string {
+  const direct = extractCity(parsed).trim();
+  if (direct) return direct.slice(0, 120);
+  const cp = extractPostalCode(parsed);
+  const dept = departmentFromPostalCode(cp);
+  const pref = prefectureCityForDepartment(dept);
+  return pref ? pref.slice(0, 120) : "";
 }
 
 function pickResumeData(payload: UnknownRecord): UnknownRecord {
@@ -423,8 +450,7 @@ export async function parseCvWithAffinda(file: File): Promise<AffindaParseResult
     email: extractEmail(parsed),
     jobTitle: extractJobTitle(parsed),
     skills: normalizeSkills(parsed.skill ?? parsed.skills),
-    city: extractCity(parsed),
-    hasPhoto: extractHasPhoto(parsed),
+    city: resolveCity(parsed),
   };
 
   return { preview };
