@@ -14,7 +14,6 @@ type Profile = {
   portfolio_url: string | null;
   cv_path: string;
   created_at: string;
-  likes: number | null;
 };
 
 export default function ProfilsPage() {
@@ -33,10 +32,9 @@ export default function ProfilsPage() {
         const res = await supabase
           .from("profiles")
           .select(
-            "id,handle,job_title,city,tags,portfolio_url,cv_path,created_at,likes",
+            "id,handle,job_title,city,tags,portfolio_url,cv_path,created_at",
           )
           .eq("status", "published")
-          .order("likes", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })
           .limit(100);
         if (res.error) throw res.error;
@@ -86,8 +84,8 @@ export default function ProfilsPage() {
             </h1>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
               Parcours les CV comme sur une vitrine d’offres : deux profils par
-              ligne sur ordinateur, un par ligne sur mobile. Dans chaque carte :
-              aperçu du PDF et détail avec score (sur mobile, aperçu en haut).
+              ligne sur ordinateur, un sur mobile. Chaque carte met l’aperçu du
+              PDF en avant, puis le détail du profil.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
@@ -119,74 +117,59 @@ export default function ProfilsPage() {
           Chargement des profils…
         </div>
       ) : filtered.length ? (
-        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <ul className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2">
           {filtered.map((p) => (
-            <li key={p.id}>
-              <article className="rs-panel rs-profils-card overflow-hidden rounded-xl">
-                <div className="flex flex-col lg:min-h-[300px] lg:flex-row lg:items-stretch">
-                  <div className="rs-profils-card__preview relative h-[220px] w-full shrink-0 overflow-hidden bg-[#fbfbfd] sm:h-[260px] lg:h-auto lg:min-h-[300px] lg:w-[min(44%,480px)] lg:max-w-[520px]">
-                    <ProfilCvThumb profileId={p.id} />
+            <li key={p.id} className="flex min-h-0 h-full">
+              <article className="rs-panel rs-profils-card flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-xl">
+                <div className="rs-profils-card__preview relative flex min-h-[300px] flex-1 flex-col overflow-hidden bg-[#fbfbfd] md:min-h-[340px]">
+                  <ProfilCvThumb profileId={p.id} />
+                </div>
+
+                <div className="flex min-w-0 flex-shrink-0 flex-col justify-between gap-4 p-5 sm:p-6">
+                  <div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
+                        @{p.handle.replace(/^@/, "")}
+                      </p>
+                      <h2 className="mt-1 text-lg font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:text-xl">
+                        {p.job_title}
+                      </h2>
+                      <p className="mt-1.5 text-sm text-zinc-600">
+                        {p.city ?? "—"}
+                      </p>
+                    </div>
+
+                    {p.tags?.length ? (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {p.tags.slice(0, 10).map((t) => (
+                          <span
+                            key={t}
+                            className="rs-profils-tag rounded-full border px-3 py-1 text-xs font-semibold"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
-                  <div className="flex min-w-0 flex-1 flex-col justify-between gap-5 p-5 sm:p-6">
-                    <div>
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-[13px] font-black text-[var(--rs-logo-blue-mid,#1b55c4)]">
-                            @{p.handle.replace(/^@/, "")}
-                          </p>
-                          <h2 className="mt-1 text-lg font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:text-xl">
-                            {p.job_title}
-                          </h2>
-                          <p className="mt-1.5 text-sm text-zinc-600">
-                            {p.city ?? "—"}
-                          </p>
-                        </div>
-                        <div
-                          className="rs-profils-score shrink-0 rounded-lg px-3 py-2 text-center"
-                          title="Score net (votes de la communauté)"
-                        >
-                          <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
-                            Score
-                          </div>
-                          <div className="text-[22px] font-black leading-none tabular-nums">
-                            {p.likes ?? 0}
-                          </div>
-                        </div>
-                      </div>
-
-                      {p.tags?.length ? (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {p.tags.slice(0, 10).map((t) => (
-                            <span
-                              key={t}
-                              className="rs-profils-tag rounded-full border px-3 py-1 text-xs font-semibold"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-zinc-200/90 pt-4">
-                      {p.portfolio_url ? (
-                        <a
-                          href={p.portfolio_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rs-btn rs-btn--ghost text-[13px]"
-                        >
-                          Portfolio
-                        </a>
-                      ) : null}
+                  <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-zinc-200/90 pt-4">
+                    {p.portfolio_url ? (
                       <a
-                        href={`/profil/${p.id}`}
-                        className="rs-btn rs-btn--primary text-[13px]"
+                        href={p.portfolio_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rs-btn rs-btn--ghost text-[13px]"
                       >
-                        Ouvrir le CV
+                        Portfolio
                       </a>
-                    </div>
+                    ) : null}
+                    <a
+                      href={`/profil/${p.id}`}
+                      className="rs-btn rs-btn--primary text-[13px]"
+                    >
+                      Ouvrir le CV
+                    </a>
                   </div>
                 </div>
               </article>
