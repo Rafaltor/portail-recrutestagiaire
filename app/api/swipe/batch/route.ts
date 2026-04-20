@@ -21,6 +21,9 @@ function shuffleInPlace<T>(arr: T[]): void {
 type ProfileRow = {
   id: string;
   handle: string;
+  job_title: string;
+  city: string | null;
+  portfolio_url: string | null;
   cv_path: string;
   likes: number | null;
 };
@@ -64,7 +67,7 @@ export async function GET(req: Request) {
   /* Pas de tri par score ici : ordre aléatoire côté swipe (page /profils garde le classement). */
   let q = supabaseServer
     .from("profiles")
-    .select("id,handle,cv_path,likes")
+    .select("id,handle,job_title,city,portfolio_url,cv_path,likes")
     .eq("status", "published")
     .limit(120);
 
@@ -86,7 +89,16 @@ export async function GET(req: Request) {
   shuffleInPlace(candidates);
   const picked = candidates.slice(0, n);
 
-  const items: { profile: { id: string; handle: string }; cvUrl: string }[] = [];
+  const items: {
+    profile: {
+      id: string;
+      handle: string;
+      job_title: string;
+      city: string | null;
+      portfolio_url: string | null;
+    };
+    cvUrl: string;
+  }[] = [];
   for (const p of picked) {
     const cvPath = normalizeCvObjectKey(p.cv_path);
     if (!cvPath) continue;
@@ -95,7 +107,13 @@ export async function GET(req: Request) {
       .createSignedUrl(cvPath, 60 * 10);
     if (signed.error || !signed.data?.signedUrl) continue;
     items.push({
-      profile: { id: p.id, handle: p.handle },
+      profile: {
+        id: p.id,
+        handle: p.handle,
+        job_title: p.job_title ?? "",
+        city: p.city ?? null,
+        portfolio_url: p.portfolio_url ?? null,
+      },
       cvUrl: signed.data.signedUrl,
     });
   }

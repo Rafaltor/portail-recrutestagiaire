@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import PdfPreview from "@/components/PdfPreview";
-import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
+import { ProfilStylePortalHeader } from "@/components/ProfilStylePortalHeader";
 
 type Profile = {
   id: string;
@@ -73,111 +72,12 @@ export default function ProfilPage({
 
   return (
     <div className="grid gap-6">
-      <PortalDesktopPageHeader
-        eyebrow={
-          profile
-            ? `@${profile.handle.replace(/^@/, "")}`
-            : "Profil public"
-        }
-        title={
-          profile
-            ? profile.job_title
-            : loading
-              ? "Chargement…"
-              : message
-                ? "Profil indisponible"
-                : "Profil"
-        }
-        description={
-          profile ? (
-            <>{profile.city ?? "Ville non renseignée"}</>
-          ) : loading ? (
-            <>Récupération des informations du candidat…</>
-          ) : message ? (
-            <span className="text-red-700">{message}</span>
-          ) : (
-            "—"
-          )
-        }
-        actions={
-          profile ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/profils"
-                className="text-sm font-semibold text-[var(--rs-brand-pink,#f472b6)] underline-offset-2 hover:underline"
-              >
-                ← Profils
-              </Link>
-              {profile.portfolio_url ? (
-                <a
-                  href={profile.portfolio_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-                >
-                  Portfolio
-                </a>
-              ) : null}
-              {cvUrl ? (
-                <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-                >
-                  Ouvrir le PDF
-                </a>
-              ) : null}
-            </div>
-          ) : null
-        }
+      <ProfilStylePortalHeader
+        profile={profile}
+        cvUrl={cvUrl}
+        loading={loading}
+        errorMessage={message}
       />
-
-      <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <Link href="/profils" className="text-sm font-semibold">
-          ← Retour aux profils
-        </Link>
-        {loading ? (
-          <p className="mt-3 text-sm text-[#0A0A0A]/85">Chargement…</p>
-        ) : message ? (
-          <p className="mt-3 text-sm text-red-700">{message}</p>
-        ) : profile ? (
-          <div className="mt-3">
-            <div className="text-sm font-black text-[#0A0A0A]">
-              @{profile.handle.replace(/^@/, "")}
-            </div>
-            <h1 className="mt-1 text-2xl font-black tracking-tight">
-              {profile.job_title}
-            </h1>
-            <p className="mt-1 text-sm text-[#0A0A0A]/85">
-              {profile.city ? profile.city : "—"}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {profile.portfolio_url ? (
-                <a
-                  href={profile.portfolio_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-                >
-                  Portfolio
-                </a>
-              ) : null}
-              {cvUrl ? (
-                <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-                >
-                  Ouvrir le PDF
-                </a>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
-      </div>
 
       {profile && cvUrl ? (
         <PdfPreview url={cvUrl} />

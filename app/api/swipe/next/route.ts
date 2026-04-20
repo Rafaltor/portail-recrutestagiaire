@@ -12,6 +12,9 @@ function bad(msg: string, status = 400) {
 type ProfileRow = {
   id: string;
   handle: string;
+  job_title: string;
+  city: string | null;
+  portfolio_url: string | null;
   cv_path: string;
 };
 
@@ -36,7 +39,7 @@ export async function GET(req: Request) {
 
   let q = supabaseServer
     .from("profiles")
-    .select("id,handle,cv_path")
+    .select("id,handle,job_title,city,portfolio_url,cv_path")
     .eq("status", "published")
     .limit(60);
 
@@ -73,7 +76,13 @@ export async function GET(req: Request) {
 
   return NextResponse.json(
     {
-      profile: { id: picked.id, handle: picked.handle },
+      profile: {
+        id: picked.id,
+        handle: picked.handle,
+        job_title: picked.job_title ?? "",
+        city: picked.city ?? null,
+        portfolio_url: picked.portfolio_url ?? null,
+      },
       cvUrl: signed.data.signedUrl,
     },
     { status: 200 },
