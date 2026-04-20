@@ -8,6 +8,12 @@
   --rs-page-bg: #efefef;
   --rs-block-bg: #ffffff;
   --rs-block-border: #dddddd;
+  /* Boutons type charte DA (rs-portail-2010) */
+  --rs-da-pink: #f472b6;
+  --rs-da-pink-top: #f9a8d4;
+  --rs-da-pink-hover: #db2777;
+  --rs-da-pink-border: #db2777;
+  --rs-da-radius: 4px;
 }
 
 @theme inline {

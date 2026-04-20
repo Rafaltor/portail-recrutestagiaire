@@ -132,7 +132,7 @@
 }
 
 .header-wrap .rs-nav-brand__name.logo.rs-nav-brand__name--headline {
-  font-size: clamp(1.12rem, 2.5vw, 1.45rem) !important;
+  font-size: clamp(1.12rem, 2.5vw, 1.5rem) !important;
   font-weight: 800 !important;
   letter-spacing: 0.045em !important;
   line-height: 1.15 !important;
@@ -493,8 +493,7 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   font-weight: 700;
-  /* Rose vif type capture (plus soutenu que le rose « pastel ») */
-  color: #db2777 !important;
+  color: #f472b6 !important;
   text-align: center;
   text-transform: none;
   letter-spacing: 0.02em;
@@ -537,22 +536,31 @@ html[data-rs-header-tab="cand"]
   .rs-subnav__item[data-rs-tab="cand"]:focus-within
   .rs-subnav__trigger {
   color: #fff !important;
-  background: linear-gradient(180deg, #f6339a 0%, #e11d48 55%, #db2777 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--rs-da-pink-top, #f9a8d4) 0%,
+    var(--rs-da-pink, #f472b6) 100%
+  ) !important;
   border: none !important;
   border-bottom: none !important;
   box-shadow: none !important;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  text-shadow: none;
 }
 
 .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger,
 html[data-rs-header-tab="offres"] .header-wrap .rs-subnav__item[data-rs-tab="offres"]:hover .rs-subnav__trigger,
 html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"]:hover .rs-subnav__trigger {
   filter: none !important;
-  background: linear-gradient(180deg, #ec4899 0%, #db2777 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--rs-da-pink-hover, #db2777) 0%,
+    var(--rs-da-pink-hover, #db2777) 100%
+  ) !important;
   border: none !important;
   box-shadow: none !important;
   color: #fff !important;
   text-decoration: none;
+  text-shadow: none;
 }
 
 @media (max-width: 991.98px) {
@@ -612,7 +620,7 @@ html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"
 .header-wrap .rs-subnav__item:hover .rs-subnav__trigger,
 .header-wrap .rs-subnav__item:focus-within .rs-subnav__trigger {
   background: rgba(253, 242, 248, 0.95);
-  color: #db2777 !important;
+  color: #f472b6 !important;
 }
 
 /* Rétablit l’onglet actif (la règle survol ci‑dessus est plus faible en spécificité que les blocs actifs + html[data-rs-header-tab]) */
@@ -635,7 +643,11 @@ html[data-rs-header-tab="cand"]
   .rs-subnav__item[data-rs-tab="cand"]:focus-within
   .rs-subnav__trigger {
   color: #fff !important;
-  background: linear-gradient(180deg, #f6339a 0%, #e11d48 55%, #db2777 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--rs-da-pink-top, #f9a8d4) 0%,
+    var(--rs-da-pink, #f472b6) 100%
+  ) !important;
 }
 
 .header-wrap .rs-subnav__dropdown {
@@ -783,7 +795,7 @@ body.rs-nav-open {
   text-transform: uppercase;
   white-space: nowrap;
   will-change: transform;
-  color: var(--rs-kitsch-pop-fg, #9f1239) !important;
+  color: #f472b6 !important;
   text-shadow: none;
   animation: rs-kitsch-pop-marquee 28s linear infinite;
   transform: translate3d(0, 0, 0);
@@ -803,34 +815,42 @@ body.rs-nav-open {
   }
 }
 
-/* Mon dossier / Mon espace : pastilles type capture (rose vif, bord fin, ombre douce) */
+/* Mon dossier / Mon espace — charte DA (--rs-da-*) ; clip-path rs-shopify-ui désactivé ici */
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn {
-  border-radius: 18px !important;
-  padding: 9px 18px !important;
+  clip-path: none !important;
+  padding: 7px 16px !important;
   font-size: 12px !important;
-  font-weight: 700 !important;
-  min-height: 0 !important;
-  background: linear-gradient(165deg, #ff5eb3 0%, #f43f8c 42%, #e11d6d 100%) !important;
+  background: linear-gradient(
+    180deg,
+    var(--rs-da-pink-top, #f9a8d4) 0%,
+    var(--rs-da-pink, #f472b6) 100%
+  ) !important;
+  border: 1px solid var(--rs-da-pink-border, #db2777) !important;
+  border-radius: var(--rs-da-radius, 4px) !important;
   color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.42) !important;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18) !important;
-  box-shadow:
-    0 3px 10px rgba(225, 29, 72, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
 }
 
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:hover,
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:focus-visible {
-  border-radius: 18px !important;
-  background: linear-gradient(165deg, #ff72bd 0%, #f6339a 50%, #e11d48 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow:
-    0 4px 14px rgba(225, 29, 72, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  clip-path: none !important;
+  background: linear-gradient(
+    180deg,
+    var(--rs-da-pink-hover, #db2777) 0%,
+    var(--rs-da-pink-hover, #db2777) 100%
+  ) !important;
+  border: 1px solid var(--rs-da-pink-hover, #db2777) !important;
+  border-radius: var(--rs-da-radius, 4px) !important;
   color: #fff !important;
+  box-shadow: none !important;
   text-decoration: none !important;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18) !important;
-  filter: brightness(1.02);
+  text-shadow: none !important;
+}
+
+.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier__label {
+  text-shadow: none !important;
 }
 
 /* ===== Swipe: compact two-row header + nav, reserved chrome, no footer ===== */

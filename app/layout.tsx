@@ -65,7 +65,7 @@ export default function RootLayout({
                 ["--rs-kitsch-pop-a"]: "#fff0f7",
                 ["--rs-kitsch-pop-b"]: "#ffd6ea",
                 ["--rs-kitsch-pop-c"]: "#ffe4ef",
-                ["--rs-kitsch-pop-fg"]: "#9f1239",
+                ["--rs-kitsch-pop-fg"]: "#f472b6",
               } as CSSProperties
             }
           >
