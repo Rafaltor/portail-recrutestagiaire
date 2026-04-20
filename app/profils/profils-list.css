@@ -35,7 +35,6 @@
   border-left: 1px solid var(--rs-panel-border, #c5d5e4);
 }
 
-/* Aperçu PDF : éviter le flou dû au redimensionnement CSS (couche composite nette). */
-.rs-profils-card__preview .rs-pdf-canvas {
-  transform: translateZ(0);
+.rs-profils-card__preview .rs-pdf-canvas-list {
+  max-width: 100%;
 }

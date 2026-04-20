@@ -250,12 +250,12 @@ export default function PdfPreview({
       ) : (
         <div
           ref={wrapRef}
-          className={`relative flex min-h-0 w-full min-w-0 flex-1 overflow-hidden ${
+          className={`relative min-h-0 w-full min-w-0 flex-1 overflow-hidden ${
             immersive
               ? listThumb
-                ? "h-full items-start justify-end bg-white p-0"
-                : "h-full items-center justify-center bg-white p-0"
-              : "min-h-[200px] items-center justify-center bg-zinc-50 p-2"
+                ? "h-full bg-white p-0"
+                : "flex h-full items-center justify-center bg-white p-0"
+              : "flex min-h-[200px] items-center justify-center bg-zinc-50 p-2"
           }`}
         >
           {loading ? (
@@ -267,7 +267,7 @@ export default function PdfPreview({
             ref={canvasRef}
             className={
               listThumb
-                ? "rs-pdf-canvas block w-full max-w-full min-w-0 shrink-0"
+                ? "rs-pdf-canvas-list ml-auto block max-w-full min-w-0"
                 : "rs-pdf-canvas block max-h-full max-w-full min-w-0 shrink-0"
             }
           />
