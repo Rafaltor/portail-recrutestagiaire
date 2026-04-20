@@ -799,12 +799,15 @@ body.rs-nav-open {
   z-index: 1;
   display: inline-flex;
   flex-wrap: nowrap;
+  align-items: center;
   width: max-content;
   box-sizing: border-box;
   padding: 0 32px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 800;
-  font-size: 0.66rem;
+  /* px : identique boutique (là html = 13px ; 0.66rem ≠ même hauteur sur Next si html = 16px) */
+  font-size: 9px;
+  line-height: 1.15;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   white-space: nowrap;
