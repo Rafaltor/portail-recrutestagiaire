@@ -16,14 +16,15 @@
 
 /* Optional Shopify "banner image" mode (header-wrap.rs-header--banner) */
 .header-wrap.rs-header--banner {
-  background-color: #e8e8f0;
+  /* Fond sombre sous la photo (comme la boutique) pour les bords / chargement */
+  background-color: #001a57;
   background-image: var(--rs-header-bg-img, none);
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
 }
 
-/* Overlay au-dessus de l'image : dégradé vers blanc (charte) */
+/* Overlay type theme Shopify : laisse bien voir l’image architecture */
 .header-wrap.rs-header--banner::before {
   content: "";
   position: absolute;
@@ -33,9 +34,9 @@
   bottom: 0;
   background: linear-gradient(
     180deg,
-    rgba(232, 232, 240, 0.92) 0%,
-    rgba(248, 248, 250, 0.94) 55%,
-    rgba(255, 255, 255, 0.96) 100%
+    rgba(232, 240, 248, 0.88) 0%,
+    rgba(210, 224, 238, 0.92) 50%,
+    rgba(190, 210, 230, 0.94) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -753,6 +754,34 @@ body.rs-nav-open {
   100% {
     transform: translateX(-50%);
   }
+}
+
+/* Mon dossier / Mon espace : charte rose (priorité dans l’en-tête) */
+.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn {
+  background: linear-gradient(
+    180deg,
+    #fb9ac8 0%,
+    var(--rs-brand-pink, #f472b6) 45%,
+    #ec4899 100%
+  ) !important;
+  color: #fff !important;
+  border: 2px solid rgba(255, 255, 255, 0.35) !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+    inset -1px -1px 0 rgba(157, 23, 77, 0.35) !important;
+}
+
+.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:hover,
+.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:focus-visible {
+  background: linear-gradient(180deg, #fbcfe8 0%, var(--rs-brand-pink, #f472b6) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset -1px -1px 0 rgba(157, 23, 77, 0.4) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12) !important;
 }
 
 /* ===== Swipe: compact two-row header + nav, reserved chrome, no footer ===== */
