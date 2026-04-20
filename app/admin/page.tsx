@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import PdfPreview from "@/components/PdfPreview";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type AdminProfile = {
   id: string;
@@ -480,7 +481,13 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="grid gap-6">
-        <div className="rs-panel rounded-lg p-6">
+        <PortalDesktopPageHeader
+          eyebrow="Administration"
+          title="Modération"
+          description="Accès réservé aux administrateurs du portail."
+          message={<p className="text-sm text-red-700">Accès réservé aux admins.</p>}
+        />
+        <div className="rs-panel rounded-lg p-6 lg:hidden">
           <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
           <p className="mt-2 text-sm text-red-700">Accès réservé aux admins.</p>
         </div>
@@ -490,7 +497,25 @@ export default function AdminPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
+      <PortalDesktopPageHeader
+        eyebrow="Administration"
+        title="Modération des CV"
+        description="Validation des CV en attente avec aperçu PDF inline."
+        actions={
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
+          >
+            Recharger les profils en attente
+          </button>
+        }
+        message={
+          message ? <p className="text-sm text-red-700">{message}</p> : null
+        }
+      />
+
+      <div className="rs-panel rounded-lg p-6 lg:hidden">
         <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
         <p className="mt-1 text-sm text-[#0A0A0A]/85">
           Validation des CVs en attente avec aperçu inline.

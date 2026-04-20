@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type FormState = {
   handle: string;
@@ -247,7 +248,19 @@ export default function DepotPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
+      <PortalDesktopPageHeader
+        eyebrow="Candidature"
+        title="Dépose ta candidature"
+        description={
+          <>
+            Un seul fichier suffit.
+            <br />
+            La communauté fait le reste.
+          </>
+        }
+      />
+
+      <div className="rs-panel rounded-lg p-6 lg:hidden">
         <h1 className="text-xl font-black tracking-tight">
           Dépose ta candidature
         </h1>

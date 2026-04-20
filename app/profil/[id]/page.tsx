@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import PdfPreview from "@/components/PdfPreview";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type Profile = {
   id: string;
@@ -72,7 +73,67 @@ export default function ProfilPage({
 
   return (
     <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
+      <PortalDesktopPageHeader
+        eyebrow={
+          profile
+            ? `@${profile.handle.replace(/^@/, "")}`
+            : "Profil public"
+        }
+        title={
+          profile
+            ? profile.job_title
+            : loading
+              ? "Chargement…"
+              : message
+                ? "Profil indisponible"
+                : "Profil"
+        }
+        description={
+          profile ? (
+            <>{profile.city ?? "Ville non renseignée"}</>
+          ) : loading ? (
+            <>Récupération des informations du candidat…</>
+          ) : message ? (
+            <span className="text-red-700">{message}</span>
+          ) : (
+            "—"
+          )
+        }
+        actions={
+          profile ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/profils"
+                className="text-sm font-semibold text-[var(--rs-brand-pink,#f472b6)] underline-offset-2 hover:underline"
+              >
+                ← Profils
+              </Link>
+              {profile.portfolio_url ? (
+                <a
+                  href={profile.portfolio_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
+                >
+                  Portfolio
+                </a>
+              ) : null}
+              {cvUrl ? (
+                <a
+                  href={cvUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
+                >
+                  Ouvrir le PDF
+                </a>
+              ) : null}
+            </div>
+          ) : null
+        }
+      />
+
+      <div className="rs-panel rounded-lg p-6 lg:hidden">
         <Link href="/profils" className="text-sm font-semibold">
           ← Retour aux profils
         </Link>

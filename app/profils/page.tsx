@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import ProfilCvThumb from "@/components/ProfilCvThumb";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import "./profils-list.css";
 
 type Profile = {
@@ -67,27 +68,23 @@ export default function ProfilsPage() {
 
   return (
     <div className="mx-auto min-w-0 max-w-7xl space-y-6 overflow-x-hidden pb-2">
-      <header className="rs-panel overflow-hidden rounded-xl p-5 sm:p-7 md:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
-              Candidats publiés
-            </p>
-            <h1 className="rs-profils-list__hero-title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
-              Profils
-            </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
-              Parcours les CV comme sur une vitrine d’offres : deux profils par
-              ligne sur grand écran, un sur très petit mobile. Infos à gauche,
-              aperçu du PDF à droite dans chaque carte.
-            </p>
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
-            <label className="sr-only" htmlFor="rs-profils-filter">
+      <PortalDesktopPageHeader
+        eyebrow="Candidats publiés"
+        title="Profils"
+        description={
+          <>
+            Parcours les CV comme sur une vitrine d’offres : deux profils par
+            ligne sur grand écran, un sur très petit mobile. Infos à gauche,
+            aperçu du PDF à droite dans chaque carte.
+          </>
+        }
+        actions={
+          <>
+            <label className="sr-only" htmlFor="rs-profils-filter-desktop">
               Filtrer les profils
             </label>
             <input
-              id="rs-profils-filter"
+              id="rs-profils-filter-desktop"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Métier, ville…"
@@ -99,12 +96,48 @@ export default function ProfilsPage() {
             >
               Déposer un CV
             </a>
-          </div>
+          </>
+        }
+        message={
+          message ? <p className="text-sm text-red-700">{message}</p> : null
+        }
+      />
+
+      <div className="rs-panel space-y-4 rounded-xl p-4 sm:p-5 lg:hidden">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
+            Candidats publiés
+          </p>
+          <h1 className="rs-portal-page-hero__title mt-1 text-xl font-black tracking-tight sm:text-2xl">
+            Profils
+          </h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
+            Parcours les CV comme sur une vitrine d’offres : deux profils par
+            ligne sur grand écran, un sur très petit mobile.
+          </p>
+        </div>
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="sr-only" htmlFor="rs-profils-filter">
+            Filtrer les profils
+          </label>
+          <input
+            id="rs-profils-filter"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Métier, ville…"
+            className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
+          />
+          <a
+            href="/depot"
+            className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
+          >
+            Déposer un CV
+          </a>
         </div>
         {message ? (
-          <p className="mt-4 text-sm text-red-700">{message}</p>
+          <p className="text-sm text-red-700">{message}</p>
         ) : null}
-      </header>
+      </div>
 
       {loading ? (
         <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)]">

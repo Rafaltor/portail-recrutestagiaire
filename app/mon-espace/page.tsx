@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import { getOrCreateVisitorId } from "@/lib/visitor";
 import {
   AUTH_LIKES_PER_DAY,
@@ -144,12 +145,14 @@ function MonEspaceLoginInline() {
 
   return (
     <section className="rs-panel rounded-lg p-6">
-      <h1 className="text-xl font-black tracking-tight">Mon espace</h1>
-      <p className="mt-2 text-sm text-[#0A0A0A]/85">
-        Connecte-toi pour afficher ton espace candidat/votant.
-      </p>
+      <div className="lg:hidden">
+        <h1 className="text-xl font-black tracking-tight">Mon espace</h1>
+        <p className="mt-2 text-sm text-[#0A0A0A]/85">
+          Connecte-toi pour afficher ton espace candidat/votant.
+        </p>
+      </div>
 
-      <label className="mt-4 grid gap-1">
+      <label className="mt-4 grid gap-1 lg:mt-0">
         <span className="text-sm font-semibold">Email</span>
         <input
           value={email}
@@ -334,7 +337,12 @@ export default function MonEspacePage() {
   if (!authReady) {
     return (
       <div className="grid gap-6">
-        <section className="rs-panel rounded-lg p-6 text-sm text-[#0A0A0A]/85">
+        <PortalDesktopPageHeader
+          eyebrow="Espace membre"
+          title="Mon espace"
+          description="Chargement de ton espace candidat ou votant…"
+        />
+        <section className="rs-panel rounded-lg p-6 text-sm text-[#0A0A0A]/85 lg:hidden">
           Chargement…
         </section>
       </div>
@@ -344,6 +352,11 @@ export default function MonEspacePage() {
   if (!isConnected) {
     return (
       <div className="grid gap-6">
+        <PortalDesktopPageHeader
+          eyebrow="Espace membre"
+          title="Mon espace"
+          description="Connecte-toi pour afficher ton espace candidat ou votant."
+        />
         <MonEspaceLoginInline />
       </div>
     );
@@ -351,7 +364,36 @@ export default function MonEspacePage() {
 
   return (
     <div className="grid gap-6">
-      <section className="rs-panel rounded-lg p-6">
+      <PortalDesktopPageHeader
+        eyebrow="Espace membre"
+        title="Mon espace"
+        description={
+          <>
+            Connecté en tant que{" "}
+            <span className="font-semibold">{session?.user?.email}</span>
+            {linkingVisitor ? (
+              <span className="mt-1 block text-xs text-[#0A0A0A]/70">
+                Liaison votant…
+              </span>
+            ) : visitorMessage ? (
+              <span className="mt-1 block text-xs text-[#0A0A0A]/70">
+                {visitorMessage}
+              </span>
+            ) : null}
+          </>
+        }
+        actions={
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="inline-flex w-fit rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
+          >
+            Déconnexion
+          </button>
+        }
+      />
+
+      <section className="rs-panel rounded-lg p-6 lg:hidden">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-black tracking-tight">Mon espace</h1>

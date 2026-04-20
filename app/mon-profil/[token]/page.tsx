@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import type { Session } from "@supabase/supabase-js";
 
 type ApiPayload = {
@@ -272,7 +273,12 @@ export default function MonProfilTokenPage({
   if (!authReady) {
     return (
       <div className="grid gap-4 md:gap-6">
-        <section className="rs-panel rounded-lg p-4 text-sm text-[#0A0A0A]/85 md:p-6">
+        <PortalDesktopPageHeader
+          eyebrow="Accès privé"
+          title="Mon profil (token)"
+          description="Chargement de la page et vérification de la session…"
+        />
+        <section className="rs-panel rounded-lg p-4 text-sm text-[#0A0A0A]/85 md:p-6 lg:hidden">
           Chargement…
         </section>
       </div>
@@ -282,7 +288,20 @@ export default function MonProfilTokenPage({
   if (!isConnected) {
     return (
       <div className="grid gap-4 md:gap-6">
-        <section className="rs-panel rounded-lg p-4 md:p-6">
+        <PortalDesktopPageHeader
+          eyebrow="Accès privé"
+          title="Mon profil (token)"
+          description={
+            <>
+              Connecte-toi ou crée un compte pour accéder à tes stats et à
+              l&apos;historique de ce profil.
+              <span className="mt-2 block text-xs text-[#0A0A0A]/70">
+                Token : <span className="font-mono">{token}</span>
+              </span>
+            </>
+          }
+        />
+        <section className="rs-panel rounded-lg p-4 md:p-6 lg:hidden">
           <h1 className="text-lg font-black tracking-tight md:text-2xl">
             Mon profil (privé)
           </h1>
@@ -367,7 +386,35 @@ export default function MonProfilTokenPage({
 
   return (
     <div className="grid gap-4 md:gap-6">
-      <section className="rs-panel rounded-lg p-4 md:p-6">
+      <PortalDesktopPageHeader
+        eyebrow="Accès privé"
+        title="Mon profil (token)"
+        description={
+          <>
+            Compte connecté :{" "}
+            <span className="font-semibold">{session?.user?.email}</span>
+          </>
+        }
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="inline-flex w-fit rounded-md border border-[#ddd] bg-white px-3 py-2 text-xs font-semibold hover:bg-[#f5f5f5] md:text-sm"
+            >
+              Déconnexion
+            </button>
+            <Link
+              href="/profils"
+              className="inline-flex w-fit rounded-md border border-[#ddd] bg-white px-3 py-2 text-xs font-semibold hover:bg-[#f5f5f5] md:text-sm"
+            >
+              Voir le classement public
+            </Link>
+          </div>
+        }
+      />
+
+      <section className="rs-panel rounded-lg p-4 md:p-6 lg:hidden">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-lg font-black tracking-tight md:text-2xl">

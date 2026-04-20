@@ -52,6 +52,12 @@ html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
   }
 }
 
+/* Titre du bandeau « type profils » (desktop lg+) */
+.rs-portal-page-hero__title {
+  color: var(--rs-brand-ink, #0a0a0a);
+  letter-spacing: -0.02em;
+}
+
 .rs-panel {
   border-radius: 12px;
   border: 1px solid var(--rs-block-border, #ddd);

@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type LinkRes = { ok: true; shopifyCustomerId: string };
 
@@ -236,7 +237,13 @@ function ConnexionPageInner() {
 
   return (
     <div className="grid gap-6">
-      <div className="rs-panel rounded-lg p-6">
+      <PortalDesktopPageHeader
+        eyebrow="Compte"
+        title="Connexion"
+        description="Connexion rapide (email) pour lier ton compte au portail."
+      />
+
+      <div className="rs-panel rounded-lg p-6 lg:hidden">
         <h1 className="text-xl font-black tracking-tight">Connexion</h1>
         <p className="mt-2 text-sm text-[#0A0A0A]/85">
           Connexion rapide (email) pour lier ton compte au portail.
@@ -385,7 +392,12 @@ export default function ConnexionPage() {
     <Suspense
       fallback={
         <div className="grid gap-6">
-          <div className="rs-panel rounded-lg p-6">
+          <PortalDesktopPageHeader
+            eyebrow="Compte"
+            title="Connexion"
+            description="Chargement de la page…"
+          />
+          <div className="rs-panel rounded-lg p-6 lg:hidden">
             <h1 className="text-xl font-black tracking-tight">Connexion</h1>
             <p className="mt-2 text-sm text-[#0A0A0A]/85">Chargement…</p>
           </div>
