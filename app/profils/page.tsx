@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import ProfilCvThumb from "@/components/ProfilCvThumb";
-import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
+import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
 import "./profils-list.css";
 
 type Profile = {
@@ -68,36 +68,10 @@ export default function ProfilsPage() {
 
   return (
     <div className="mx-auto min-w-0 max-w-7xl space-y-6 overflow-x-hidden pb-2">
-      <PortalDesktopPageHeader
-        eyebrow="Candidats publiés"
-        title="Profils"
-        description={
-          <>
-            Parcours les CV comme sur une vitrine d’offres : deux profils par
-            ligne sur grand écran, un sur très petit mobile. Infos à gauche,
-            aperçu du PDF à droite dans chaque carte.
-          </>
-        }
-        actions={
-          <>
-            <label className="sr-only" htmlFor="rs-profils-filter-desktop">
-              Filtrer les profils
-            </label>
-            <input
-              id="rs-profils-filter-desktop"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Métier, ville…"
-              className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
-            />
-            <a
-              href="/depot"
-              className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
-            >
-              Déposer un CV
-            </a>
-          </>
-        }
+      <ProfilsListDesktopHeader
+        filterValue={q}
+        onFilterChange={setQ}
+        filterInputId="rs-profils-filter-desktop"
         message={
           message ? <p className="text-sm text-red-700">{message}</p> : null
         }

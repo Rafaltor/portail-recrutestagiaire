@@ -21,7 +21,8 @@ import {
   readLocalInt,
   writeLocalInt,
 } from "@/lib/swipe-gating";
-import { ProfilStylePortalHeader } from "@/components/ProfilStylePortalHeader";
+import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
+import "../profils/profils-list.css";
 import "./swipe-stamps.css";
 
 function formatSwipeError(e: unknown): string {
@@ -378,41 +379,6 @@ export default function SwipePage() {
 
   const current = deck[0] ?? null;
   const showNextLoader = !!current && deck[1] == null && nextCardLoading;
-
-  const swipeHeaderProfile = current
-    ? {
-        id: current.profile.id,
-        handle: current.profile.handle,
-        job_title: current.profile.job_title,
-        city: current.profile.city,
-        portfolio_url: current.profile.portfolio_url,
-      }
-    : null;
-
-  const swipeHeaderLoading =
-    !authReady ||
-    (loading && !current && !loadError) ||
-    (!!nextCardLoading && !current && hasLoadedProfiles);
-
-  const swipeHeaderError =
-    loadError ||
-    (blockedByFreeLimit
-      ? `Tu as utilisé ${freeSwipesUsed} swipes gratuits sur ${FREE_SWIPE_LIMIT}. Crée un compte pour continuer.`
-      : "");
-
-  const swipeHeaderEmpty =
-    done && !current && !loadError && !blockedByFreeLimit
-      ? {
-          title: hasLoadedProfiles
-            ? "C’est tout pour l’instant"
-            : "Aucun profil pour l’instant",
-          description: hasLoadedProfiles ? (
-            <>Tu as voté sur tous les profils disponibles.</>
-          ) : (
-            <>Aucun CV publié n’est disponible pour le swipe actuellement.</>
-          ),
-        }
-      : null;
 
   useEffect(() => {
     let alive = true;
@@ -1056,15 +1022,9 @@ export default function SwipePage() {
           : { height: swipeChromeHeight }
       }
     >
-      <ProfilStylePortalHeader
-        desktopClassName="shrink-0 px-2 sm:px-3 lg:px-4"
-        profile={swipeHeaderProfile}
-        cvUrl={current?.cvUrl ?? ""}
-        loading={swipeHeaderLoading}
-        errorMessage={swipeHeaderError}
-        emptyTitle={swipeHeaderEmpty?.title}
-        emptyDescription={swipeHeaderEmpty?.description}
-        mobileDetailPanel={false}
+      <ProfilsListDesktopHeader
+        className="shrink-0 px-2 sm:px-3 lg:px-4"
+        filterAsProfilsLink
       />
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
