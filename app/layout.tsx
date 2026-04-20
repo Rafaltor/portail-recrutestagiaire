@@ -62,10 +62,9 @@ export default function RootLayout({
             aria-hidden="true"
             style={
               {
-                ["--rs-kitsch-pop-a"]: "#fff0f7",
-                ["--rs-kitsch-pop-b"]: "#ffd6ea",
-                ["--rs-kitsch-pop-c"]: "#ffe4ef",
-                ["--rs-kitsch-pop-fg"]: "#f472b6",
+                ["--rs-kitsch-pop-a"]: "#f472b6",
+                ["--rs-kitsch-pop-b"]: "#e8e8f0",
+                ["--rs-kitsch-pop-fg"]: "#0a0a0a",
               } as CSSProperties
             }
           >

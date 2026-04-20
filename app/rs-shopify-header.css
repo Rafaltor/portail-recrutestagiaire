@@ -513,7 +513,7 @@ html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"
   z-index: 2;
 }
 
-/* Onglet actif — magenta-rose plein (capture) ; piloté par data-rs-header-tab sur <html> */
+/* Onglet actif — fond rose charte plein ; piloté par data-rs-header-tab sur <html> */
 .header-wrap .rs-subnav__item.is-active .rs-subnav__trigger,
 .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger,
 .header-wrap .rs-subnav__item.is-active:focus-within .rs-subnav__trigger,
@@ -536,11 +536,7 @@ html[data-rs-header-tab="cand"]
   .rs-subnav__item[data-rs-tab="cand"]:focus-within
   .rs-subnav__trigger {
   color: #fff !important;
-  background: linear-gradient(
-    180deg,
-    var(--rs-da-pink-top, #f9a8d4) 0%,
-    var(--rs-da-pink, #f472b6) 100%
-  ) !important;
+  background: var(--rs-brand-pink, #f472b6) !important;
   border: none !important;
   border-bottom: none !important;
   box-shadow: none !important;
@@ -551,12 +547,9 @@ html[data-rs-header-tab="cand"]
 html[data-rs-header-tab="offres"] .header-wrap .rs-subnav__item[data-rs-tab="offres"]:hover .rs-subnav__trigger,
 html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"]:hover .rs-subnav__trigger {
   filter: none !important;
-  background: linear-gradient(
-    180deg,
-    var(--rs-da-pink-hover, #db2777) 0%,
-    var(--rs-da-pink-hover, #db2777) 100%
-  ) !important;
+  background: var(--rs-brand-pink, #f472b6) !important;
   border: none !important;
+  border-bottom: none !important;
   box-shadow: none !important;
   color: #fff !important;
   text-decoration: none;
@@ -643,11 +636,11 @@ html[data-rs-header-tab="cand"]
   .rs-subnav__item[data-rs-tab="cand"]:focus-within
   .rs-subnav__trigger {
   color: #fff !important;
-  background: linear-gradient(
-    180deg,
-    var(--rs-da-pink-top, #f9a8d4) 0%,
-    var(--rs-da-pink, #f472b6) 100%
-  ) !important;
+  background: var(--rs-brand-pink, #f472b6) !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  text-shadow: none;
 }
 
 .header-wrap .rs-subnav__dropdown {
@@ -747,7 +740,7 @@ body.rs-nav-open {
 }
 
 /*
- * Bandeau promo : fond rose pâle (variables inline layout.tsx), texte rose foncé, marquee seul.
+ * Bandeau kitsch haut : bordure + ombre ; zone --brand animée (charte boutique).
  */
 .header-wrap .rs-header-kitsch-pop {
   position: relative;
@@ -755,21 +748,41 @@ body.rs-nav-open {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  border-bottom: 1px solid rgba(219, 39, 119, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  border-bottom: 2px solid #e8a8c8;
+  box-shadow:
+    inset 0 2px rgba(255, 255, 255, 0.55),
+    0 2px 10px rgba(180, 60, 120, 0.12);
 }
 
 .header-wrap .rs-header-kitsch-pop--brand {
-  padding: 5px 0 6px;
+  --rs-kitsch-pop-a: #f472b6;
+  --rs-kitsch-pop-b: #e8e8f0;
+  --rs-kitsch-pop-fg: #0a0a0a;
+
+  padding: 7px 0;
   background: linear-gradient(
-    92deg,
-    var(--rs-kitsch-pop-a, #fff0f7) 0%,
-    var(--rs-kitsch-pop-b, #ffd6ea) 38%,
-    var(--rs-kitsch-pop-c, #ffe8f2) 72%,
-    var(--rs-kitsch-pop-a, #fff0f7) 100%
+    118deg,
+    #fff8e6 0%,
+    #ffd6e8 16%,
+    #ffffff 30%,
+    #d8e2ff 46%,
+    #ffffff 58%,
+    #ffe9a3 74%,
+    #fbcfe8 88%,
+    #e8e8f0 100%
   );
-  background-size: 100% 100%;
-  animation: none;
+  background-size: 380% 100%;
+  animation: rs-kitsch-brand-bg 11s ease-in-out infinite;
+}
+
+@keyframes rs-kitsch-brand-bg {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .header-wrap .rs-header-kitsch-pop--brand::before {
@@ -795,7 +808,7 @@ body.rs-nav-open {
   text-transform: uppercase;
   white-space: nowrap;
   will-change: transform;
-  color: #f472b6 !important;
+  color: var(--rs-kitsch-pop-fg, #0a0a0a) !important;
   text-shadow: none;
   animation: rs-kitsch-pop-marquee 28s linear infinite;
   transform: translate3d(0, 0, 0);
