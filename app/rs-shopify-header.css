@@ -1,4 +1,4 @@
-/* Shopify header styles (ported for portal). Source jumeau : thème Shopify recrutestagiaire / assets/rs-shopify-header.css — garder visuellement alignés. */
+/* Shopify header (portail) — métriques / espacements alignés sur assets/rs-shopify-header.css du thème recrutestagiaire. */
 
 /* Keep only header-related rules from theme-overrides.css to avoid breaking portal UI. */
 
@@ -88,8 +88,8 @@
   justify-content: flex-start;
   width: max-content;
   min-width: 0;
-  min-height: var(--rs-header-logo-col, 118px);
-  height: var(--rs-header-logo-col, 118px);
+  min-height: var(--rs-header-logo-col, 124px);
+  height: var(--rs-header-logo-col, 124px);
   padding: 0;
   margin: 0;
   border: none !important;
@@ -108,8 +108,8 @@
   display: block;
   object-fit: contain;
   object-position: left center;
-  max-width: var(--rs-header-logo-col, 118px) !important;
-  max-height: var(--rs-header-logo-col, 118px) !important;
+  max-width: var(--rs-header-logo-col, 124px) !important;
+  max-height: var(--rs-header-logo-col, 124px) !important;
   width: auto;
   height: auto;
   flex-shrink: 0;
@@ -194,7 +194,8 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: 10px;
+  gap: 4px;
+  column-gap: 6px;
   box-sizing: border-box;
   border-bottom: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.12);
 }
@@ -222,7 +223,7 @@
   width: 100%;
   flex-wrap: nowrap;
   float: none !important;
-  min-height: 52px;
+  min-height: 58px;
   padding: 6px 0 0;
   gap: 10px;
   border-bottom: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.12);
@@ -366,7 +367,7 @@
   }
 
   .header-wrap .rs-subnav.rs-subnav--buttons {
-    gap: 6px;
+    gap: 0;
   }
 
   .header-wrap .rs-banner-nav.rs-header-pole-tabs {
@@ -437,7 +438,7 @@
   max-width: none;
   margin-top: 0;
   margin-left: 0;
-  padding: 0 6px 0;
+  padding: 0 4px 0;
   overflow: visible;
   background: #ffffff;
   border-top: none;
@@ -456,7 +457,7 @@
   gap: 0;
   list-style: none;
   margin: 0;
-  padding: 0 4px;
+  padding: 0 2px;
   width: 100%;
   flex: 0 0 auto;
   min-height: 0;
@@ -502,7 +503,7 @@
   background: transparent;
   border: none !important;
   border-bottom: none !important;
-  border-radius: 10px 10px 0 0;
+  border-radius: 8px 8px 0 0;
   box-shadow: none !important;
 }
 
@@ -563,7 +564,7 @@ html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"
     padding: 12px 8px;
     font-size: 13px;
     min-height: 48px;
-    border-radius: 10px 10px 0 0;
+    border-radius: 8px 8px 0 0;
   }
 }
 
@@ -588,7 +589,7 @@ html[data-rs-header-tab="cand"] .header-wrap .rs-subnav__item[data-rs-tab="cand"
   }
 
   html[data-rs-route="inner"] .header-wrap .rs-subnav.rs-subnav--buttons {
-    gap: 6px;
+    gap: 0;
     padding: 0 2px;
   }
 
