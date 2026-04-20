@@ -258,7 +258,11 @@ export default function SwipePage() {
     setRhInsight(null);
     setLoadError("");
     setNextCardLoading(false);
-    if (!isConnected) {
+    /* Invité : limite locale. Compte connecté : pas cette limite — toujours réinitialiser
+       au cas où on passait invité (bloqué) → connecté sans recharger la page. */
+    if (isConnected) {
+      setBlockedByFreeLimit(false);
+    } else {
       const used = readLocalInt(swipeCountKey);
       setFreeSwipesUsed(used);
       if (used >= FREE_SWIPE_LIMIT) {
