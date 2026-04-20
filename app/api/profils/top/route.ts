@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
@@ -92,7 +93,7 @@ export async function GET() {
 
   const profRes = await supabase
     .from("profiles")
-    .select("id,handle,job_title,status")
+    .select("id,handle,job_title,status,cv_path")
     .eq("id", winner.id)
     .eq("status", "published")
     .maybeSingle();
@@ -114,7 +115,17 @@ export async function GET() {
     handle: string;
     job_title: string;
     status: string;
+    cv_path: string | null;
   };
+
+  let cvUrl = "";
+  const cvKey = normalizeCvObjectKey(p.cv_path);
+  if (cvKey) {
+    const signed = await supabase.storage.from("cvs").createSignedUrl(cvKey, 60 * 15);
+    if (!signed.error && signed.data?.signedUrl) {
+      cvUrl = signed.data.signedUrl;
+    }
+  }
 
   return NextResponse.json(
     {
@@ -126,6 +137,9 @@ export async function GET() {
         likes: winner.score,
         rank_label: "Profil N°1 cette semaine",
         profile_url: `/profil/${encodeURIComponent(p.id)}`,
+        /** URL signée PDF/image — pour la vitrine Shopify (iframe / Google viewer) */
+        cv: cvUrl || undefined,
+        cv_url: cvUrl || undefined,
       },
     },
     { status: 200, headers: CORS },

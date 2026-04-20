@@ -88,3 +88,9 @@ main.rs-portal-main .uppercase {
 .footer.skin-dark-footer p {
   color: rgba(10, 10, 10, 0.72) !important;
 }
+
+/* Même ressort horizontal que `main.rs-portal-main` — texte du footer moins collé au bord */
+body.rs-portal-body .footer.skin-dark-footer > .container {
+  padding-left: clamp(12px, 2vw, 18px);
+  padding-right: clamp(12px, 2vw, 18px);
+}
