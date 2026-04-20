@@ -5,6 +5,8 @@ import PdfPreview from "@/components/PdfPreview";
 
 type Props = { profileId: string };
 
+const CV_META_TIMEOUT_MS = 22_000;
+
 /**
  * Aperçu 1re page du CV (liste profils) — `intent=preview` : ne compte pas une vue complète.
  */
@@ -14,10 +16,14 @@ export default function ProfilCvThumb({ profileId }: Props) {
 
   useEffect(() => {
     let alive = true;
+    const ac = new AbortController();
+    const t = window.setTimeout(() => ac.abort(), CV_META_TIMEOUT_MS);
+
     void (async () => {
       try {
         const r = await fetch(
           `/api/cv/${encodeURIComponent(profileId)}?intent=preview`,
+          { signal: ac.signal },
         );
         if (!r.ok) throw new Error("cv");
         const j = (await r.json()) as { url?: string };
@@ -25,10 +31,14 @@ export default function ProfilCvThumb({ profileId }: Props) {
         setUrl(j.url);
       } catch {
         if (alive) setFailed(true);
+      } finally {
+        window.clearTimeout(t);
       }
     })();
     return () => {
       alive = false;
+      ac.abort();
+      window.clearTimeout(t);
     };
   }, [profileId]);
 

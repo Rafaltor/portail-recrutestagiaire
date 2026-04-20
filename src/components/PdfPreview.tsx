@@ -2,6 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const PDF_LOAD_TIMEOUT_MS = 28_000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  }) as Promise<T>;
+}
+
 function doubleRaf(): Promise<void> {
   return new Promise((resolve) => {
     requestAnimationFrame(() => {
@@ -95,7 +107,21 @@ export default function PdfPreview({
         }
 
         const loadingTask = getDocument({ url, disableWorker });
-        const pdf = await loadingTask.promise;
+        let pdf;
+        try {
+          pdf = await withTimeout(
+            loadingTask.promise,
+            PDF_LOAD_TIMEOUT_MS,
+            "Le PDF met trop longtemps à répondre (réseau ou fichier).",
+          );
+        } catch (loadErr) {
+          try {
+            (loadingTask as { destroy?: () => void }).destroy?.();
+          } catch {
+            /* ignore */
+          }
+          throw loadErr;
+        }
         const page = (await pdf.getPage(1)) as PdfPage;
 
         const canvas = canvasRef.current;
@@ -246,7 +272,15 @@ export default function PdfPreview({
       }
     >
       {error ? (
-        <div className="px-3 py-3 text-sm text-red-700">{error}</div>
+        listThumb ? (
+          <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-[var(--rs-logo-blue-pale,#e8eeff)] px-2 text-center">
+            <p className="text-xs font-semibold leading-snug text-[var(--rs-logo-blue-mid,#1b55c4)]">
+              Aperçu PDF indisponible
+            </p>
+          </div>
+        ) : (
+          <div className="px-3 py-3 text-sm text-red-700">{error}</div>
+        )
       ) : (
         <div
           ref={wrapRef}
