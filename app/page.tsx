@@ -20,7 +20,7 @@ export default function Home() {
     <div className="grid gap-6">
       <div className="rs-panel rounded-lg p-6">
         <h1 className="text-2xl font-black tracking-tight">Portail candidatures</h1>
-        <p className="mt-2 max-w-2xl text-zinc-700">
+        <p className="mt-2 max-w-2xl text-[#0A0A0A]/85">
           MVP : dépôt de CV (PDF), affichage des profils publiés et votes (like /
           dislike) sans compte via un identifiant visiteur.
         </p>
@@ -41,10 +41,10 @@ export default function Home() {
       </div>
 
       <div className="rs-panel rounded-lg p-6">
-        <h2 className="text-sm font-black uppercase tracking-wider text-zinc-800">
+        <h2 className="text-sm font-black uppercase tracking-wider text-[#0A0A0A]">
           Règle
         </h2>
-        <p className="mt-2 text-zinc-700">
+        <p className="mt-2 text-[#0A0A0A]/85">
           Pas de photo de profil. CV en PDF, pseudo Instagram recommandé.
         </p>
       </div>

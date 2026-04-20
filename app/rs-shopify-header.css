@@ -9,21 +9,21 @@
   max-width: 100%;
   overflow-x: clip;
   overflow-y: visible;
-  background: linear-gradient(180deg, var(--rs-pole-header-top, #e8eeff) 0%, var(--rs-pole-header-bot, #d4dff7) 100%);
-  border-bottom: 3px solid var(--rs-gold-shadow, #8a6f12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 10px rgba(30, 50, 70, 0.12);
+  background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--rs-block-border, #ddd);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 10px rgba(10, 10, 10, 0.06);
 }
 
 /* Optional Shopify "banner image" mode (header-wrap.rs-header--banner) */
 .header-wrap.rs-header--banner {
-  background-color: var(--rs-logo-blue-deep, #001a57);
+  background-color: #e8e8f0;
   background-image: var(--rs-header-bg-img, none);
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
 }
 
-/* Shopify: overlay gradient semi-transparent au-dessus de l'image */
+/* Overlay au-dessus de l'image : dégradé vers blanc (charte) */
 .header-wrap.rs-header--banner::before {
   content: "";
   position: absolute;
@@ -33,9 +33,9 @@
   bottom: 0;
   background: linear-gradient(
     180deg,
-    rgba(232, 240, 248, 0.88) 0%,
-    rgba(210, 224, 238, 0.92) 50%,
-    rgba(190, 210, 230, 0.94) 100%
+    rgba(232, 232, 240, 0.92) 0%,
+    rgba(248, 248, 250, 0.94) 55%,
+    rgba(255, 255, 255, 0.96) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -341,7 +341,7 @@
   margin-left: 0;
   padding: 0 6px 0;
   overflow: visible;
-  background: var(--rs-pole-tab-bg, #c8d4f5);
+  background: var(--rs-pole-tab-bg, #ececee);
   border-top: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   min-height: 0;
@@ -392,20 +392,20 @@
   height: auto;
   margin: 0;
   padding: 8px 12px;
-  font-family: inherit;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   font-weight: 700;
-  color: var(--rs-pole-blue) !important;
+  color: var(--rs-brand-pink, #f472b6) !important;
   text-align: center;
   text-transform: none;
   letter-spacing: 0.02em;
   white-space: nowrap;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(var(--bs-primary-rgb, 0, 51, 171), 0.15);
+  background: #fff;
+  border: 2px solid var(--rs-brand-pink, #f472b6);
   border-bottom: none;
   border-radius: 8px 8px 0 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  box-shadow: none;
 }
 
 .header-wrap .rs-subnav__item.is-active .rs-subnav__trigger {
@@ -413,36 +413,23 @@
   z-index: 2;
 }
 
-/* Onglet actif = relief Windows jaune (copié du thème Shopify) */
+/* Onglet actif — charte : fond rose, texte blanc */
 .header-wrap .rs-subnav__item.is-active .rs-subnav__trigger,
 .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger,
 .header-wrap .rs-subnav__item.is-active:focus-within .rs-subnav__trigger {
-  color: var(--rs-logo-blue-deep, #001a57) !important;
-  background: linear-gradient(
-    180deg,
-    #fffff8 0%,
-    #fff9e6 20%,
-    #fff4c4 33%,
-    #fff0a8 42%,
-    #ffe566 58%,
-    #f2ca38 78%,
-    #e6c040 100%
-  ) !important;
-  border: 2px outset #fff8dc !important;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.95),
-    inset -1px -1px 0 rgba(100, 75, 0, 0.22) !important;
+  color: #fff !important;
+  background: var(--rs-brand-pink, #f472b6) !important;
+  border: 2px solid var(--rs-brand-pink, #f472b6) !important;
+  box-shadow: none !important;
   text-shadow: none;
 }
 
 .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger {
   filter: none !important;
-  background: linear-gradient(180deg, #fff8d8 0%, #fff0b8 35%, #ffe9a0 70%, #ffe28a 100%) !important;
-  border: 2px outset #fff8e8 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    inset 0 -1px 0 rgba(255, 210, 100, 0.28) !important;
-  color: var(--rs-logo-blue-deep, #001a57) !important;
+  background: #ec4899 !important;
+  border-color: #ec4899 !important;
+  box-shadow: none !important;
+  color: #fff !important;
   text-decoration: none;
 }
 
@@ -506,8 +493,8 @@
 
 .header-wrap .rs-subnav__item:hover .rs-subnav__trigger,
 .header-wrap .rs-subnav__item:focus-within .rs-subnav__trigger {
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--rs-pole-blue-dark) !important;
+  background: #fff5fa;
+  color: #ec4899 !important;
 }
 
 .header-wrap .rs-subnav__dropdown {
@@ -521,9 +508,9 @@
   padding: 8px 0;
   list-style: none;
   background: #fff;
-  border: 1px solid #9fb3c4;
-  border-top: 3px solid var(--rs-gold-shadow);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--rs-block-border, #ddd);
+  border-top: 2px solid var(--rs-brand-pink, #f472b6);
+  box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12);
   z-index: 10001;
 
   opacity: 0;
@@ -578,9 +565,9 @@ body.rs-nav-open {
   padding: 11px 20px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--rs-logo-blue) !important;
+  color: var(--rs-brand-pink, #f472b6) !important;
   text-decoration: none !important;
-  border-bottom: 1px solid #eef2f6;
+  border-bottom: 1px solid #eee;
 }
 
 .header-wrap .rs-subnav__dropdown li:last-child a {
@@ -589,7 +576,7 @@ body.rs-nav-open {
 
 .header-wrap .rs-subnav__dropdown a:hover {
   background: var(--rs-gold-soft);
-  color: var(--rs-logo-blue-ink, var(--rs-logo-blue-dark)) !important;
+  color: var(--rs-brand-pink, #f472b6) !important;
   text-decoration: none !important;
 }
 
@@ -613,17 +600,16 @@ body.rs-nav-open {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  border-bottom: 2px solid var(--rs-gold-shadow);
+  border-bottom: 1px solid var(--rs-block-border, #ddd);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 3px 12px rgba(15, 74, 110, 0.12);
+    0 2px 8px rgba(10, 10, 10, 0.06);
 }
 
 .rs-header-kitsch-pop--brand {
-  /* Defaults aligned with Shopify theme section settings */
-  --rs-kitsch-pop-a: #ffd230;
-  --rs-kitsch-pop-b: #4d79ff;
-  --rs-kitsch-pop-fg: #0015a3;
+  --rs-kitsch-pop-a: #f472b6;
+  --rs-kitsch-pop-b: #e8e8f0;
+  --rs-kitsch-pop-fg: #0a0a0a;
 
   padding: 5.5px 0;
   background: linear-gradient(
@@ -695,9 +681,9 @@ body.rs-nav-open {
   font-size: 14px;
   font-weight: 900;
   line-height: 1;
-  color: var(--rs-gold-shadow);
+  color: var(--rs-brand-pink, #f472b6);
   text-shadow:
-    0 0 10px var(--rs-gold-light),
+    0 0 8px rgba(244, 114, 182, 0.45),
     1px 1px 0 rgba(255, 255, 255, 0.95);
   pointer-events: none;
   animation: rs-kitsch-brand-twinkle 1.4s ease-in-out infinite;
@@ -732,14 +718,14 @@ body.rs-nav-open {
   width: max-content;
   padding: 0 40px;
   box-sizing: border-box;
-  font-family: "Trebuchet MS", "Lucida Grande", Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-weight: 800;
   font-size: 0.74rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   white-space: nowrap;
   will-change: transform;
-  color: var(--rs-logo-blue) !important;
+  color: var(--rs-brand-pink, #f472b6) !important;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95);
   animation: rs-kitsch-pop-marquee 22s linear infinite,
     rs-kitsch-brand-text-pulse 2.4s ease-in-out infinite;

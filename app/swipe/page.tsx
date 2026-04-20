@@ -1036,7 +1036,7 @@ export default function SwipePage() {
           role="status"
           aria-live="polite"
         >
-          <p className="rounded-lg border border-zinc-400/40 bg-white/85 px-2.5 py-1.5 text-left text-[11px] font-medium leading-snug text-zinc-900 shadow-md backdrop-blur-sm sm:text-xs">
+          <p className="rounded-lg border border-[#ddd] bg-white/85 px-2.5 py-1.5 text-left text-[11px] font-medium leading-snug text-[#0A0A0A] shadow-md backdrop-blur-sm sm:text-xs">
             {rhInsight}
           </p>
         </div>
@@ -1060,7 +1060,7 @@ export default function SwipePage() {
               </button>
               <a
                 href="/depot"
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
               >
                 Déposer un CV
               </a>
@@ -1095,23 +1095,23 @@ export default function SwipePage() {
         </div>
       ) : blockedByFreeLimit ? (
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
+          <div className="w-full max-w-md rounded-lg border border-[#ddd] bg-white p-6">
             <div className="text-lg font-black">
               Créez un compte pour continuer à voter et débloquer les récompenses.
             </div>
-            <p className="mt-2 text-sm text-zinc-700">
+            <p className="mt-2 text-sm text-[#0A0A0A]/85">
               Tu as utilisé {freeSwipesUsed} swipes gratuits sur {FREE_SWIPE_LIMIT}.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <a
                 href="/connexion"
-                className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+                className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
               >
                 Se connecter / créer un compte
               </a>
               <a
                 href="/mon-espace"
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
               >
                 Ouvrir mon espace
               </a>
@@ -1120,11 +1120,11 @@ export default function SwipePage() {
         </div>
       ) : done || !current ? (
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6">
+          <div className="w-full max-w-md rounded-lg border border-[#ddd] bg-white p-6">
             <div className="text-lg font-black">
               {hasLoadedProfiles ? "C’est tout pour l’instant." : "Aucun profil pour l’instant, revenez bientôt."}
             </div>
-            <p className="mt-2 text-sm text-zinc-700">
+            <p className="mt-2 text-sm text-[#0A0A0A]/85">
               {hasLoadedProfiles
                 ? "Tu as voté sur tous les profils disponibles."
                 : "Aucun CV publié n’est disponible pour le swipe actuellement."}
@@ -1133,14 +1133,14 @@ export default function SwipePage() {
               {hasLoadedProfiles ? (
                 <a
                   href="/profils"
-                  className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                 >
                   Voir les profils
                 </a>
               ) : null}
               <a
                 href="/depot"
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
               >
                 Déposer
               </a>
@@ -1205,10 +1205,10 @@ export default function SwipePage() {
 
                 const shellClass =
                   deckIdx === 2
-                    ? "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fbfbf9] shadow-[0_1px_0_rgba(0,0,0,0.05),0_14px_28px_-10px_rgba(0,0,0,0.2)]"
+                    ? "h-full w-full select-none overflow-hidden rounded-none border border-[#ddd]/90 bg-[#fbfbf9] shadow-[0_1px_0_rgba(0,0,0,0.05),0_14px_28px_-10px_rgba(0,0,0,0.2)]"
                     : deckIdx === 1
-                      ? "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-[#fcfcfa] shadow-[0_1px_0_rgba(0,0,0,0.05),0_18px_36px_-12px_rgba(0,0,0,0.22)]"
-                      : "h-full w-full select-none overflow-hidden rounded-none border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]";
+                      ? "h-full w-full select-none overflow-hidden rounded-none border border-[#ddd]/90 bg-[#fcfcfa] shadow-[0_1px_0_rgba(0,0,0,0.05),0_18px_36px_-12px_rgba(0,0,0,0.22)]"
+                      : "h-full w-full select-none overflow-hidden rounded-none border border-[#ddd]/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]";
 
                 const shellFilter =
                   deckIdx === 2 ? "brightness(0.96)" : deckIdx === 1 ? "brightness(0.98)" : undefined;
@@ -1265,7 +1265,7 @@ export default function SwipePage() {
                       ) : null}
 
                       {isTop ? (
-                        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-[#ddd]/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-[#0A0A0A] shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                           {normHandle(item.profile.handle)}
                         </div>
                       ) : null}
@@ -1292,7 +1292,7 @@ export default function SwipePage() {
                   }}
                 >
                   <div
-                    className="absolute inset-0 select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
+                    className="absolute inset-0 select-none overflow-visible rounded-none border border-[#ddd]/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
                     style={{
                       transform: (() => {
                         if (outgoing.exitAxis === "down") {
@@ -1329,7 +1329,7 @@ export default function SwipePage() {
                         immersive
                       />
                     </div>
-                    <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                    <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-[#ddd]/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-[#0A0A0A] shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                       {normHandle(outgoing.item.profile.handle)}
                     </div>
                     <div
@@ -1396,11 +1396,11 @@ export default function SwipePage() {
               <StampVisual kind="approved" muted={activeStampKind === "approved"} />
             </button>
           </div>
-          <div className="mt-1 text-center text-[11px] font-semibold text-zinc-600">
+          <div className="mt-1 text-center text-[11px] font-semibold text-[#0A0A0A]/70">
             Glisse un tampon sur la carte ou swipe gauche/droite.
           </div>
           {isConnected ? (
-            <div className="mt-1 text-center text-xs text-zinc-700">
+            <div className="mt-1 text-center text-xs text-[#0A0A0A]/85">
               Likes aujourd&apos;hui: {likesToday}/{AUTH_LIKES_PER_DAY}
             </div>
           ) : null}

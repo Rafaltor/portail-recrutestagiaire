@@ -44,8 +44,8 @@ export default function ProfilCvThumb({ profileId }: Props) {
 
   if (failed) {
     return (
-      <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-[var(--rs-logo-blue-pale,#e8eeff)] px-2 text-center">
-        <p className="text-xs font-semibold leading-snug text-[var(--rs-logo-blue-mid,#1b55c4)]">
+      <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-[var(--rs-logo-blue-pale,#f5f5f5)] px-2 text-center">
+        <p className="text-xs font-semibold leading-snug text-[var(--rs-logo-blue-mid,#F472B6)]">
           Aperçu PDF indisponible
         </p>
       </div>
@@ -54,8 +54,8 @@ export default function ProfilCvThumb({ profileId }: Props) {
 
   if (!url) {
     return (
-      <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-gradient-to-b from-[#e8eeff] to-[#f4f6fc]">
-        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--rs-logo-blue-mid,#1b55c4)]">
+      <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-gradient-to-b from-[#f5f5f5] to-[#fafafa]">
+        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--rs-logo-blue-mid,#F472B6)]">
           Chargement du CV…
         </span>
       </div>

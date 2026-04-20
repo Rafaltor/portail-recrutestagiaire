@@ -175,31 +175,31 @@ function RedactionEditorModal({
   if (!open || !profile) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] bg-black/75 p-3 sm:p-6">
-      <div className="flex h-full flex-col rounded-lg border border-zinc-700 bg-zinc-950/95">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-4 py-3 text-zinc-100">
+    <div className="fixed inset-0 z-[80] bg-black/40 p-3 sm:p-6">
+      <div className="flex h-full flex-col rounded-lg border border-[#ddd] bg-white shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#ddd] px-4 py-3 text-[#0A0A0A]">
           <div>
             <p className="text-sm font-semibold">Mode édition — @{profile.handle.replace(/^@/, "")}</p>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[#0A0A0A]/60">
               Dessine des zones noires (téléphone, email, adresse), puis applique.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setRects((prev) => prev.slice(0, -1))}
-              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+              className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-xs font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
             >
               Annuler le dernier
             </button>
             <button
               onClick={() => setRects([])}
-              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+              className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-xs font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
             >
               Tout effacer
             </button>
             <button
               onClick={onClose}
-              className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold hover:bg-zinc-800"
+              className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-xs font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
             >
               Fermer
             </button>
@@ -274,12 +274,12 @@ function RedactionEditorModal({
           </div>
         </div>
 
-        <div className="border-t border-zinc-800 px-4 py-3">
+        <div className="border-t border-[#ddd] px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => void applyMasking()}
               disabled={!rects.length || applyBusy}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {applyBusy ? "Masquage..." : "Appliquer le masquage"}
             </button>
@@ -288,14 +288,14 @@ function RedactionEditorModal({
                 href={profile.cv_original_url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md border border-zinc-600 px-3 py-2 text-xs font-semibold text-zinc-100 hover:bg-zinc-800"
+                className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-xs font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
               >
                 Voir l&apos;original (admin)
               </a>
             ) : null}
-            <span className="text-xs text-zinc-400">{rects.length} zone(s) à masquer</span>
+            <span className="text-xs text-[#0A0A0A]/60">{rects.length} zone(s) à masquer</span>
           </div>
-          {rendering ? <p className="mt-2 text-xs text-zinc-400">Chargement du PDF...</p> : null}
+          {rendering ? <p className="mt-2 text-xs text-[#0A0A0A]/60">Chargement du PDF...</p> : null}
           {renderError ? <p className="mt-2 text-xs text-red-400">{renderError}</p> : null}
           {applyError ? <p className="mt-2 text-xs text-red-400">{applyError}</p> : null}
         </div>
@@ -453,7 +453,7 @@ export default function AdminPage() {
   if (!authReady) {
     return (
       <div className="grid gap-6">
-        <div className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
+        <div className="rs-panel rounded-lg p-6 text-sm text-[#0A0A0A]/85">
           Chargement…
         </div>
       </div>
@@ -465,10 +465,10 @@ export default function AdminPage() {
       <div className="grid gap-6">
         <div className="rs-panel rounded-lg p-6">
           <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
-          <p className="mt-2 text-sm text-zinc-700">Connexion requise.</p>
+          <p className="mt-2 text-sm text-[#0A0A0A]/85">Connexion requise.</p>
           <a
             href="/connexion"
-            className="mt-4 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+            className="mt-4 inline-flex rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
           >
             Se connecter
           </a>
@@ -492,12 +492,12 @@ export default function AdminPage() {
     <div className="grid gap-6">
       <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
-        <p className="mt-1 text-sm text-zinc-700">
+        <p className="mt-1 text-sm text-[#0A0A0A]/85">
           Validation des CVs en attente avec aperçu inline.
         </p>
         <button
           onClick={() => void load()}
-          className="mt-4 rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+          className="mt-4 rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
         >
           Recharger les profils en attente
         </button>
@@ -506,7 +506,7 @@ export default function AdminPage() {
 
       <div className="rs-panel rounded-lg p-6">
         {loading ? (
-          <p className="text-sm text-zinc-700">Chargement…</p>
+          <p className="text-sm text-[#0A0A0A]/85">Chargement…</p>
         ) : items.length ? (
           <div className="grid gap-4">
             {items.map((p) => (
@@ -515,38 +515,38 @@ export default function AdminPage() {
                 className="rs-panel rounded-lg p-5"
               >
                 <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-                  <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-2 lg:h-[420px]">
+                  <div className="rounded-lg border border-[#ddd] bg-[#fafafa] p-2 lg:h-[420px]">
                     {p.cv_preview_url ? (
                       <PdfPreview url={p.cv_preview_url} mode="fit-width" />
                     ) : (
-                      <div className="px-3 py-3 text-sm text-zinc-700">
+                      <div className="px-3 py-3 text-sm text-[#0A0A0A]/85">
                         Aperçu PDF indisponible.
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <div className="text-sm font-black text-zinc-900">
+                    <div className="text-sm font-black text-[#0A0A0A]">
                       @{String(p.handle || "").replace(/^@/, "")}
                     </div>
                     <div className="mt-1 text-lg font-black leading-snug">
                       {p.job_title}
                     </div>
-                    <div className="mt-2 text-sm text-zinc-700">
+                    <div className="mt-2 text-sm text-[#0A0A0A]/85">
                       Déposé le{" "}
                       {new Date(p.created_at).toLocaleString("fr-FR")}
                     </div>
-                    <div className="mt-1 text-sm text-zinc-700">
+                    <div className="mt-1 text-sm text-[#0A0A0A]/85">
                       Catégorie métier:{" "}
                       <span className="font-semibold">{p.job_category}</span>
                     </div>
-                    <div className="mt-1 text-sm text-zinc-700">
+                    <div className="mt-1 text-sm text-[#0A0A0A]/85">
                       Ville: {p.city ? p.city : "—"}
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <button
                         onClick={() => setEditingId(p.id)}
-                        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                        className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                       >
                         Mode édition
                       </button>
@@ -555,7 +555,7 @@ export default function AdminPage() {
                           href={p.cv_original_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                          className="rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                         >
                           Voir l&apos;original (admin)
                         </a>
@@ -566,7 +566,7 @@ export default function AdminPage() {
                         href={p.portfolio_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-3 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                        className="mt-3 inline-flex rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                       >
                         Portfolio
                       </a>
@@ -583,7 +583,7 @@ export default function AdminPage() {
                           }))
                         }
                         placeholder="Ex: PDF illisible, contenu non conforme..."
-                        className="min-h-20 rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                        className="min-h-20 rounded-md border border-[#ddd] px-3 py-2 text-sm"
                       />
                     </label>
 
@@ -607,7 +607,7 @@ export default function AdminPage() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-zinc-700">
+          <p className="text-sm text-[#0A0A0A]/85">
             Aucun profil en attente.
           </p>
         )}

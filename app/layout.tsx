@@ -3,7 +3,6 @@ import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
@@ -18,22 +17,16 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Recrute Stagiaire — Portail",
   description:
     "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
   applicationName: "Recrute Stagiaire",
+  icons: {
+    icon: [{ url: "/rs-logo-eu.png", type: "image/png" }],
+    apple: [{ url: "/rs-logo-eu.png" }],
+  },
   openGraph: {
     siteName: "Recrute Stagiaire",
     locale: "fr_FR",
@@ -47,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="rs-portal-body flex min-h-dvh flex-col text-[#212529]">
+    <html lang="fr">
+      <body className="rs-portal-body flex min-h-dvh flex-col text-[#0A0A0A]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
         <div
@@ -65,9 +58,9 @@ export default function RootLayout({
             aria-hidden="true"
             style={
               {
-                ["--rs-kitsch-pop-a"]: "#ffd230",
-                ["--rs-kitsch-pop-b"]: "#4d79ff",
-                ["--rs-kitsch-pop-fg"]: "#0015a3",
+                ["--rs-kitsch-pop-a"]: "#F472B6",
+                ["--rs-kitsch-pop-b"]: "#e8e8f0",
+                ["--rs-kitsch-pop-fg"]: "#0A0A0A",
               } as CSSProperties
             }
           >
@@ -111,10 +104,10 @@ export default function RootLayout({
                     >
                       <Image
                         className="rs-nav-brand__img"
-                        src="https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=320"
+                        src="/rs-logo-eu.png"
                         alt="Recrute Stagiaire"
-                        width={76}
-                        height={40}
+                        width={177}
+                        height={125}
                         priority
                         style={{ maxHeight: 40, height: "auto", width: "auto" }}
                       />
@@ -231,12 +224,12 @@ export default function RootLayout({
               <div className="rs-footer-col rs-footer-col-a">
                 <div className="footer-widget">
                   <div className="footerLogo" style={{ marginBottom: 10 }}>
-                    <span style={{ color: "#fff", fontWeight: 900, fontSize: 18 }}>
+                    <span style={{ color: "#0A0A0A", fontWeight: 900, fontSize: 18 }}>
                       RECRUTE STAGIAIRE
                     </span>
                   </div>
                   <div className="footerText" style={{ maxWidth: 520 }}>
-                    <p style={{ margin: 0, color: "rgba(255,255,255,0.78)" }}>
+                    <p style={{ margin: 0, color: "rgba(10,10,10,0.72)" }}>
                       Collectif artistique mode & textile, Paris. Chaque vêtement
                       est une offre. Chaque achat, une candidature.
                     </p>

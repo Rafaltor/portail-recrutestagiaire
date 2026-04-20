@@ -5,11 +5,11 @@ export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
   "https://portail.recrutestagiaire.eu";
 
-/** Image par défaut pour Open Graph / Twitter */
+/** Image par défaut pour Open Graph / Twitter (fichier dans /public) */
 export const defaultOgImage = {
-  url: "https://recrutestagiaire.eu/cdn/shop/files/rs-poleemploi.png?v=1776180029&width=1200",
-  width: 1200,
-  height: 1200,
+  url: `${siteUrl}/rs-logo-eu.png`,
+  width: 3508,
+  height: 2480,
   alt: "Recrute Stagiaire",
 } as const;
 

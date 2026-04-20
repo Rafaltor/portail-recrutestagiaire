@@ -1,30 +1,43 @@
-/* UI shared look (portal) — inspired by Shopify theme */
+/* UI shared look (portal) — charte boutique : rose #F472B6, texte #0A0A0A, fonds neutres */
 
 :root {
-  --rs-logo-blue: #0033ab;
-  --rs-logo-blue-pale: #e8eeff;
-  --rs-logo-blue-dark: #001a57;
-  --rs-logo-blue-ink: var(--rs-logo-blue-dark);
-  --rs-logo-blue-bright: #5b86e5;
-  --rs-logo-blue-mid: #1b55c4;
-  --rs-pole-blue: var(--rs-logo-blue);
-  --rs-pole-blue-dark: var(--rs-logo-blue-dark);
-  --rs-gold-soft: #fff8e8;
-  --rs-gold-light: #ffe566;
-  --rs-gold-shadow: #8a6f12;
-  --rs-pole-header-top: #e8eeff;
-  --rs-pole-header-bot: #d4dff7;
-  --rs-pole-tab-bg: #c8d4f5;
+  --rs-brand-pink: #f472b6;
+  --rs-brand-ink: #0a0a0a;
+  --rs-page-bg: #efefef;
+  --rs-block-bg: #ffffff;
+  --rs-block-border: #dddddd;
 
-  --rs-logo-blue-deep: #001a57;
+  /* Anciens noms « bleu » → encre */
+  --rs-logo-blue: #0a0a0a;
+  --rs-logo-blue-pale: #f5f5f5;
+  --rs-logo-blue-dark: #0a0a0a;
+  --rs-logo-blue-ink: #0a0a0a;
+  --rs-logo-blue-bright: #f9a8d4;
+  --rs-logo-blue-mid: #f472b6;
+  --rs-pole-blue: #0a0a0a;
+  --rs-pole-blue-dark: #0a0a0a;
+  --rs-logo-blue-deep: #0a0a0a;
+
+  /* Anciens ors / jaunes → rose charte */
+  --rs-gold-soft: #fdf2f8;
+  --rs-gold-light: #fbcfe8;
+  --rs-gold-shadow: #f472b6;
+
+  --rs-pole-header-top: #e8e8f0;
+  --rs-pole-header-bot: #ffffff;
+  --rs-pole-tab-bg: #ececee;
+
   --rs-logo-red: #b3122a;
-  --rs-eu-yellow: #ffcc00;
-  --rs-eu-yellow-lite: #ffe566;
+  --rs-eu-yellow: #f472b6;
+  --rs-eu-yellow-lite: #fbcfe8;
   --rs-panel-bg: #ffffff;
-  --rs-panel-border: #c5d5e4;
+  --rs-panel-border: #dddddd;
+
+  /* Bordures rgba() héritées du header (ex-bs-primary) */
+  --bs-primary-rgb: 10, 10, 10;
 }
 
-/* ===== Shopify "abt-btn" (Windows relief + biseau) ===== */
+/* ===== Shopify "abt-btn" (relief) — bouton principal charte ===== */
 .abt-btn {
   --rs-btn-chamfer: 3px;
   border-radius: 0 !important;
@@ -40,27 +53,22 @@
 }
 
 .rs-caf-btn-dossier.abt-btn {
-  background: linear-gradient(
-    180deg,
-    var(--rs-logo-blue-bright, #5b86e5) 0%,
-    var(--rs-pole-blue, #0033ab) 55%,
-    var(--rs-pole-blue-dark, #001a57) 100%
-  ) !important;
+  background: linear-gradient(180deg, #fb9ac8 0%, var(--rs-brand-pink) 45%, #ec4899 100%) !important;
   color: #fff !important;
   font-size: 12px !important;
   font-weight: bold !important;
   padding: 7px 16px !important;
   border-radius: 0 !important;
-  border: 2px outset #a8bdfc !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.35) !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.35),
-    inset -1px -1px 0 rgba(0, 25, 70, 0.45) !important;
+    inset -1px -1px 0 rgba(157, 23, 77, 0.35) !important;
 }
 
 .rs-caf-btn-dossier__label {
   color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .rs-banner-top__cart {
@@ -74,7 +82,7 @@
 .rs-banner-top__actions .rs-caf-btn-dossier {
   display: inline-flex;
   align-items: center;
-  gap: 8px; /* lock spacing to match Shopify */
+  gap: 8px;
 }
 
 .rs-icon-dossier {
@@ -91,25 +99,25 @@
 
 .rs-caf-btn-dossier.abt-btn:hover,
 .rs-caf-btn-dossier.abt-btn:focus-visible {
-  background: linear-gradient(180deg, var(--rs-logo-blue-bright, #5b86e5) 0%, var(--rs-logo-blue-mid, #1b55c4) 100%) !important;
-  border: 2px outset #7a9fe8 !important;
+  background: linear-gradient(180deg, #fbcfe8 0%, var(--rs-brand-pink) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.45) !important;
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.28),
-    inset -1px -1px 0 rgba(0, 15, 50, 0.55) !important;
+    inset -1px -1px 0 rgba(157, 23, 77, 0.4) !important;
   text-decoration: none !important;
   color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12) !important;
   transform: none;
 }
 
-/* Panels like the Shopify site */
+/* Panels */
 .rs-panel {
   background: var(--rs-panel-bg);
   border: 1px solid var(--rs-panel-border);
-  box-shadow: 0 1px 3px rgba(0, 40, 100, 0.08);
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06);
 }
 
-/* Windows-relief buttons (used across portal pages) */
+/* Boutons portail */
 .rs-btn {
   display: inline-flex;
   align-items: center;
@@ -123,45 +131,36 @@
   cursor: pointer;
   text-decoration: none;
   user-select: none;
-  border: 2px outset rgba(0, 0, 0, 0.25);
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.92),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+  border: 2px solid transparent;
+  box-shadow: none;
 }
 
 .rs-btn:active {
-  border-style: inset;
   transform: translateY(0.5px);
 }
 
 .rs-btn--primary {
-  background: linear-gradient(
-    180deg,
-    #fffff8 0%,
-    #fff9e6 20%,
-    #fff4c4 33%,
-    #fff0a8 42%,
-    #ffe566 58%,
-    #f2ca38 78%,
-    #e6c040 100%
-  );
-  color: var(--rs-logo-blue-deep);
-  border-color: #fff8dc;
+  background: var(--rs-brand-pink);
+  color: #fff;
+  border-color: var(--rs-brand-pink);
 }
 
 .rs-btn--primary:hover {
-  background: linear-gradient(180deg, #fff8d8 0%, #fff0b8 35%, #ffe9a0 70%, #ffe28a 100%);
-  color: var(--rs-logo-blue-deep);
+  background: #ec4899;
+  color: #fff;
   text-decoration: none;
+  border-color: #ec4899;
 }
 
 .rs-btn--ghost {
-  background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%);
-  color: var(--rs-logo-blue-deep);
-  border-color: rgba(0, 0, 0, 0.18);
+  background: #fff;
+  color: var(--rs-brand-pink);
+  border: 2px solid var(--rs-brand-pink);
 }
 
 .rs-btn--ghost:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #eef2ff 100%);
+  background: #fff5fa;
+  color: var(--rs-brand-pink);
 }
 
 .rs-btn--danger {
@@ -174,16 +173,16 @@
   background: linear-gradient(180deg, #ffeef0 0%, #ffd7dc 100%);
 }
 
-/* Footer styling (Jobhill-like) */
+/* Footer — fond clair, liens rose */
 .footer.skin-dark-footer {
   margin-top: 22px;
-  background: #111827;
-  color: #e5e7eb;
-  border-top: 3px solid rgba(255, 255, 255, 0.12);
+  background: var(--rs-block-bg);
+  color: var(--rs-brand-ink);
+  border-top: 1px solid var(--rs-block-border);
 }
 
 .footer.skin-dark-footer a {
-  color: #e5e7eb;
+  color: var(--rs-brand-pink);
   text-decoration: none;
 }
 
@@ -193,7 +192,7 @@
 
 .footer .footer-widget .widget-title {
   font-weight: 900;
-  color: #ffffff;
+  color: var(--rs-brand-ink);
   font-size: 14px;
   margin: 0 0 10px;
 }
@@ -209,12 +208,11 @@
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--rs-block-border);
   padding: 12px 0;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(10, 10, 10, 0.65);
 }
 
-/* Footer grid (responsive) */
 .rs-footer-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -232,4 +230,3 @@
     grid-column: span 4;
   }
 }
-

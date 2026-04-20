@@ -70,13 +70,13 @@ export default function ProfilsPage() {
       <header className="rs-panel overflow-hidden rounded-xl p-5 sm:p-7 md:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#1b55c4)]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
               Candidats publiés
             </p>
             <h1 className="rs-profils-list__hero-title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
               Profils
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#001a57)] opacity-90">
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
               Parcours les CV comme sur une vitrine d’offres : deux profils par
               ligne sur grand écran, un sur très petit mobile. Infos à gauche,
               aperçu du PDF à droite dans chaque carte.
@@ -91,7 +91,7 @@ export default function ProfilsPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Métier, ville…"
-              className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#001a57)] placeholder:text-zinc-400"
+              className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
             />
             <a
               href="/depot"
@@ -107,7 +107,7 @@ export default function ProfilsPage() {
       </header>
 
       {loading ? (
-        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#001a57)]">
+        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)]">
           Chargement des profils…
         </div>
       ) : filtered.length ? (
@@ -115,20 +115,20 @@ export default function ProfilsPage() {
           {filtered.map((p) => (
             <li key={p.id} className="flex min-h-0 h-full min-w-0">
               <article className="rs-panel rs-profils-card grid min-h-[132px] w-full min-w-0 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-stretch overflow-hidden rounded-xl max-h-[210px] sm:max-h-[220px]">
-                <div className="flex min-h-0 min-w-0 flex-col gap-1.5 overflow-hidden border-r border-[var(--rs-panel-border,#c5d5e4)] p-2.5 sm:gap-2 sm:p-3 md:p-4">
+                <div className="flex min-h-0 min-w-0 flex-col gap-1.5 overflow-hidden border-r border-[var(--rs-panel-border,#ddd)] p-2.5 sm:gap-2 sm:p-3 md:p-4">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-black leading-tight text-[var(--rs-logo-blue-mid,#1b55c4)] sm:text-[13px]">
+                    <p className="text-[11px] font-black leading-tight text-[var(--rs-logo-blue-mid,#F472B6)] sm:text-[13px]">
                       @{p.handle.replace(/^@/, "")}
                     </p>
-                    <h2 className="mt-0.5 line-clamp-2 text-[14px] font-black leading-snug text-[var(--rs-logo-blue-deep,#001a57)] sm:mt-1 sm:text-base md:text-lg">
+                    <h2 className="mt-0.5 line-clamp-2 text-[14px] font-black leading-snug text-[var(--rs-logo-blue-deep,#0A0A0A)] sm:mt-1 sm:text-base md:text-lg">
                       {p.job_title}
                     </h2>
-                    <p className="mt-1 text-xs text-zinc-600 sm:text-sm">
+                    <p className="mt-1 text-xs text-[#0A0A0A]/70 sm:text-sm">
                       {p.city ?? "—"}
                     </p>
                   </div>
 
-                  <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-dashed border-zinc-200/90 pt-2">
+                  <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-dashed border-[#ddd]/90 pt-2">
                     {p.portfolio_url ? (
                       <a
                         href={p.portfolio_url}
@@ -148,7 +148,7 @@ export default function ProfilsPage() {
                   </div>
                 </div>
 
-                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#fbfbfd]">
+                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-white">
                   <ProfilCvThumb profileId={p.id} />
                 </div>
               </article>
@@ -156,7 +156,7 @@ export default function ProfilsPage() {
           ))}
         </ul>
       ) : (
-        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#001a57)]">
+        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)]">
           Aucun profil publié pour le moment.
         </div>
       )}

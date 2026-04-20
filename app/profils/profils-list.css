@@ -1,38 +1,34 @@
-/* Liste profils — carte type offre (aperçu + détail), charte bleu/or Shopify */
+/* Liste profils — charte rose / encre / blocs #fff + bordure #ddd */
 
 .rs-profils-list__hero-title {
-  color: var(--rs-logo-blue-deep, #001a57);
+  color: var(--rs-brand-ink, #0a0a0a);
   letter-spacing: -0.02em;
 }
 
 .rs-profils-list__search {
-  border: 1px solid var(--rs-panel-border, #c5d5e4);
-  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+  border: 1px solid var(--rs-panel-border, #ddd);
+  background: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .rs-profils-list__search:focus {
-  outline: 2px solid rgba(27, 85, 196, 0.35);
+  outline: 2px solid rgba(244, 114, 182, 0.45);
   outline-offset: 1px;
 }
 
 .rs-profils-card {
   border-radius: 14px;
-  border-color: rgba(0, 51, 171, 0.14) !important;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.88) inset,
-    0 12px 36px -20px rgba(25, 55, 120, 0.18);
+  border: 1px solid var(--rs-panel-border, #ddd) !important;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06);
 }
 
 .rs-profils-card:hover {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.92) inset,
-    0 18px 44px -18px rgba(25, 55, 120, 0.22);
+  box-shadow: 0 4px 16px rgba(10, 10, 10, 0.08);
 }
 
 .rs-profils-card__preview--beside {
   border-bottom: none;
-  border-left: 1px solid var(--rs-panel-border, #c5d5e4);
+  border-left: 1px solid var(--rs-panel-border, #ddd);
 }
 
 .rs-profils-card__preview .rs-pdf-canvas-list {

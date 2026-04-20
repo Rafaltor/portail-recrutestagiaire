@@ -145,7 +145,7 @@ function MonEspaceLoginInline() {
   return (
     <section className="rs-panel rounded-lg p-6">
       <h1 className="text-xl font-black tracking-tight">Mon espace</h1>
-      <p className="mt-2 text-sm text-zinc-700">
+      <p className="mt-2 text-sm text-[#0A0A0A]/85">
         Connecte-toi pour afficher ton espace candidat/votant.
       </p>
 
@@ -154,7 +154,7 @@ function MonEspaceLoginInline() {
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
           placeholder="toi@exemple.com"
         />
       </label>
@@ -165,7 +165,7 @@ function MonEspaceLoginInline() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
           placeholder="••••••••"
         />
       </label>
@@ -203,7 +203,7 @@ function MonEspaceLoginInline() {
       {message ? (
         <p
           className={`mt-3 text-sm ${
-            status === "error" ? "text-red-700" : "text-zinc-700"
+            status === "error" ? "text-red-700" : "text-[#0A0A0A]/85"
           }`}
         >
           {message}
@@ -334,7 +334,7 @@ export default function MonEspacePage() {
   if (!authReady) {
     return (
       <div className="grid gap-6">
-        <section className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
+        <section className="rs-panel rounded-lg p-6 text-sm text-[#0A0A0A]/85">
           Chargement…
         </section>
       </div>
@@ -355,25 +355,25 @@ export default function MonEspacePage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-black tracking-tight">Mon espace</h1>
-            <p className="mt-1 text-sm text-zinc-700">
+            <p className="mt-1 text-sm text-[#0A0A0A]/85">
               Connecté en tant que{" "}
               <span className="font-semibold">{session?.user?.email}</span>
             </p>
           </div>
           <button
             onClick={() => void signOut()}
-            className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+            className="inline-flex w-fit rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
           >
             Déconnexion
           </button>
         </div>
-        <div className="mt-3 text-xs text-zinc-600">
+        <div className="mt-3 text-xs text-[#0A0A0A]/70">
           {linkingVisitor ? "Liaison votant..." : visitorMessage}
         </div>
       </section>
 
       {loading ? (
-        <section className="rs-panel rounded-lg p-6 text-sm text-zinc-700">
+        <section className="rs-panel rounded-lg p-6 text-sm text-[#0A0A0A]/85">
           Chargement des données…
         </section>
       ) : effectiveError ? (
@@ -385,20 +385,20 @@ export default function MonEspacePage() {
           {effectiveData.candidate ? (
             <>
               <section className="rs-panel rounded-lg p-6">
-                <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                   Espace candidat
                 </p>
                 <h2 className="mt-2 text-lg font-black">
                   @{effectiveData.candidate.handle.replace(/^@/, "")}
                 </h2>
-                <p className="mt-1 text-sm text-zinc-700">
+                <p className="mt-1 text-sm text-[#0A0A0A]/85">
                   {effectiveData.candidate.jobTitle}
                 </p>
               </section>
 
               <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Vues CV
                   </p>
                   <p className="mt-2 text-2xl font-black">
@@ -406,7 +406,7 @@ export default function MonEspacePage() {
                   </p>
                 </article>
                 <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Likes
                   </p>
                   <p className="mt-2 text-2xl font-black">
@@ -414,7 +414,7 @@ export default function MonEspacePage() {
                   </p>
                 </article>
                 <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Dislikes
                   </p>
                   <p className="mt-2 text-2xl font-black">
@@ -422,7 +422,7 @@ export default function MonEspacePage() {
                   </p>
                 </article>
                 <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Rang
                   </p>
                   <p className="mt-2 text-2xl font-black">
@@ -434,7 +434,7 @@ export default function MonEspacePage() {
               </section>
 
               <section className="rs-panel rounded-lg p-6">
-                <div className="text-sm text-zinc-700">
+                <div className="text-sm text-[#0A0A0A]/85">
                   Ratio likes:{" "}
                   <span className="font-semibold">
                     {ratioLabel(effectiveData.candidate.stats.likesRatio)}
@@ -443,7 +443,7 @@ export default function MonEspacePage() {
                 {effectiveData.links.monProfil ? (
                   <a
                     href={effectiveData.links.monProfil}
-                    className="mt-3 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                    className="mt-3 inline-flex rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                   >
                     Ouvrir mon profil token
                   </a>
@@ -451,7 +451,7 @@ export default function MonEspacePage() {
               </section>
 
               <section className="rs-panel rounded-lg p-6">
-                <h3 className="text-sm font-black uppercase tracking-wider text-zinc-700">
+                <h3 className="text-sm font-black uppercase tracking-wider text-[#0A0A0A]/85">
                   Historique des versions
                 </h3>
                 {effectiveData.candidateHistory.length ? (
@@ -459,23 +459,23 @@ export default function MonEspacePage() {
                     {effectiveData.candidateHistory.map((h, i) => (
                       <article
                         key={h.id}
-                        className="rounded-md border border-zinc-200 bg-white p-3 text-sm"
+                        className="rounded-md border border-[#ddd] bg-white p-3 text-sm"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="font-semibold">
                             Version {effectiveData.candidateHistory.length - i} —{" "}
                             {new Date(h.createdAt).toLocaleDateString("fr-FR")}
                           </div>
-                          <div className="text-xs text-zinc-600">{h.status}</div>
+                          <div className="text-xs text-[#0A0A0A]/70">{h.status}</div>
                         </div>
-                        <div className="mt-1 text-xs text-zinc-700">
+                        <div className="mt-1 text-xs text-[#0A0A0A]/85">
                           {h.likes} likes / {h.dislikes} dislikes · score {h.score}
                         </div>
                       </article>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-3 text-sm text-zinc-700">
+                  <p className="mt-3 text-sm text-[#0A0A0A]/85">
                     Aucune version disponible.
                   </p>
                 )}
@@ -483,37 +483,37 @@ export default function MonEspacePage() {
             </>
           ) : (
             <section className="rs-panel rounded-lg p-6">
-              <p className="text-xs font-black uppercase tracking-wider text-zinc-600">
+              <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                 Espace votant
               </p>
               <h2 className="mt-2 text-lg font-black">Tes stats de vote</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <article className="rounded-md border border-zinc-200 bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Votes totaux
                   </div>
                   <div className="mt-1 text-2xl font-black">
                     {effectiveData.voter.totalVotes}
                   </div>
                 </article>
-                <article className="rounded-md border border-zinc-200 bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Likes donnés
                   </div>
                   <div className="mt-1 text-2xl font-black">
                     {effectiveData.voter.likesGiven}
                   </div>
                 </article>
-                <article className="rounded-md border border-zinc-200 bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Profils likés
                   </div>
                   <div className="mt-1 text-2xl font-black">
                     {effectiveData.voter.uniqueProfilesLiked}
                   </div>
                 </article>
-                <article className="rounded-md border border-zinc-200 bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-zinc-600">
+                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
                     Récompense
                   </div>
                   <div className="mt-1 text-sm font-semibold">
@@ -523,7 +523,7 @@ export default function MonEspacePage() {
                   </div>
                 </article>
               </div>
-              <p className="mt-3 text-xs text-zinc-700">
+              <p className="mt-3 text-xs text-[#0A0A0A]/85">
                 Likes restants aujourd&apos;hui:{" "}
                 <span className="font-semibold">
                   {likesLeftToday ?? AUTH_LIKES_PER_DAY}

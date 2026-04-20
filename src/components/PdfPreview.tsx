@@ -268,13 +268,13 @@ export default function PdfPreview({
       className={
         immersive
           ? "flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-none bg-white"
-          : "min-w-0 rounded-lg border border-zinc-200 bg-white"
+          : "min-w-0 rounded-lg border border-[#ddd] bg-white"
       }
     >
       {error ? (
         listThumb ? (
-          <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-[var(--rs-logo-blue-pale,#e8eeff)] px-2 text-center">
-            <p className="text-xs font-semibold leading-snug text-[var(--rs-logo-blue-mid,#1b55c4)]">
+          <div className="flex h-full min-h-[96px] w-full items-center justify-center bg-[var(--rs-logo-blue-pale,#f5f5f5)] px-2 text-center">
+            <p className="text-xs font-semibold leading-snug text-[var(--rs-logo-blue-mid,#F472B6)]">
               Aperçu PDF indisponible
             </p>
           </div>
@@ -289,11 +289,11 @@ export default function PdfPreview({
               ? listThumb
                 ? "h-full bg-white p-0"
                 : "flex h-full items-center justify-center bg-white p-0"
-              : "flex min-h-[200px] items-center justify-center bg-zinc-50 p-2"
+              : "flex min-h-[200px] items-center justify-center bg-[#fafafa] p-2"
           }`}
         >
           {loading ? (
-            <div className="pointer-events-none absolute inset-x-0 top-2 text-center text-xs font-semibold text-zinc-500">
+            <div className="pointer-events-none absolute inset-x-0 top-2 text-center text-xs font-semibold text-[#0A0A0A]/55">
               Chargement…
             </div>
           ) : null}

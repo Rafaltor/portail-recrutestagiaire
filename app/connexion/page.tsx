@@ -238,7 +238,7 @@ function ConnexionPageInner() {
     <div className="grid gap-6">
       <div className="rs-panel rounded-lg p-6">
         <h1 className="text-xl font-black tracking-tight">Connexion</h1>
-        <p className="mt-2 text-sm text-zinc-700">
+        <p className="mt-2 text-sm text-[#0A0A0A]/85">
           Connexion rapide (email) pour lier ton compte au portail.
         </p>
       </div>
@@ -246,11 +246,11 @@ function ConnexionPageInner() {
       <div className="rs-panel rounded-lg p-6">
         {userEmail ? (
           <>
-            <div className="text-sm text-zinc-700">
+            <div className="text-sm text-[#0A0A0A]/85">
               Connecté en tant que <span className="font-semibold">{userEmail}</span>
             </div>
             {linkToken ? (
-              <div className="mt-2 text-xs text-zinc-700">
+              <div className="mt-2 text-xs text-[#0A0A0A]/85">
                 Token détecté: <span className="font-mono">{linkToken}</span>
               </div>
             ) : null}
@@ -291,7 +291,7 @@ function ConnexionPageInner() {
             </div>
 
             {shopifyCustomerId ? (
-              <div className="mt-4 text-sm text-zinc-700">
+              <div className="mt-4 text-sm text-[#0A0A0A]/85">
                 Shopify customer id:{" "}
                 <span className="font-mono font-semibold">{shopifyCustomerId}</span>
               </div>
@@ -304,7 +304,7 @@ function ConnexionPageInner() {
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 placeholder="toi@exemple.com"
               />
             </label>
@@ -314,7 +314,7 @@ function ConnexionPageInner() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 placeholder="••••••••"
               />
             </label>
@@ -359,7 +359,7 @@ function ConnexionPageInner() {
               </button>
             </div>
             {linkToken ? (
-              <p className="mt-3 text-xs text-zinc-700">
+              <p className="mt-3 text-xs text-[#0A0A0A]/85">
                 Après connexion, ton profil sera automatiquement rattaché via token.
               </p>
             ) : null}
@@ -369,7 +369,7 @@ function ConnexionPageInner() {
         {message ? (
           <p
             className={`mt-4 text-sm ${
-              status === "error" ? "text-red-700" : "text-zinc-700"
+              status === "error" ? "text-red-700" : "text-[#0A0A0A]/85"
             }`}
           >
             {message}
@@ -387,7 +387,7 @@ export default function ConnexionPage() {
         <div className="grid gap-6">
           <div className="rs-panel rounded-lg p-6">
             <h1 className="text-xl font-black tracking-tight">Connexion</h1>
-            <p className="mt-2 text-sm text-zinc-700">Chargement…</p>
+            <p className="mt-2 text-sm text-[#0A0A0A]/85">Chargement…</p>
           </div>
         </div>
       }

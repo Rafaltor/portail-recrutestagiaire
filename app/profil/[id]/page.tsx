@@ -77,18 +77,18 @@ export default function ProfilPage({
           ← Retour aux profils
         </Link>
         {loading ? (
-          <p className="mt-3 text-sm text-zinc-700">Chargement…</p>
+          <p className="mt-3 text-sm text-[#0A0A0A]/85">Chargement…</p>
         ) : message ? (
           <p className="mt-3 text-sm text-red-700">{message}</p>
         ) : profile ? (
           <div className="mt-3">
-            <div className="text-sm font-black text-zinc-900">
+            <div className="text-sm font-black text-[#0A0A0A]">
               @{profile.handle.replace(/^@/, "")}
             </div>
             <h1 className="mt-1 text-2xl font-black tracking-tight">
               {profile.job_title}
             </h1>
-            <p className="mt-1 text-sm text-zinc-700">
+            <p className="mt-1 text-sm text-[#0A0A0A]/85">
               {profile.city ? profile.city : "—"}
             </p>
 
@@ -98,7 +98,7 @@ export default function ProfilPage({
                   href={profile.portfolio_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
+                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                 >
                   Portfolio
                 </a>
@@ -108,7 +108,7 @@ export default function ProfilPage({
                   href={cvUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                  className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
                 >
                   Ouvrir le PDF
                 </a>

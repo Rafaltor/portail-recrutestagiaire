@@ -251,7 +251,7 @@ export default function DepotPage() {
         <h1 className="text-xl font-black tracking-tight">
           Dépose ta candidature
         </h1>
-        <p className="mt-2 text-sm text-zinc-700">
+        <p className="mt-2 text-sm text-[#0A0A0A]/85">
           Un seul fichier suffit.
           <br />
           La communauté fait le reste.
@@ -259,7 +259,7 @@ export default function DepotPage() {
       </div>
 
       <div className="rs-panel rounded-lg p-6">
-        <p className="text-sm font-bold text-zinc-900">Étape 1 — Upload</p>
+        <p className="text-sm font-bold text-[#0A0A0A]">Étape 1 — Upload</p>
         <div className="mt-4 grid gap-4">
           <label className="grid gap-1">
             <span className="text-sm font-semibold">Pseudo Instagram (obligatoire)</span>
@@ -269,7 +269,7 @@ export default function DepotPage() {
                 setForm({ ...form, handle: e.target.value });
                 resetStatusForInput();
               }}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
               placeholder="@pseudo"
             />
           </label>
@@ -284,7 +284,7 @@ export default function DepotPage() {
                 setStepTwo(null);
                 resetStatusForInput();
               }}
-              className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
+              className="rounded-md border border-[#ddd] bg-white px-3 py-2 text-sm"
             />
           </label>
         </div>
@@ -298,9 +298,9 @@ export default function DepotPage() {
         </button>
 
         {parsing ? (
-          <div className="mt-4 flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
+          <div className="mt-4 flex items-center gap-2 rounded-md border border-[#ddd] bg-[#fafafa] p-3 text-sm text-[#0A0A0A]/85">
             <span
-              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700"
+              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#ddd] border-t-[#F472B6]"
               aria-hidden
             />
             Analyse de votre CV...
@@ -308,8 +308,8 @@ export default function DepotPage() {
         ) : null}
 
         {stepTwo ? (
-          <div className="mt-8 border-t border-zinc-200 pt-6">
-            <p className="text-sm font-bold text-zinc-900">
+          <div className="mt-8 border-t border-[#ddd] pt-6">
+            <p className="text-sm font-bold text-[#0A0A0A]">
               Étape 2 — Vérifier et compléter
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -323,7 +323,7 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 />
               </label>
 
@@ -337,7 +337,7 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 />
               </label>
 
@@ -353,7 +353,7 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                   inputMode="email"
                 />
               </label>
@@ -366,7 +366,7 @@ export default function DepotPage() {
                   value={stepTwo.skills}
                   onChange={(e) => onSkillsChange(e.target.value)}
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 />
               </label>
 
@@ -380,18 +380,18 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Détectée ou préfecture si code postal trouvé"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
                 />
               </label>
             </div>
 
             {stepTwo.manualFallback ? (
-              <p className="mt-3 text-sm text-zinc-600">
+              <p className="mt-3 text-sm text-[#0A0A0A]/70">
                 Analyse indisponible : renseigne les champs manuellement.
               </p>
             ) : null}
 
-            <label className="mt-4 flex items-start gap-2 text-sm text-zinc-800">
+            <label className="mt-4 flex items-start gap-2 text-sm text-[#0A0A0A]">
               <input
                 type="checkbox"
                 checked={form.accepted}
@@ -426,7 +426,7 @@ export default function DepotPage() {
         {message ? (
           <p
             className={`mt-4 text-sm ${
-              status === "error" ? "text-red-700" : "text-zinc-700"
+              status === "error" ? "text-red-700" : "text-[#0A0A0A]/85"
             }`}
           >
             {message}
@@ -437,11 +437,11 @@ export default function DepotPage() {
           <div className="mt-3 grid gap-3">
             <a
               href={ownerProfileUrl}
-              className="inline-flex w-fit rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+              className="inline-flex w-fit rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
             >
               {`/mon-profil/${ownerToken || "[token]"}`}
             </a>
-            <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
+            <div className="rounded-md border border-[#ddd] bg-[#fafafa] p-3 text-sm text-[#0A0A0A]/85">
               <p>
                 Optionnel : crée un compte pour suivre tes stats plus facilement.
               </p>
@@ -452,7 +452,7 @@ export default function DepotPage() {
                   )}&profileUrl=${encodeURIComponent(
                     ownerProfileAbsoluteUrl || ownerProfileUrl,
                   )}`}
-                  className="mt-2 inline-flex rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-zinc-100"
+                  className="mt-2 inline-flex rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
                 >
                   Créer un compte / se connecter
                 </a>
