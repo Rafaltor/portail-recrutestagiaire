@@ -5,10 +5,12 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
+import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
 import { PortalHeaderNav } from "@/components/PortalHeaderNav";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
+import "./rs-shopify-header-mobile.css";
 import "./rs-shopify-ui.css";
 import "./portal-theme.css";
 
@@ -64,7 +66,7 @@ export default function RootLayout({
               {
                 ["--rs-kitsch-pop-a"]: "#f472b6",
                 ["--rs-kitsch-pop-b"]: "#e8e8f0",
-                ["--rs-kitsch-pop-fg"]: "#0a0a0a",
+                ["--rs-kitsch-pop-fg"]: "#f472b6",
               } as CSSProperties
             }
           >
@@ -103,7 +105,46 @@ export default function RootLayout({
             </a>
             <div className="container">
               <header className="rs-header-two-tier" aria-label="En-tête du site">
-              <div className="rs-header-main-row">
+                <div
+                  className="rs-header-mobile-bar"
+                  data-rs-header-mobile-bar
+                >
+                  <a
+                    className="rs-header-mobile-bar__brand"
+                    href="https://recrutestagiaire.eu"
+                  >
+                    <Image
+                      className="rs-header-mobile-bar__logo"
+                      src="/rs-logo-eu.png"
+                      alt=""
+                      width={128}
+                      height={128}
+                      priority
+                    />
+                    <span className="rs-header-mobile-bar__title">
+                      RECRUTE STAGIAIRE
+                    </span>
+                  </a>
+                  <button
+                    type="button"
+                    className="rs-header-mobile-bar__menu-btn"
+                    id="rs-header-mobile-menu-btn"
+                    aria-expanded="false"
+                    aria-controls="rs-header-drawer-panel"
+                    data-rs-header-drawer-open
+                  >
+                    <span className="sr-only">Ouvrir le menu</span>
+                    <span
+                      className="rs-header-mobile-bar__burger"
+                      aria-hidden="true"
+                    >
+                      <span className="rs-header-mobile-bar__burger-line" />
+                      <span className="rs-header-mobile-bar__burger-line" />
+                      <span className="rs-header-mobile-bar__burger-line" />
+                    </span>
+                  </button>
+                </div>
+              <div className="rs-header-main-row rs-header-main-row--desktop">
                 <div className="rs-header-top-line">
                   <div className="rs-banner-top rs-header-pole-brand rs-header-pole-title">
                     <a
@@ -160,6 +201,7 @@ export default function RootLayout({
               </header>
             </div>
           </div>
+          <PortalHeaderDrawer />
         </div>
 
         <main className="rs-portal-main mx-auto w-full max-w-[980px] flex-1">

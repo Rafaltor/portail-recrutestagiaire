@@ -41,7 +41,9 @@ html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
   border-left: 0 !important;
   border-right: 0 !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  /* Ne pas mettre padding: 0 — sinon le padding-top du header fixe (<768, rs-shopify-header) ne s’applique pas */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 @media (min-width: 768px) {

@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export function HeaderAccountLink() {
+type HeaderAccountLinkProps = {
+  /** Classes supplémentaires (ex. drawer mobile). */
+  className?: string;
+};
+
+export function HeaderAccountLink({ className }: HeaderAccountLinkProps = {}) {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
@@ -25,11 +30,13 @@ export function HeaderAccountLink() {
   }, []);
 
   const href = connected ? "/mon-espace" : "/connexion";
+  const base =
+    "abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none";
   return (
     <Link
       href={href}
       rel="noopener noreferrer"
-      className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none"
+      className={className ? `${base} ${className}` : base}
       aria-label="Mon espace"
     >
       <svg

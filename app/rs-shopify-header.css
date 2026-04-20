@@ -115,7 +115,7 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 767.98px) {
   .header-wrap .rs-header-body > .rs-header-logo-tile {
     display: none;
   }
@@ -758,7 +758,7 @@ body.rs-nav-open {
 .header-wrap .rs-header-kitsch-pop--brand {
   --rs-kitsch-pop-a: #f472b6;
   --rs-kitsch-pop-b: #e8e8f0;
-  --rs-kitsch-pop-fg: #0a0a0a;
+  --rs-kitsch-pop-fg: #f472b6;
 
   padding: 3px 0;
   background: linear-gradient(
@@ -812,7 +812,7 @@ body.rs-nav-open {
   text-transform: uppercase;
   white-space: nowrap;
   will-change: transform;
-  color: var(--rs-kitsch-pop-fg, #0a0a0a) !important;
+  color: var(--rs-kitsch-pop-fg, #f472b6) !important;
   text-shadow: none;
   animation: rs-kitsch-pop-marquee 28s linear infinite;
   transform: translate3d(0, 0, 0);
