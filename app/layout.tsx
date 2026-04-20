@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
+import { PortalHeaderNav } from "@/components/PortalHeaderNav";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
@@ -43,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" data-rs-header-tab="offres">
       <body className="rs-portal-body flex min-h-dvh flex-col text-[#0A0A0A]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
@@ -61,24 +62,13 @@ export default function RootLayout({
             aria-hidden="true"
             style={
               {
-                ["--rs-kitsch-pop-a"]: "#ffe8f0",
-                ["--rs-kitsch-pop-b"]: "#ffd6e8",
-                ["--rs-kitsch-pop-fg"]: "#be185d",
+                ["--rs-kitsch-pop-a"]: "#fff0f7",
+                ["--rs-kitsch-pop-b"]: "#ffd6ea",
+                ["--rs-kitsch-pop-c"]: "#ffe4ef",
+                ["--rs-kitsch-pop-fg"]: "#9f1239",
               } as CSSProperties
             }
           >
-            <span
-              className="rs-header-kitsch-pop__deco rs-header-kitsch-pop__deco--a"
-              aria-hidden="true"
-            >
-              ✦
-            </span>
-            <span
-              className="rs-header-kitsch-pop__deco rs-header-kitsch-pop__deco--b"
-              aria-hidden="true"
-            >
-              ✦
-            </span>
             <div className="rs-header-kitsch-pop__track">
               {Array.from({ length: 6 }, (_, i) => (
                 <span key={i} className="rs-header-kitsch-pop__chunk">
@@ -89,25 +79,39 @@ export default function RootLayout({
             </div>
           </div>
 
-          <div className="container">
-            <header className="rs-header-two-tier" aria-label="En-tête du site">
+          <div
+            className="rs-header-body"
+            style={
+              {
+                ["--rs-header-logo-col"]: "124px",
+                ["--rs-header-logo-inset"]: "14px",
+              } as CSSProperties
+            }
+          >
+            <a
+              className="rs-header-logo-tile nav-brand rs-nav-brand"
+              href="https://recrutestagiaire.eu"
+              aria-label="Recrute Stagiaire — boutique"
+            >
+              <Image
+                className="rs-nav-brand__img rs-header-logo-tile__img"
+                src="/rs-logo-eu.png"
+                alt=""
+                width={240}
+                height={169}
+                priority
+              />
+            </a>
+            <div className="container">
+              <header className="rs-header-two-tier" aria-label="En-tête du site">
               <div className="rs-header-main-row">
                 <div className="rs-header-top-line">
-                  <div className="rs-banner-top rs-header-pole-brand">
+                  <div className="rs-banner-top rs-header-pole-brand rs-header-pole-title">
                     <a
-                      className="nav-brand rs-nav-brand"
+                      className="nav-brand rs-nav-brand rs-nav-brand--title-row"
                       href="https://recrutestagiaire.eu"
                     >
-                      <Image
-                        className="rs-nav-brand__img"
-                        src="/rs-logo-eu.png"
-                        alt="Recrute Stagiaire"
-                        width={177}
-                        height={125}
-                        priority
-                        style={{ maxHeight: 40, height: "auto", width: "auto" }}
-                      />
-                      <span className="rs-nav-brand__name logo">
+                      <span className="rs-nav-brand__name logo rs-nav-brand__name--headline">
                         RECRUTE STAGIAIRE
                       </span>
                     </a>
@@ -152,61 +156,10 @@ export default function RootLayout({
                   </div>
                 </div>
 
-                <nav
-                  className="rs-banner-nav rs-header-pole-tabs"
-                  aria-label="Navigation principale"
-                >
-                <ul className="rs-subnav rs-subnav--buttons" role="menubar">
-                  <li className="rs-subnav__item">
-                    <button type="button" className="rs-subnav__trigger">
-                      Offres
-                    </button>
-                    <ul className="rs-subnav__dropdown">
-                      <li>
-                        <a href="https://recrutestagiaire.eu/collections/abcdrs">Collection ABCDRS</a>
-                      </li>
-                      <li>
-                        <a href="https://recrutestagiaire.eu/collections/les-stagiaires-de-base">
-                          Les stagiaires de base
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-
-                  <li className="rs-subnav__item is-active">
-                    <button type="button" className="rs-subnav__trigger">
-                      Candidatures
-                    </button>
-                    <ul className="rs-subnav__dropdown">
-                      <li>
-                        <Link href="/profils">Profils candidats</Link>
-                      </li>
-                      <li>
-                        <Link href="/depot">Déposer sa candidature</Link>
-                      </li>
-                      <li>
-                        <Link href="/swipe">Vote (swipe)</Link>
-                      </li>
-                    </ul>
-                  </li>
-
-                  <li className="rs-subnav__item">
-                    <button type="button" className="rs-subnav__trigger">
-                      Le collectif
-                    </button>
-                    <ul className="rs-subnav__dropdown">
-                      <li>
-                        <a href="https://recrutestagiaire.eu/pages/about">Histoire</a>
-                      </li>
-                      <li>
-                        <a href="https://recrutestagiaire.eu/pages/contact">Contact</a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-                </nav>
+                <PortalHeaderNav />
               </div>
-            </header>
+              </header>
+            </div>
           </div>
         </div>
 

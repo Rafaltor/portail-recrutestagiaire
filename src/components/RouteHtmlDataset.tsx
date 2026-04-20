@@ -9,6 +9,18 @@ export function RouteHtmlDataset() {
   useEffect(() => {
     const route = pathname === "/" ? "home" : "inner";
     document.documentElement.setAttribute("data-rs-route", route);
+
+    let tab: "offres" | "cand" | "coll" = "offres";
+    if (
+      pathname.startsWith("/profils") ||
+      pathname.startsWith("/depot") ||
+      pathname.startsWith("/swipe") ||
+      pathname.startsWith("/mon-espace") ||
+      pathname.startsWith("/connexion")
+    ) {
+      tab = "cand";
+    }
+    document.documentElement.setAttribute("data-rs-header-tab", tab);
   }, [pathname]);
 
   return null;
