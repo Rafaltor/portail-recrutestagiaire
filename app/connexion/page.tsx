@@ -66,7 +66,6 @@ function ConnexionPageInner() {
   const [signupPassword, setSignupPassword] = useState("");
   const [status, setStatus] = useState<
     | "idle"
-    | "sending"
     | "sent"
     | "linking"
     | "error"
@@ -220,34 +219,6 @@ function ConnexionPageInner() {
       setStatus("error");
       setMessage(error.message);
     }
-  }
-
-  async function sendMagicLink() {
-    setStatus("sending");
-    setMessage("");
-    const clean = loginEmail.trim();
-    if (!clean || !clean.includes("@")) {
-      setStatus("error");
-      setMessage("Email invalide.");
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email: clean,
-      options: {
-        emailRedirectTo:
-          authReturnUrl || redirectTo || `${window.location.origin}/connexion`,
-      },
-    });
-
-    if (error) {
-      setStatus("error");
-      setMessage(error.message);
-      return;
-    }
-
-    setStatus("sent");
-    setMessage("Un email de connexion vient d’être envoyé.");
   }
 
   async function linkShopify() {
@@ -411,13 +382,6 @@ function ConnexionPageInner() {
                   onClick={() => void authWithGoogle()}
                   label="Se connecter avec Google"
                 />
-                <button
-                  disabled={status === "sending" || oauthBusy}
-                  onClick={() => void sendMagicLink()}
-                  className="rs-btn rs-btn--ghost w-full disabled:opacity-50"
-                >
-                  {status === "sending" ? "Envoi…" : "Recevoir le lien par email"}
-                </button>
               </div>
             </div>
 
