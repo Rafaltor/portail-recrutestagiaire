@@ -7,13 +7,63 @@ import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type LinkRes = { ok: true; shopifyCustomerId: string };
 
+/** Bouton type « Sign in with Google » (fond blanc, bordure grise, logo G officiel). */
+function GoogleAuthButton({
+  disabled,
+  loading,
+  onClick,
+  label,
+}: {
+  disabled: boolean;
+  loading: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled || loading}
+      onClick={onClick}
+      className="flex h-10 w-full max-w-full items-center justify-center gap-3 rounded border border-[#747775] bg-white px-3 text-sm font-medium text-[#1f1f1f] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[box-shadow,background] hover:bg-[#f8f9fa] hover:shadow-[0_1px_3px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-55"
+    >
+      {loading ? (
+        <span className="text-[13px]">Redirection…</span>
+      ) : (
+        <>
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.69 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6C43.86 35.61 46.98 30.54 46.98 24.55z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
+            <path fill="none" d="M0 0h48v48H0z" />
+          </svg>
+          <span className="truncate">{label}</span>
+        </>
+      )}
+    </button>
+  );
+}
+
 function ConnexionPageInner() {
   const searchParams = useSearchParams();
   const linkToken = String(searchParams.get("token") || "").trim();
   const profileUrlParam = String(searchParams.get("profileUrl") || "").trim();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
   const [status, setStatus] = useState<
     | "idle"
     | "sending"
@@ -21,7 +71,8 @@ function ConnexionPageInner() {
     | "linking"
     | "error"
     | "linked"
-    | "authing"
+    | "authing-login"
+    | "authing-signup"
     | "oauth"
     | "token-linking"
     | "token-linked"
@@ -93,40 +144,23 @@ function ConnexionPageInner() {
     };
   }, [linkToken]);
 
-  async function authWithEmailPassword() {
-    setStatus("authing");
+  async function signInWithEmailPassword() {
+    setStatus("authing-login");
     setMessage("");
-    const clean = email.trim();
+    const clean = loginEmail.trim();
     if (!clean || !clean.includes("@")) {
       setStatus("error");
       setMessage("Email invalide.");
       return;
     }
-    if (password.length < 6) {
+    if (loginPassword.length < 6) {
       setStatus("error");
       setMessage("Mot de passe trop court (min 6).");
       return;
     }
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
-        email: clean,
-        password,
-        options: {
-          emailRedirectTo: authReturnUrl || redirectTo || undefined,
-        },
-      });
-      if (error) {
-        setStatus("error");
-        setMessage(error.message);
-        return;
-      }
-      setStatus("sent");
-      setMessage("Compte créé. Vérifie ton email pour confirmer.");
-      return;
-    }
     const { error } = await supabase.auth.signInWithPassword({
       email: clean,
-      password,
+      password: loginPassword,
     });
     if (error) {
       setStatus("error");
@@ -141,6 +175,36 @@ function ConnexionPageInner() {
     }
     setStatus("idle");
     setMessage("Connexion réussie.");
+  }
+
+  async function signUpWithEmailPassword() {
+    setStatus("authing-signup");
+    setMessage("");
+    const clean = signupEmail.trim();
+    if (!clean || !clean.includes("@")) {
+      setStatus("error");
+      setMessage("Email invalide.");
+      return;
+    }
+    if (signupPassword.length < 6) {
+      setStatus("error");
+      setMessage("Mot de passe trop court (min 6).");
+      return;
+    }
+    const { error } = await supabase.auth.signUp({
+      email: clean,
+      password: signupPassword,
+      options: {
+        emailRedirectTo: authReturnUrl || redirectTo || undefined,
+      },
+    });
+    if (error) {
+      setStatus("error");
+      setMessage(error.message);
+      return;
+    }
+    setStatus("sent");
+    setMessage("Compte créé. Vérifie ton email pour confirmer.");
   }
 
   async function authWithGoogle() {
@@ -161,7 +225,7 @@ function ConnexionPageInner() {
   async function sendMagicLink() {
     setStatus("sending");
     setMessage("");
-    const clean = email.trim();
+    const clean = loginEmail.trim();
     if (!clean || !clean.includes("@")) {
       setStatus("error");
       setMessage("Email invalide.");
@@ -235,18 +299,22 @@ function ConnexionPageInner() {
     setUserEmail("");
   }
 
+  const oauthBusy = status === "oauth";
+  const loginPwdBusy = status === "authing-login";
+  const signupPwdBusy = status === "authing-signup";
+
   return (
     <div className="grid gap-6">
       <PortalDesktopPageHeader
         eyebrow="Compte"
         title="Connexion"
-        description="Connexion rapide (email) pour lier ton compte au portail."
+        description="Espace dédié : à gauche la connexion, à droite l’inscription. Même compte Google pour les deux."
       />
 
       <div className="rs-panel rounded-lg p-6 lg:hidden">
         <h1 className="text-xl font-black tracking-tight">Connexion</h1>
         <p className="mt-2 text-sm text-[#0A0A0A]/85">
-          Connexion rapide (email) pour lier ton compte au portail.
+          Connexion à gauche, inscription à droite (sur grand écran).
         </p>
       </div>
 
@@ -280,19 +348,13 @@ function ConnexionPageInner() {
             </div>
             {profileUrlParam ? (
               <div className="mt-4">
-                <a
-                  href={profileUrlParam}
-                  className="rs-btn rs-btn--ghost"
-                >
+                <a href={profileUrlParam} className="rs-btn rs-btn--ghost">
                   Ouvrir mon profil privé
                 </a>
               </div>
             ) : null}
             <div className="mt-2">
-              <a
-                href="/mon-espace"
-                className="rs-btn rs-btn--ghost"
-              >
+              <a href="/mon-espace" className="rs-btn rs-btn--ghost">
                 Aller à mon espace
               </a>
             </div>
@@ -305,73 +367,113 @@ function ConnexionPageInner() {
             ) : null}
           </>
         ) : (
-          <>
-            <label className="grid gap-1">
-              <span className="text-sm font-semibold">Email</span>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
-                placeholder="toi@exemple.com"
-              />
-            </label>
-            <label className="mt-3 grid gap-1">
-              <span className="text-sm font-semibold">Mot de passe</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
-                placeholder="••••••••"
-              />
-            </label>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() =>
-                  setMode((m) => (m === "login" ? "signup" : "login"))
-                }
-                className="rs-btn rs-btn--ghost"
-              >
-                {mode === "login" ? "Passer en inscription" : "Passer en connexion"}
-              </button>
+          <div className="grid gap-8 md:grid-cols-2 md:gap-0 md:divide-x md:divide-[#e5e5e5]">
+            {/* Connexion */}
+            <div className="md:pr-8">
+              <h2 className="text-lg font-black tracking-tight text-[#0A0A0A]">
+                Connexion
+              </h2>
+              <p className="mt-1 text-sm text-[#0A0A0A]/75">
+                Déjà un compte ? Connecte-toi ici.
+              </p>
+              <label className="mt-4 grid gap-1">
+                <span className="text-sm font-semibold">Email</span>
+                <input
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  placeholder="toi@exemple.com"
+                  autoComplete="email"
+                />
+              </label>
+              <label className="mt-3 grid gap-1">
+                <span className="text-sm font-semibold">Mot de passe</span>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </label>
+              <div className="mt-4 flex flex-col gap-3">
+                <button
+                  disabled={loginPwdBusy || oauthBusy}
+                  onClick={() => void signInWithEmailPassword()}
+                  className="rs-btn rs-btn--primary w-full disabled:opacity-50"
+                >
+                  {loginPwdBusy ? "Connexion…" : "Se connecter"}
+                </button>
+                <GoogleAuthButton
+                  disabled={loginPwdBusy || signupPwdBusy}
+                  loading={oauthBusy}
+                  onClick={() => void authWithGoogle()}
+                  label="Se connecter avec Google"
+                />
+                <button
+                  disabled={status === "sending" || oauthBusy}
+                  onClick={() => void sendMagicLink()}
+                  className="rs-btn rs-btn--ghost w-full disabled:opacity-50"
+                >
+                  {status === "sending" ? "Envoi…" : "Recevoir le lien par email"}
+                </button>
+              </div>
             </div>
 
-            <div className="mt-4">
-              <button
-                disabled={status === "sending"}
-                onClick={() => void sendMagicLink()}
-                className="rs-btn rs-btn--primary disabled:opacity-50"
-              >
-                {status === "sending" ? "Envoi..." : "Recevoir le lien de connexion"}
-              </button>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-3">
-              <button
-                disabled={status === "authing"}
-                onClick={() => void authWithEmailPassword()}
-                className="rs-btn rs-btn--primary disabled:opacity-50"
-              >
-                {status === "authing"
-                  ? "Connexion..."
-                  : mode === "login"
-                    ? "Connexion email/mot de passe"
-                    : "Créer mon compte"}
-              </button>
-              <button
-                disabled={status === "oauth"}
-                onClick={() => void authWithGoogle()}
-                className="rs-btn rs-btn--ghost disabled:opacity-50"
-              >
-                {status === "oauth" ? "Redirection..." : "Continuer avec Google"}
-              </button>
-            </div>
-            {linkToken ? (
-              <p className="mt-3 text-xs text-[#0A0A0A]/85">
-                Après connexion, ton profil sera automatiquement rattaché via token.
+            {/* Inscription */}
+            <div className="md:pl-8">
+              <h2 className="text-lg font-black tracking-tight text-[#0A0A0A]">
+                Inscription
+              </h2>
+              <p className="mt-1 text-sm text-[#0A0A0A]/75">
+                Nouveau sur le portail ? Crée ton compte.
               </p>
-            ) : null}
-          </>
+              <label className="mt-4 grid gap-1">
+                <span className="text-sm font-semibold">Email</span>
+                <input
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  placeholder="toi@exemple.com"
+                  autoComplete="email"
+                />
+              </label>
+              <label className="mt-3 grid gap-1">
+                <span className="text-sm font-semibold">Mot de passe</span>
+                <input
+                  type="password"
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  placeholder="Minimum 6 caractères"
+                  autoComplete="new-password"
+                />
+              </label>
+              <div className="mt-4 flex flex-col gap-3">
+                <button
+                  disabled={signupPwdBusy || oauthBusy}
+                  onClick={() => void signUpWithEmailPassword()}
+                  className="rs-btn rs-btn--primary w-full disabled:opacity-50"
+                >
+                  {signupPwdBusy ? "Création…" : "Créer mon compte"}
+                </button>
+                <GoogleAuthButton
+                  disabled={loginPwdBusy || signupPwdBusy}
+                  loading={oauthBusy}
+                  onClick={() => void authWithGoogle()}
+                  label="S'inscrire avec Google"
+                />
+              </div>
+            </div>
+          </div>
         )}
+
+        {linkToken && !userEmail ? (
+          <p className="mt-4 text-xs text-[#0A0A0A]/75">
+            Après connexion, ton profil sera automatiquement rattaché via token.
+          </p>
+        ) : null}
 
         {message ? (
           <p
@@ -408,4 +510,3 @@ export default function ConnexionPage() {
     </Suspense>
   );
 }
-
