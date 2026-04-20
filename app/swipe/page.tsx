@@ -1022,10 +1022,12 @@ export default function SwipePage() {
           : { height: swipeChromeHeight }
       }
     >
-      <ProfilsListDesktopHeader
-        className="shrink-0 px-2 sm:px-3 lg:px-4"
-        filterAsProfilsLink
-      />
+      <div className="mx-auto w-full min-w-0 max-w-7xl shrink-0">
+        <ProfilsListDesktopHeader
+          filterInputId="rs-profils-filter-swipe-desktop"
+          navigateToProfilsOnFilterFocus
+        />
+      </div>
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">

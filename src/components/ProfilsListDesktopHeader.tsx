@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 const PROFILS_DESCRIPTION = (
@@ -14,14 +14,15 @@ const PROFILS_DESCRIPTION = (
 
 type ProfilsListDesktopHeaderProps = {
   className?: string;
-  /** Sur `/profils` : champ filtre branché sur l’état local. */
   filterValue?: string;
   onFilterChange?: (value: string) => void;
-  /** Sur `/swipe` : même apparence, le « filtre » ouvre la liste profils. */
-  filterAsProfilsLink?: boolean;
   message?: ReactNode;
-  /** `id` du champ (page profils : desktop vs mobile ont des ids différents côté page). */
   filterInputId?: string;
+  /**
+   * Sur `/swipe` : même champ que sur `/profils` (placeholder, classes), en lecture seule ;
+   * clic / focus → liste profils pour filtrer vraiment.
+   */
+  navigateToProfilsOnFilterFocus?: boolean;
 };
 
 /**
@@ -31,37 +32,50 @@ export function ProfilsListDesktopHeader({
   className = "",
   filterValue = "",
   onFilterChange,
-  filterAsProfilsLink = false,
   message,
   filterInputId = "rs-profils-filter-desktop",
+  navigateToProfilsOnFilterFocus = false,
 }: ProfilsListDesktopHeaderProps) {
-  const actions = filterAsProfilsLink ? (
-    <>
-      <span className="sr-only">Filtrer les profils</span>
-      <Link
-        href="/profils"
-        className="rs-profils-list__search flex w-full items-center rounded-lg px-4 py-2.5 text-sm font-medium text-[var(--rs-logo-blue-deep,#0A0A0A)] no-underline hover:opacity-90"
-      >
-        Ouvrir la liste des profils pour filtrer…
-      </Link>
-      <a
-        href="/depot"
-        className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
-      >
-        Déposer un CV
-      </a>
-    </>
-  ) : (
+  const router = useRouter();
+
+  const actions = (
     <>
       <label className="sr-only" htmlFor={filterInputId}>
         Filtrer les profils
       </label>
       <input
         id={filterInputId}
-        value={filterValue}
-        onChange={(e) => onFilterChange?.(e.target.value)}
+        readOnly={navigateToProfilsOnFilterFocus}
+        value={navigateToProfilsOnFilterFocus ? "" : filterValue}
+        onChange={
+          navigateToProfilsOnFilterFocus
+            ? undefined
+            : (e) => onFilterChange?.(e.target.value)
+        }
+        onFocus={
+          navigateToProfilsOnFilterFocus
+            ? () => {
+                router.push("/profils");
+              }
+            : undefined
+        }
+        onClick={
+          navigateToProfilsOnFilterFocus
+            ? () => {
+                router.push("/profils");
+              }
+            : undefined
+        }
         placeholder="Métier, ville…"
-        className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
+        className={
+          "rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55" +
+          (navigateToProfilsOnFilterFocus ? " cursor-pointer" : "")
+        }
+        aria-label={
+          navigateToProfilsOnFilterFocus
+            ? "Ouvrir la page Profils pour filtrer"
+            : undefined
+        }
       />
       <a
         href="/depot"
