@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
-import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import "./globals.css";
 import "./rs-shopify-header.css";
+import "./rs-header-shopify-sync.css";
 import "./rs-shopify-ui.css";
 import "./portal-theme.css";
 
@@ -109,7 +109,7 @@ export default function RootLayout({
                         width={177}
                         height={125}
                         priority
-                        style={{ maxHeight: 40, height: "auto", width: "auto" }}
+                        style={{ maxHeight: 52, height: "auto", width: "auto" }}
                       />
                       <span className="rs-nav-brand__name logo">
                         RECRUTE STAGIAIRE
@@ -152,7 +152,41 @@ export default function RootLayout({
                       </span>
                     </a>
 
-                    <HeaderAccountLink />
+                    <a
+                      href="/connexion"
+                      className="abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none"
+                      rel="noopener noreferrer"
+                      aria-label="Mon espace"
+                    >
+                      <svg
+                        className="rs-icon-account"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                        stroke="currentColor"
+                        strokeWidth="1.85"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 21a8 8 0 0 0-16 0" />
+                        <path d="M12 13a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+                      </svg>
+                      <span className="rs-caf-btn-dossier__label">
+                        <span className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--full">
+                          Mon espace
+                        </span>
+                        <span
+                          className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--short"
+                          aria-hidden="true"
+                        >
+                          Espace
+                        </span>
+                      </span>
+                    </a>
                   </div>
                 </div>
 
@@ -189,7 +223,7 @@ export default function RootLayout({
                         <Link href="/depot">Déposer sa candidature</Link>
                       </li>
                       <li>
-                        <Link href="/swipe">Vote (swipe)</Link>
+                        <Link href="/vote">Vote (swipe)</Link>
                       </li>
                     </ul>
                   </li>

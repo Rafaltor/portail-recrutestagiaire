@@ -1,0 +1,187 @@
+/**
+ * Header aligné sur la boutique (recrutestagiaire / theme-overrides.css + sections/header.liquid).
+ * S’applique tant que `html` n’a pas `data-rs-swipe="1"` (page /swipe pose cet attribut).
+ */
+
+html:not([data-rs-swipe="1"]) .header-wrap {
+  z-index: 500000;
+  isolation: isolate;
+  overflow-x: visible;
+  overflow-y: visible;
+  max-width: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--rs-pole-header-top, #e8e8f0) 0%,
+    var(--rs-pole-header-bot, #ffffff) 100%
+  );
+  border-bottom: 3px solid var(--rs-gold-shadow, #f472b6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 10px rgba(30, 50, 70, 0.12);
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap::after {
+  opacity: 0.055;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0,
+    #fff 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap.rs-header--banner {
+  /* Bleu en-tête boutique (indépendant des variables « charte » du portail) */
+  background-color: #001a57;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap.rs-header--banner::before {
+  background: linear-gradient(
+    180deg,
+    rgba(232, 240, 248, 0.88) 0%,
+    rgba(210, 224, 238, 0.92) 50%,
+    rgba(190, 210, 230, 0.94) 100%
+  );
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-header-top-line {
+  padding: 6px 0 10px;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-banner-nav.rs-header-pole-tabs {
+  padding: 6px 6px 0;
+}
+
+@media (min-width: 992px) {
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-header-top-line {
+    padding: 4px 0 8px;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-banner-nav.rs-header-pole-tabs {
+    padding: 0;
+  }
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav.rs-subnav--buttons {
+  gap: 8px;
+}
+
+@media (max-width: 991.98px) {
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav.rs-subnav--buttons {
+    gap: 0;
+  }
+}
+
+/* Onglets — même gabarit que theme-overrides (boutons « légers ») */
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__trigger {
+  font-family: inherit;
+  color: var(--rs-brand-pink, #f472b6) !important;
+  background: rgba(255, 255, 255, 0.92);
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 8px 8px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item.is-active .rs-subnav__trigger,
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger,
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item.is-active:focus-within .rs-subnav__trigger {
+  position: relative;
+  z-index: 2;
+  color: var(--rs-brand-pink, #f472b6) !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 -2px 10px rgba(10, 10, 10, 0.07);
+  filter: none !important;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item.is-active:hover .rs-subnav__trigger {
+  background: #fff5fa !important;
+  color: #ec4899 !important;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item:not(.is-active):hover .rs-subnav__trigger,
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__item:not(.is-active):focus-within .rs-subnav__trigger {
+  background: #fff5fa;
+  color: #ec4899 !important;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__dropdown {
+  z-index: 500010;
+  border: 1px solid #ddd;
+  border-top: 2px solid var(--rs-brand-pink, #f472b6);
+  box-shadow: 0 12px 28px rgba(10, 10, 10, 0.12);
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__dropdown a {
+  color: var(--rs-pole-blue, #0a0a0a) !important;
+  border-bottom: 1px solid #eef2f6;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__dropdown a:hover {
+  background: var(--rs-gold-soft, #fdf2f8);
+  color: var(--rs-brand-pink, #f472b6) !important;
+}
+
+/* Mon dossier / Mon espace — dégradé bleu boutique (hors swipe) */
+html:not([data-rs-swipe="1"]) .header-wrap .rs-caf-btn-dossier.abt-btn {
+  background: linear-gradient(
+    180deg,
+    #5b86e5 0%,
+    #0033ab 55%,
+    #001a57 100%
+  ) !important;
+  color: #fff !important;
+  border: 2px outset #a8bdfc !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+    inset -1px -1px 0 rgba(0, 25, 70, 0.45) !important;
+}
+
+html:not([data-rs-swipe="1"]) .header-wrap .rs-caf-btn-dossier.abt-btn:hover,
+html:not([data-rs-swipe="1"]) .header-wrap .rs-caf-btn-dossier.abt-btn:focus-visible {
+  background: linear-gradient(180deg, #5b86e5 0%, #1b55c4 100%) !important;
+  border: 2px outset #7a9fe8 !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset -1px -1px 0 rgba(0, 15, 50, 0.55) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 575.98px) {
+  html:not([data-rs-swipe="1"]) .header-wrap .container {
+    padding: 0 10px;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-nav-brand__img {
+    max-height: 52px !important;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-banner-nav.rs-header-pole-tabs {
+    padding: 8px 4px 0;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav.rs-subnav--buttons {
+    padding: 0 3px;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__trigger {
+    min-height: 50px;
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__dropdown {
+    min-width: 240px;
+    width: max(240px, 82vw);
+  }
+
+  html:not([data-rs-swipe="1"]) .header-wrap .rs-subnav__dropdown a {
+    padding: 15px 18px;
+    font-size: 15px;
+  }
+}

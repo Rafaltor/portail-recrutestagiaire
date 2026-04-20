@@ -73,13 +73,14 @@ export default function ProfilsPage() {
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
               Candidats publiés
             </p>
-            <h1 className="rs-profils-list__hero-title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
-              Profils
+            <h1 className="rs-profils-list__hero-title mt-1 text-2xl font-black tracking-tight text-[#0A0A0A] sm:text-3xl">
+              Les meilleurs profils de ta région
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
-              Parcours les CV comme sur une vitrine d’offres : deux profils par
-              ligne sur grand écran, un sur très petit mobile. Infos à gauche,
-              aperçu du PDF à droite dans chaque carte.
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#0A0A0A]/90">
+              Ce sont les votes de la communauté qui font remonter les meilleurs
+              CV. Les profils les plus plébiscités sont mis en avant ici ;
+              Recrute Stagiaire recrute ensuite parmi ces talents pour le
+              collectif.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
