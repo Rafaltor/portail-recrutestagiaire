@@ -17,6 +17,9 @@ export const viewport = {
   viewportFit: "cover",
 };
 
+const RS_KITSCH_MARQUEE =
+  "★ OFFRE FLASH ★ -30% SUR VOTRE 2E CANDIDATURE — AGISSEZ VITE !!! ★";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Recrute Stagiaire — Portail",
@@ -58,9 +61,9 @@ export default function RootLayout({
             aria-hidden="true"
             style={
               {
-                ["--rs-kitsch-pop-a"]: "#F472B6",
-                ["--rs-kitsch-pop-b"]: "#e8e8f0",
-                ["--rs-kitsch-pop-fg"]: "#0A0A0A",
+                ["--rs-kitsch-pop-a"]: "#ffe8f0",
+                ["--rs-kitsch-pop-b"]: "#ffd6e8",
+                ["--rs-kitsch-pop-fg"]: "#be185d",
               } as CSSProperties
             }
           >
@@ -77,16 +80,9 @@ export default function RootLayout({
               ✦
             </span>
             <div className="rs-header-kitsch-pop__track">
-              {[
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-                "★ Portail du collectif ★ Nouvelles pièces — candidatures ouvertes ★ Mode, textile & rencontres ★",
-              ].map((t, i) => (
+              {Array.from({ length: 6 }, (_, i) => (
                 <span key={i} className="rs-header-kitsch-pop__chunk">
-                  {t}
+                  {RS_KITSCH_MARQUEE}
                   &nbsp;•&nbsp;
                 </span>
               ))}
