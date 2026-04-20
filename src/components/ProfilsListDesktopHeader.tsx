@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 const PROFILS_DESCRIPTION = (
@@ -18,11 +17,6 @@ type ProfilsListDesktopHeaderProps = {
   onFilterChange?: (value: string) => void;
   message?: ReactNode;
   filterInputId?: string;
-  /**
-   * Sur `/swipe` : même champ que sur `/profils` (placeholder, classes), en lecture seule ;
-   * clic / focus → liste profils pour filtrer vraiment.
-   */
-  navigateToProfilsOnFilterFocus?: boolean;
 };
 
 /**
@@ -34,10 +28,7 @@ export function ProfilsListDesktopHeader({
   onFilterChange,
   message,
   filterInputId = "rs-profils-filter-desktop",
-  navigateToProfilsOnFilterFocus = false,
 }: ProfilsListDesktopHeaderProps) {
-  const router = useRouter();
-
   const actions = (
     <>
       <label className="sr-only" htmlFor={filterInputId}>
@@ -45,37 +36,10 @@ export function ProfilsListDesktopHeader({
       </label>
       <input
         id={filterInputId}
-        readOnly={navigateToProfilsOnFilterFocus}
-        value={navigateToProfilsOnFilterFocus ? "" : filterValue}
-        onChange={
-          navigateToProfilsOnFilterFocus
-            ? undefined
-            : (e) => onFilterChange?.(e.target.value)
-        }
-        onFocus={
-          navigateToProfilsOnFilterFocus
-            ? () => {
-                router.push("/profils");
-              }
-            : undefined
-        }
-        onClick={
-          navigateToProfilsOnFilterFocus
-            ? () => {
-                router.push("/profils");
-              }
-            : undefined
-        }
+        value={filterValue}
+        onChange={(e) => onFilterChange?.(e.target.value)}
         placeholder="Métier, ville…"
-        className={
-          "rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55" +
-          (navigateToProfilsOnFilterFocus ? " cursor-pointer" : "")
-        }
-        aria-label={
-          navigateToProfilsOnFilterFocus
-            ? "Ouvrir la page Profils pour filtrer"
-            : undefined
-        }
+        className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
       />
       <a
         href="/depot"

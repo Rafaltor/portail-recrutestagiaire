@@ -21,8 +21,6 @@ import {
   readLocalInt,
   writeLocalInt,
 } from "@/lib/swipe-gating";
-import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
-import "../profils/profils-list.css";
 import "./swipe-stamps.css";
 
 function formatSwipeError(e: unknown): string {
@@ -452,14 +450,6 @@ export default function SwipePage() {
       alive = false;
     };
   }, [session?.access_token, visitorId]);
-
-  // Active les styles `html[data-rs-swipe="1"]` (rs-shopify-header.css) : desktop = marque + actions ligne 1, onglets ligne 2 ; mobile = bandeau onglets sans fond bleu.
-  useEffect(() => {
-    document.documentElement.setAttribute("data-rs-swipe", "1");
-    return () => {
-      document.documentElement.removeAttribute("data-rs-swipe");
-    };
-  }, []);
 
   useEffect(() => {
     if (!rhInsight) {
@@ -1022,12 +1012,6 @@ export default function SwipePage() {
           : { height: swipeChromeHeight }
       }
     >
-      <div className="mx-auto w-full min-w-0 max-w-7xl shrink-0">
-        <ProfilsListDesktopHeader
-          filterInputId="rs-profils-filter-swipe-desktop"
-          navigateToProfilsOnFilterFocus
-        />
-      </div>
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
