@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
@@ -87,7 +88,8 @@ export async function GET(req: Request) {
 
   const items: { profile: { id: string; handle: string }; cvUrl: string }[] = [];
   for (const p of picked) {
-    const cvPath = String(p.cv_path || "").trim().replace(/^\/+/, "");
+    const cvPath = normalizeCvObjectKey(p.cv_path);
+    if (!cvPath) continue;
     const signed = await supabaseServer.storage
       .from("cvs")
       .createSignedUrl(cvPath, 60 * 10);

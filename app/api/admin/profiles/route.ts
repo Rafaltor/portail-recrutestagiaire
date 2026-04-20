@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
@@ -50,7 +51,7 @@ async function buildPendingPreviewItem(
     rejection_reason?: string | null;
   },
 ) {
-  const cleanPath = String(item.cv_path || "").trim().replace(/^\/+/, "");
+  const cleanPath = normalizeCvObjectKey(item.cv_path);
   let cv_preview_url = "";
   let cv_original_url = "";
   if (cleanPath) {

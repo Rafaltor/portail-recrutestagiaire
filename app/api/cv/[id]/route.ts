@@ -1,8 +1,20 @@
 import { NextResponse } from "next/server";
+import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function isStorageObjectMissing(msg: string): boolean {
+  const m = msg.toLowerCase();
+  return (
+    m.includes("not found") ||
+    m.includes("does not exist") ||
+    m.includes("object not found") ||
+    m.includes("no such file") ||
+    m.includes("404")
+  );
+}
 
 export async function GET(
   req: Request,
@@ -40,15 +52,28 @@ export async function GET(
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const cvPath = String(profile.cv_path || "").trim().replace(/^\/+/, "");
+  const cvPath = normalizeCvObjectKey(profile.cv_path);
+  if (!cvPath) {
+    return NextResponse.json(
+      { error: "cv_path_missing", code: "CV_PATH_MISSING" },
+      { status: 422 },
+    );
+  }
+
   const signed = await supabaseServer.storage
     .from("cvs")
     .createSignedUrl(cvPath, 60 * 10);
 
   if (signed.error || !signed.data?.signedUrl) {
+    const msg = signed.error?.message ?? "signed_url_failed";
+    const status = isStorageObjectMissing(msg) ? 404 : 502;
     return NextResponse.json(
-      { error: signed.error?.message ?? "signed_url_failed" },
-      { status: 500 },
+      {
+        error: "cv_storage_failed",
+        code: "CV_STORAGE_FAILED",
+        detail: msg,
+      },
+      { status },
     );
   }
 
