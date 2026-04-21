@@ -1060,10 +1060,7 @@ export default function SwipePage() {
               >
                 Réessayer
               </button>
-              <a
-                href="/depot"
-                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-              >
+              <a href="/depot" className="rs-btn rs-btn--primary text-sm font-semibold">
                 Déposer un CV
               </a>
             </div>
@@ -1105,16 +1102,10 @@ export default function SwipePage() {
               Tu as utilisé {freeSwipesUsed} swipes gratuits sur {FREE_SWIPE_LIMIT}.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href="/connexion"
-                className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-              >
+              <a href="/connexion" className="rs-btn rs-btn--ghost text-sm font-semibold">
                 Se connecter / créer un compte
               </a>
-              <a
-                href="/mon-espace"
-                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-              >
+              <a href="/mon-espace" className="rs-btn rs-btn--primary text-sm font-semibold">
                 Ouvrir mon espace
               </a>
             </div>
@@ -1133,17 +1124,11 @@ export default function SwipePage() {
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {hasLoadedProfiles ? (
-                <a
-                  href="/profils"
-                  className="rounded-md border-2 border-[#F472B6] bg-white px-4 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-                >
+                <a href="/profils" className="rs-btn rs-btn--ghost text-sm font-semibold">
                   Voir les profils
                 </a>
               ) : null}
-              <a
-                href="/depot"
-                className="rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-              >
+              <a href="/depot" className="rs-btn rs-btn--primary text-sm font-semibold">
                 Déposer
               </a>
             </div>

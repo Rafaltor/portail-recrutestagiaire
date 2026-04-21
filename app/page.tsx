@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { HomeHowItWorks } from "@/components/HomeHowItWorks";
 import { pageMetadata } from "@/lib/seo";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
@@ -66,6 +67,8 @@ export default function Home() {
           </a>
         </div>
       </div>
+
+      <HomeHowItWorks />
 
       <div className="rs-panel rounded-lg p-6">
         <h2 className="text-sm font-black uppercase tracking-wider text-[#0A0A0A]">
