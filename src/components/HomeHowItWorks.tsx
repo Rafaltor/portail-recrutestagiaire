@@ -1,37 +1,11 @@
 import type { ReactNode } from "react";
 
-/**
- * Bloc accueil « Comment ça marche » — parcours candidat + cycle RS (charte sombre / rose portail).
- */
-function JourneyCard({
-  step,
-  title,
-  bullets,
-}: {
-  step: string;
-  title: string;
-  bullets?: string[];
-}) {
-  return (
-    <div className="min-w-0 flex-1 rounded-2xl bg-[#1a1a1a] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ring-1 ring-white/10 sm:px-5 sm:py-5">
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/45">
-        {step}
-      </p>
-      <h3 className="mt-1.5 text-base font-black leading-snug text-white sm:text-lg">
-        {title}
-      </h3>
-      {bullets?.length ? (
-        <ul className="mt-2.5 space-y-1 text-sm leading-snug text-white/80">
-          {bullets.map((b) => (
-            <li key={b}>{b}</li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
+const innerMax = "mx-auto w-full max-w-2xl";
 
-function CycleCard({
+/**
+ * Bloc accueil « Comment ça marche » — même grille 2×2 pour parcours et cycle RS.
+ */
+function DarkCard({
   step,
   title,
   bullets,
@@ -44,7 +18,7 @@ function CycleCard({
 }) {
   return (
     <div
-      className={`min-w-0 rounded-2xl bg-[#1a1a1a] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:px-5 sm:py-5 ${
+      className={`flex min-h-0 min-w-0 flex-col rounded-2xl bg-[#1a1a1a] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:min-h-[140px] sm:px-5 sm:py-5 ${
         highlight
           ? "ring-2 ring-[var(--rs-brand-pink,#F472B6)] ring-offset-2 ring-offset-[#0a0a0a]"
           : "ring-1 ring-white/10"
@@ -57,7 +31,7 @@ function CycleCard({
         {title}
       </h3>
       {bullets?.length ? (
-        <ul className="mt-2.5 space-y-1 text-sm leading-snug text-white/80">
+        <ul className="mt-2.5 flex-1 space-y-1 text-sm leading-snug text-white/80">
           {bullets.map((b) => (
             <li key={b}>{b}</li>
           ))}
@@ -67,71 +41,74 @@ function CycleCard({
   );
 }
 
-function Arrow({ children, className = "" }: { children: ReactNode; className?: string }) {
+function SectionTitle({
+  kicker,
+  title,
+  id,
+}: {
+  /** Absent ou vide = pas de ligne au-dessus du titre. */
+  kicker?: string | null;
+  title: string;
+  id?: string;
+}) {
+  const hasKicker = Boolean(kicker?.trim());
   return (
-    <span
-      className={`flex shrink-0 select-none items-center justify-center text-lg font-black text-[var(--rs-brand-pink,#F472B6)] sm:text-xl ${className}`.trim()}
-      aria-hidden
-    >
-      {children}
-    </span>
+    <div className={`${innerMax} text-center`}>
+      {hasKicker ? (
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
+          {kicker}
+        </p>
+      ) : null}
+      <h2
+        id={id}
+        className={`text-2xl font-black tracking-tight text-white sm:text-3xl ${hasKicker ? "mt-2" : ""}`}
+      >
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+function DividerLabel({ children }: { children: ReactNode }) {
+  return (
+    <div className={`relative ${innerMax} py-2`}>
+      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/15" aria-hidden />
+      <p className="relative mx-auto w-max bg-[#0a0a0a] px-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white/40">
+        {children}
+      </p>
+    </div>
   );
 }
 
 export function HomeHowItWorks() {
   return (
     <section
-      className="overflow-hidden rounded-2xl bg-[#0a0a0a] px-4 py-9 text-white sm:px-7 sm:py-11"
-      aria-labelledby="rs-home-how-title"
+      className="overflow-hidden rounded-2xl bg-[#0a0a0a] px-4 py-10 text-white sm:px-8 sm:py-12"
+      aria-labelledby="rs-home-how-parcours rs-home-how-cycle"
     >
-      <p className="text-center text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
-        Comment ça marche
-      </p>
-      <h2
-        id="rs-home-how-title"
-        className="mt-2 text-center text-2xl font-black tracking-tight text-white sm:text-3xl"
+      <SectionTitle
+        kicker="Comment ça marche"
+        title="Ton parcours"
+        id="rs-home-how-parcours"
+      />
+
+      {/* Même logique que « Le cycle RS » : grille 2 cols, ligne 1 = 01 | 02, ligne 2 = 04 | 03 */}
+      <div
+        className={`${innerMax} mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4`}
       >
-        Ton parcours
-      </h2>
-
-      {/* Desktop : [01]→[02] / ↑ · ↓ / [04]←[03]. Mobile : colonne 01→02→03→04 */}
-      <div className="mx-auto mt-8 hidden sm:block sm:max-w-2xl">
-        <div className="grid grid-cols-[minmax(0,1fr)_2.25rem_minmax(0,1fr)] grid-rows-3 items-stretch gap-x-2 gap-y-2">
-          <JourneyCard step="01" title="Poste ton CV" />
-          <Arrow className="self-center justify-center">→</Arrow>
-          <JourneyCard
-            step="02"
-            title="Vote"
-            bullets={["• ton CV est boosté", "• -10% sur le shop"]}
-          />
-          <div className="flex items-start justify-center pt-1">
-            <Arrow>↑</Arrow>
-          </div>
-          <div aria-hidden className="min-h-[1rem]" />
-          <div className="flex items-start justify-center pt-1">
-            <Arrow>↓</Arrow>
-          </div>
-          <JourneyCard step="04" title="Bosse et redépose" />
-          <Arrow className="self-center justify-center">←</Arrow>
-          <JourneyCard step="03" title="Les non-stagiaires t'approuvent" />
-        </div>
-      </div>
-
-      <div className="mx-auto mt-8 max-w-xl space-y-2 sm:hidden">
-        <JourneyCard step="01" title="Poste ton CV" />
-        <Arrow className="py-0.5">↓</Arrow>
-        <JourneyCard
+        <DarkCard step="01" title="Poste ton CV" />
+        <DarkCard
           step="02"
           title="Vote"
           bullets={["• ton CV est boosté", "• -10% sur le shop"]}
         />
-        <Arrow className="py-0.5">↓</Arrow>
-        <JourneyCard step="03" title="Les non-stagiaires t'approuvent" />
-        <Arrow className="py-0.5">↓</Arrow>
-        <JourneyCard step="04" title="Bosse et redépose" />
+        <DarkCard step="04" title="Bosse et redépose" />
+        <DarkCard step="03" title="Les non-stagiaires t'approuvent" />
       </div>
 
-      <div className="mx-auto mt-6 flex max-w-xl flex-col gap-3 rounded-xl bg-[var(--rs-brand-pink,#F472B6)] px-4 py-4 sm:max-w-2xl sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+      <div
+        className={`${innerMax} mt-6 flex flex-col gap-3 rounded-xl bg-[var(--rs-brand-pink,#F472B6)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5`}
+      >
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/90">
             Sortie du cycle
@@ -148,21 +125,20 @@ export function HomeHowItWorks() {
         </div>
       </div>
 
-      <div className="relative mx-auto mt-10 max-w-xl md:max-w-2xl">
-        <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/15" aria-hidden />
-        <p className="relative mx-auto w-max bg-[#0a0a0a] px-3 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white/40">
-          Le recrutement
-        </p>
+      <div className="mt-10">
+        <DividerLabel>Le recrutement</DividerLabel>
       </div>
 
-      <h2 className="mt-8 text-center text-2xl font-black tracking-tight text-white sm:text-3xl">
-        Le cycle RS
-      </h2>
+      <div className="mt-10">
+        <SectionTitle title="Le cycle RS" id="rs-home-how-cycle" />
+      </div>
 
-      <div className="mx-auto mt-6 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:max-w-2xl">
-        <CycleCard step="01" title="Vote" />
-        <CycleCard step="02" title="Classement" />
-        <CycleCard
+      <div
+        className={`${innerMax} mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4`}
+      >
+        <DarkCard step="01" title="Vote" />
+        <DarkCard step="02" title="Classement" />
+        <DarkCard
           step="03"
           title="Nouvelle recrue"
           bullets={[
@@ -172,10 +148,10 @@ export function HomeHowItWorks() {
           ]}
           highlight
         />
-        <CycleCard step="04" title="Nouvelle session" />
+        <DarkCard step="04" title="Nouvelle session" />
       </div>
 
-      <div className="mx-auto mt-8 max-w-xl md:max-w-2xl">
+      <div className={`${innerMax} mt-8`}>
         <a
           href="/depot"
           className="rs-btn rs-btn--primary flex w-full flex-col items-center gap-0.5 rounded-xl py-4 text-center no-underline hover:no-underline sm:py-5"

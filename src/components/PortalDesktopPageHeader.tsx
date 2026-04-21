@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 export type PortalDesktopPageHeaderProps = {
   eyebrow: string;
   title: string;
-  description: ReactNode;
+  /** Absent = pas de zone texte sous le titre (ex. accueil). */
+  description?: ReactNode;
   /** Zone droite (recherche, boutons, etc.) — visible ≥ lg uniquement avec ce bloc. */
   actions?: ReactNode;
   message?: ReactNode;
@@ -34,9 +35,11 @@ export function PortalDesktopPageHeader({
           <h1 className="rs-portal-page-hero__title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
             {title}
           </h1>
-          <div className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
-            {description}
-          </div>
+          {description != null && description !== "" ? (
+            <div className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
+              {description}
+            </div>
+          ) : null}
         </div>
         {actions ? (
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[300px]">
