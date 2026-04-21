@@ -21,7 +21,7 @@ export const viewport = {
 };
 
 const RS_KITSCH_MARQUEE =
-  "★ OFFRE FLASH ★ -30% SUR VOTRE 2E CANDIDATURE — AGISSEZ VITE !!! ★";
+  "★ CANDIDATURES OUVERTES ★ OFFRE NON NÉGOCIABLE ★ DANS LA LIMITE DES STOCKS ★ ON A COMMENCÉ STAGIAIRES ★";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

@@ -86,8 +86,7 @@ export default function ProfilsPage() {
             Profils
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
-            Parcours les CV comme sur une vitrine d’offres : deux profils par
-            ligne sur grand écran, un sur très petit mobile.
+            Les meilleurs profils de ta région.
           </p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">

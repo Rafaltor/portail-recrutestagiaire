@@ -3,13 +3,7 @@
 import type { ReactNode } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
-const PROFILS_DESCRIPTION = (
-  <>
-    Parcours les CV comme sur une vitrine d’offres : deux profils par ligne sur
-    grand écran, un sur très petit mobile. Infos à gauche, aperçu du PDF à
-    droite dans chaque carte.
-  </>
-);
+const PROFILS_DESCRIPTION = <>Les meilleurs profils de ta région.</>;
 
 type ProfilsListDesktopHeaderProps = {
   className?: string;

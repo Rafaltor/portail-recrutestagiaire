@@ -4,9 +4,9 @@ import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 export const metadata: Metadata = pageMetadata({
   title:
-    "Recrute Stagiaire — Portail créatif Paris · Dépose ton CV, vote pour les meilleurs profils",
+    "Recrute Stagiaire — On a commencé stagiaires. Pourquoi pas vous ? · Portail",
   description:
-    "Label parisien fondé par 11 créatifs. Dépose ton CV créatif, la communauté vote, les meilleurs sont recrutés. Stage mode et créatif Paris.",
+    "Dépose ton CV créatif. La communauté vote. Les meilleurs rejoignent le collectif. Label parisien mode & textile.",
   path: "/",
 });
 
@@ -21,8 +21,16 @@ export default function Home() {
     <div className="grid gap-6">
       <PortalDesktopPageHeader
         eyebrow="Portail"
-        title="Candidatures créatives"
-        description="MVP : dépôt de CV (PDF), affichage des profils publiés et votes (like / dislike) sans compte via un identifiant visiteur."
+        title="On a commencé stagiaires. Pourquoi pas vous ?"
+        description={
+          <>
+            Dépose ton CV créatif.
+            <br />
+            La communauté vote.
+            <br />
+            Les meilleurs rejoignent le collectif.
+          </>
+        }
         actions={
           <div className="flex flex-wrap gap-2">
             <a className="rs-btn rs-btn--primary" href="/profils">
@@ -36,10 +44,12 @@ export default function Home() {
       />
 
       <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <h1 className="text-2xl font-black tracking-tight">Portail candidatures</h1>
+        <h1 className="text-2xl font-black tracking-tight">
+          On a commencé stagiaires. Pourquoi pas vous ?
+        </h1>
         <p className="mt-2 max-w-2xl text-[#0A0A0A]/85">
-          MVP : dépôt de CV (PDF), affichage des profils publiés et votes (like /
-          dislike) sans compte via un identifiant visiteur.
+          Dépose ton CV créatif. La communauté vote. Les meilleurs rejoignent le
+          collectif.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <a
