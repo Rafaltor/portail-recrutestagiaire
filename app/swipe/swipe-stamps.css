@@ -1,6 +1,5 @@
 /**
- * Page /swipe — fond noir, carte CV, tampons texte, chrome bas.
- * (Plus de tampons PNG / style « clipart ».)
+ * Page /swipe — fond noir, carte CV, tampons PNG (approved / declined), drag & drop, chrome bas.
  */
 
 @media (max-width: 767.98px) {
@@ -158,6 +157,227 @@ html[data-rs-swipe="1"] .rs-header-body {
   }
 }
 
-.rs-swipe-stamp-overlay {
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+/* Tampons PNG : public/swipe-stamps/approved.png & declined.png */
+#rs-swipe-page .rs-stamp-art {
+  position: relative;
+  user-select: none;
+}
+
+#rs-swipe-page .rs-stamp-art--floating .rs-stamp-art__img {
+  filter: saturate(1.06) contrast(1.04) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.32));
+}
+
+#rs-swipe-page .rs-imprint-art {
+  display: inline-flex;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: screen;
+}
+
+#rs-swipe-page .rs-imprint-art__img {
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.22));
+}
+
+#rs-swipe-page .rs-imprint-art--land-approved {
+  animation: rsImprintLandApproved 0.42s cubic-bezier(0.22, 1.24, 0.32, 1) both;
+}
+
+#rs-swipe-page .rs-imprint-art--land-declined {
+  animation: rsImprintLandDeclined 0.42s cubic-bezier(0.22, 1.24, 0.32, 1) both;
+}
+
+@keyframes rsImprintLandApproved {
+  0% {
+    transform: rotate(-4deg) scale(1.85);
+    opacity: 0;
+    filter: blur(3px);
+  }
+  55% {
+    transform: rotate(-2deg) scale(0.9);
+    opacity: 1;
+    filter: blur(0);
+  }
+  78% {
+    transform: rotate(-3deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(-3deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rsImprintLandDeclined {
+  0% {
+    transform: rotate(4deg) scale(1.85);
+    opacity: 0;
+    filter: blur(3px);
+  }
+  55% {
+    transform: rotate(2deg) scale(0.9);
+    opacity: 1;
+    filter: blur(0);
+  }
+  78% {
+    transform: rotate(3deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(3deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.rs-stamp-impact-wrap {
+  position: relative;
+  width: 1px;
+  height: 1px;
+}
+
+.rs-stamp-impact-wrap--approved {
+  --rs-ring: rgba(16, 185, 129, 0.75);
+  --rs-ring-soft: rgba(52, 211, 153, 0.45);
+  --rs-flash: rgba(167, 243, 208, 0.95);
+}
+
+.rs-stamp-impact-wrap--declined {
+  --rs-ring: rgba(244, 63, 94, 0.78);
+  --rs-ring-soft: rgba(251, 113, 133, 0.5);
+  --rs-flash: rgba(254, 205, 211, 0.95);
+}
+
+.rs-stamp-impact-flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--rs-flash) 0%, transparent 68%);
+  animation: rsStampFlash 0.32s ease-out both;
+  pointer-events: none;
+}
+
+.rs-stamp-impact-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  border: 3px solid var(--rs-ring);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.rs-stamp-impact-ring--1 {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  animation: rsStampRingOut 0.38s cubic-bezier(0.2, 0.9, 0.3, 1) 0.02s both;
+}
+
+.rs-stamp-impact-ring--2 {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-color: var(--rs-ring-soft);
+  animation: rsStampRingOut 0.45s cubic-bezier(0.15, 0.85, 0.25, 1) 0.08s both;
+}
+
+.rs-stamp-impact-ring--3 {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-width: 2px;
+  border-color: var(--rs-ring);
+  animation: rsStampRingOut 0.52s cubic-bezier(0.12, 0.8, 0.2, 1) 0.14s both;
+}
+
+.rs-stamp-impact-body {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rs-stamp-impact-drop--approved {
+  animation: rsStampDropThudApproved 0.34s cubic-bezier(0.2, 1.35, 0.36, 1) both;
+}
+
+.rs-stamp-impact-drop--declined {
+  animation: rsStampDropThudDeclined 0.34s cubic-bezier(0.2, 1.35, 0.36, 1) both;
+}
+
+@keyframes stampWobble {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes rsStampDropThudApproved {
+  0% {
+    transform: translateY(-52px) scale(1.18) rotate(-5deg);
+    filter: brightness(1.12);
+  }
+  52% {
+    transform: translateY(6px) scale(0.88, 0.8) rotate(0deg);
+    filter: brightness(1);
+  }
+  72% {
+    transform: translateY(-3px) scale(1.06, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@keyframes rsStampDropThudDeclined {
+  0% {
+    transform: translateY(-52px) scale(1.18) rotate(5deg);
+    filter: brightness(1.12);
+  }
+  52% {
+    transform: translateY(6px) scale(0.88, 0.8) rotate(0deg);
+    filter: brightness(1);
+  }
+  72% {
+    transform: translateY(-3px) scale(1.06, 1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+@keyframes rsStampFlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.65);
+  }
+}
+
+@keyframes rsStampRingOut {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4.2);
+  }
+}
+
+@media (max-width: 380px) {
+  #rs-swipe-page .rs-stamp-art__img {
+    width: 148px !important;
+    max-height: 66px !important;
+  }
 }
