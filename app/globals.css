@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #efefef;
+  --background: #ffffff;
   --foreground: #0a0a0a;
   --rs-brand-pink: #f472b6;
   --rs-brand-ink: #0a0a0a;
-  --rs-page-bg: #efefef;
+  --rs-page-bg: #ffffff;
   --rs-block-bg: #ffffff;
-  --rs-block-border: #dddddd;
+  --rs-block-border: #f0f0f0;
   /* Boutons type charte DA (rs-portail-2010) */
   --rs-da-pink: #f472b6;
   --rs-da-pink-top: #f9a8d4;
@@ -19,22 +19,26 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Courier New", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #efefef;
+    --background: #ffffff;
     --foreground: #0a0a0a;
   }
 }
 
 html {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+body.rs-portal-body--inter {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }

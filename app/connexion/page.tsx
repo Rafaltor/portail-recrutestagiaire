@@ -7,7 +7,7 @@ import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type LinkRes = { ok: true; shopifyCustomerId: string };
 
-/** Bouton type « Sign in with Google » (fond blanc, bordure grise, logo G officiel). */
+/** Bouton « Continuer avec Google » — charte portail (bordure #F0F0F0, sans ombre). */
 function GoogleAuthButton({
   disabled,
   loading,
@@ -24,7 +24,7 @@ function GoogleAuthButton({
       type="button"
       disabled={disabled || loading}
       onClick={onClick}
-      className="flex h-10 w-full max-w-full items-center justify-center gap-3 rounded border border-[#747775] bg-white px-3 text-sm font-medium text-[#1f1f1f] shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[box-shadow,background] hover:bg-[#f8f9fa] hover:shadow-[0_1px_3px_rgba(0,0,0,0.12)] disabled:cursor-not-allowed disabled:opacity-55"
+      className="flex h-11 w-full max-w-full items-center justify-center gap-3 rounded-[6px] border border-[#F0F0F0] bg-white px-3 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA] disabled:cursor-not-allowed disabled:opacity-55"
     >
       {loading ? (
         <span className="text-[13px]">Redirection…</span>
@@ -279,17 +279,21 @@ function ConnexionPageInner() {
       <PortalDesktopPageHeader
         eyebrow="Compte"
         title="Connexion"
-        description="Espace dédié : à gauche la connexion, à droite l’inscription. Même compte Google pour les deux."
+        description="Connecte-toi ou crée un compte : Google ou email et mot de passe."
       />
 
-      <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <h1 className="text-xl font-black tracking-tight">Connexion</h1>
-        <p className="mt-2 text-sm text-[#0A0A0A]/85">
-          Connexion à gauche, inscription à droite (sur grand écran).
+      <div className="rs-panel rounded-[8px] p-6 lg:hidden">
+        <h1 className="text-xl font-bold tracking-tight">Connexion</h1>
+        <p className="mt-2 text-sm font-normal text-[#6B6B6B]">
+          Google ou email — inscription sur la même page.
         </p>
       </div>
 
-      <div className="rs-panel rounded-lg p-6">
+      <div
+        className={`mx-auto w-full rounded-[8px] border border-[#F0F0F0] bg-white p-8 shadow-none ${
+          userEmail ? "max-w-xl" : "max-w-[400px]"
+        }`}
+      >
         {userEmail ? (
           <>
             <div className="text-sm text-[#0A0A0A]/85">
@@ -338,97 +342,98 @@ function ConnexionPageInner() {
             ) : null}
           </>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 md:gap-0 md:divide-x md:divide-[#e5e5e5]">
-            {/* Connexion */}
-            <div className="md:pr-8">
-              <h2 className="text-lg font-black tracking-tight text-[#0A0A0A]">
-                Connexion
-              </h2>
-              <p className="mt-1 text-sm text-[#0A0A0A]/75">
-                Déjà un compte ? Connecte-toi ici.
-              </p>
-              <label className="mt-4 grid gap-1">
-                <span className="text-sm font-semibold">Email</span>
+          <div className="grid gap-0">
+            <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
+              Connexion
+            </h2>
+            <p className="mt-1 text-sm font-normal text-[#6B6B6B]">
+              Déjà un compte ou nouveau — même bouton Google.
+            </p>
+
+            <div className="mt-6">
+              <GoogleAuthButton
+                disabled={loginPwdBusy || signupPwdBusy}
+                loading={oauthBusy}
+                onClick={() => void authWithGoogle()}
+                label="Continuer avec Google"
+              />
+            </div>
+
+            <div className="my-6 flex items-center gap-3" aria-hidden="true">
+              <span className="h-px flex-1 bg-[#F0F0F0]" />
+              <span className="text-xs font-medium uppercase tracking-wide text-[#6B6B6B]">
+                ou
+              </span>
+              <span className="h-px flex-1 bg-[#F0F0F0]" />
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-[#0A0A0A]">Connexion email</p>
+              <label className="mt-3 grid gap-1">
+                <span className="text-sm font-medium text-[#0A0A0A]">Email</span>
                 <input
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                   placeholder="toi@exemple.com"
                   autoComplete="email"
                 />
               </label>
               <label className="mt-3 grid gap-1">
-                <span className="text-sm font-semibold">Mot de passe</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">Mot de passe</span>
                 <input
                   type="password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
               </label>
-              <div className="mt-4 flex flex-col gap-3">
-                <button
-                  disabled={loginPwdBusy || oauthBusy}
-                  onClick={() => void signInWithEmailPassword()}
-                  className="rs-btn rs-btn--primary w-full disabled:opacity-50"
-                >
-                  {loginPwdBusy ? "Connexion…" : "Se connecter"}
-                </button>
-                <GoogleAuthButton
-                  disabled={loginPwdBusy || signupPwdBusy}
-                  loading={oauthBusy}
-                  onClick={() => void authWithGoogle()}
-                  label="Se connecter avec Google"
-                />
-              </div>
+              <button
+                disabled={loginPwdBusy || oauthBusy}
+                onClick={() => void signInWithEmailPassword()}
+                className="rs-btn rs-btn--primary mt-4 w-full disabled:opacity-50"
+              >
+                {loginPwdBusy ? "Connexion…" : "Se connecter"}
+              </button>
             </div>
 
-            {/* Inscription */}
-            <div className="md:pl-8">
-              <h2 className="text-lg font-black tracking-tight text-[#0A0A0A]">
+            <div className="mt-10 border-t border-[#F0F0F0] pt-8">
+              <h3 className="text-lg font-bold tracking-tight text-[#0A0A0A]">
                 Inscription
-              </h2>
-              <p className="mt-1 text-sm text-[#0A0A0A]/75">
-                Nouveau sur le portail ? Crée ton compte.
+              </h3>
+              <p className="mt-1 text-sm font-normal text-[#6B6B6B]">
+                Nouveau sur le portail ? Crée ton compte ci-dessous.
               </p>
               <label className="mt-4 grid gap-1">
-                <span className="text-sm font-semibold">Email</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">Email</span>
                 <input
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                   placeholder="toi@exemple.com"
                   autoComplete="email"
                 />
               </label>
               <label className="mt-3 grid gap-1">
-                <span className="text-sm font-semibold">Mot de passe</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">Mot de passe</span>
                 <input
                   type="password"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                   placeholder="Minimum 6 caractères"
                   autoComplete="new-password"
                 />
               </label>
-              <div className="mt-4 flex flex-col gap-3">
-                <button
-                  disabled={signupPwdBusy || oauthBusy}
-                  onClick={() => void signUpWithEmailPassword()}
-                  className="rs-btn rs-btn--primary w-full disabled:opacity-50"
-                >
-                  {signupPwdBusy ? "Création…" : "Créer mon compte"}
-                </button>
-                <GoogleAuthButton
-                  disabled={loginPwdBusy || signupPwdBusy}
-                  loading={oauthBusy}
-                  onClick={() => void authWithGoogle()}
-                  label="S'inscrire avec Google"
-                />
-              </div>
+              <button
+                disabled={signupPwdBusy || oauthBusy}
+                onClick={() => void signUpWithEmailPassword()}
+                className="rs-btn rs-btn--primary mt-4 w-full disabled:opacity-50"
+              >
+                {signupPwdBusy ? "Création…" : "Créer mon compte"}
+              </button>
             </div>
           </div>
         )}

@@ -1,7 +1,9 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { HomeHowItWorks } from "@/components/HomeHowItWorks";
+import { HomeHeroStats } from "@/components/HomeHeroStats";
+import { HomeTopProfile } from "@/components/HomeTopProfile";
 import { pageMetadata } from "@/lib/seo";
-import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 export const metadata: Metadata = pageMetadata({
   title:
@@ -11,45 +13,40 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
 });
 
-// Accueil volontairement "desktop sur mobile" (effet dézoom rétro)
-export const viewport: Viewport = {
-  width: 1180,
-  viewportFit: "cover",
-};
-
 export default function Home() {
   return (
-    <div className="grid gap-6">
-      <PortalDesktopPageHeader
-        eyebrow="Portail"
-        title="On a commencé stagiaires. Pourquoi pas vous ?"
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <a className="rs-btn rs-btn--primary" href="/profils">
+    <div className="grid gap-0">
+      <section className="bg-white px-1 pb-12 pt-6 sm:px-2 sm:pt-10 md:pb-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-balance text-[36px] font-bold leading-[1.1] tracking-tight text-[#0A0A0A] sm:text-[40px] lg:text-[52px]">
+            On a commencé stagiaires. Pourquoi pas vous ?
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base font-normal leading-relaxed text-[#6B6B6B]">
+            Dépose ton CV. La communauté vote. Les meilleurs rejoignent le collectif.
+          </p>
+          <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/depot"
+              className="rs-btn rs-btn--primary inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
+            >
+              Poste ton CV
+            </Link>
+            <Link
+              href="/profils"
+              className="rs-btn rs-btn--ghost inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
+            >
               Voir les profils
-            </a>
-            <a className="rs-btn rs-btn--ghost" href="/depot">
-              Déposer un profil
-            </a>
+            </Link>
           </div>
-        }
-      />
-
-      <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <h1 className="text-2xl font-black tracking-tight">
-          On a commencé stagiaires. Pourquoi pas vous ?
-        </h1>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <a className="rs-btn rs-btn--primary" href="/profils">
-            Voir les profils
-          </a>
-          <a className="rs-btn rs-btn--ghost" href="/depot">
-            Déposer un profil
-          </a>
+          <HomeHeroStats />
         </div>
+      </section>
+
+      <div className="mt-4">
+        <HomeHowItWorks />
       </div>
 
-      <HomeHowItWorks />
+      <HomeTopProfile />
     </div>
   );
 }

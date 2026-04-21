@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEvent,
+} from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import ProfilCvThumb from "@/components/ProfilCvThumb";
 import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
 import "./profils-list.css";
 
@@ -14,7 +20,18 @@ type Profile = {
   portfolio_url: string | null;
   cv_path: string;
   created_at: string;
+  likes: number | null;
 };
+
+async function openCvPdf(profileId: string) {
+  const r = await fetch(
+    `/api/cv/${encodeURIComponent(profileId)}?intent=preview`,
+    { method: "GET" },
+  );
+  if (!r.ok) return;
+  const j = (await r.json().catch(() => ({}))) as { url?: string };
+  if (j.url) window.open(j.url, "_blank", "noopener,noreferrer");
+}
 
 export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
@@ -32,7 +49,7 @@ export default function ProfilsPage() {
         const res = await supabase
           .from("profiles")
           .select(
-            "id,handle,job_title,city,portfolio_url,cv_path,created_at",
+            "id,handle,job_title,city,portfolio_url,cv_path,created_at,likes",
           )
           .eq("status", "published")
           .order("created_at", { ascending: false })
@@ -66,6 +83,26 @@ export default function ProfilsPage() {
     });
   }, [profiles, q]);
 
+  const ranked = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const la = Number(a.likes ?? 0);
+      const lb = Number(b.likes ?? 0);
+      if (lb !== la) return lb - la;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [filtered]);
+
+  const rankById = useMemo(() => {
+    const m = new Map<string, number>();
+    ranked.forEach((p, i) => m.set(p.id, i + 1));
+    return m;
+  }, [ranked]);
+
+  const onOpenCv = useCallback((e: MouseEvent<HTMLButtonElement>, id: string) => {
+    e.preventDefault();
+    void openCvPdf(id);
+  }, []);
+
   return (
     <div className="mx-auto min-w-0 max-w-7xl space-y-6 overflow-x-hidden pb-2">
       <ProfilsListDesktopHeader
@@ -77,15 +114,15 @@ export default function ProfilsPage() {
         }
       />
 
-      <div className="rs-panel space-y-4 rounded-xl p-4 sm:p-5 lg:hidden">
+      <div className="rs-panel space-y-4 rounded-[8px] p-4 sm:p-5 lg:hidden">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
+          <p className="text-[12px] font-medium uppercase tracking-[2px] text-[#6B6B6B]">
             Candidats publiés
           </p>
-          <h1 className="rs-portal-page-hero__title mt-1 text-xl font-black tracking-tight sm:text-2xl">
+          <h1 className="rs-portal-page-hero__title mt-1 text-xl font-bold tracking-tight sm:text-2xl">
             Profils
           </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[var(--rs-logo-blue-deep,#0A0A0A)] opacity-90">
+          <p className="mt-2 max-w-xl text-sm font-normal leading-relaxed text-[#6B6B6B]">
             Les meilleurs profils de ta région.
           </p>
         </div>
@@ -98,7 +135,7 @@ export default function ProfilsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Métier, ville…"
-            className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
+            className="rs-profils-list__search w-full rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] placeholder:text-[#6B6B6B]/70"
           />
           <a
             href="/depot"
@@ -113,56 +150,66 @@ export default function ProfilsPage() {
       </div>
 
       {loading ? (
-        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)]">
+        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-8 text-sm text-[#6B6B6B]">
           Chargement des profils…
         </div>
-      ) : filtered.length ? (
-        <ul className="grid grid-cols-1 items-stretch gap-4 sm:gap-5 md:grid-cols-2">
-          {filtered.map((p) => (
-            <li key={p.id} className="flex min-h-0 h-full min-w-0">
-              <article className="rs-panel rs-profils-card grid min-h-[132px] w-full min-w-0 grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-stretch overflow-hidden rounded-xl max-h-[210px] sm:max-h-[220px]">
-                <div className="flex min-h-0 min-w-0 flex-col gap-1.5 overflow-hidden border-r border-[var(--rs-panel-border,#ddd)] p-2.5 sm:gap-2 sm:p-3 md:p-4">
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-black leading-tight text-[var(--rs-logo-blue-mid,#F472B6)] sm:text-[13px]">
-                      @{p.handle.replace(/^@/, "")}
+      ) : ranked.length ? (
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+          {ranked.map((p) => {
+            const handle = p.handle.replace(/^@/, "");
+            const rank = rankById.get(p.id) ?? 0;
+            const likes = Number(p.likes ?? 0);
+            return (
+              <li key={p.id} className="min-w-0">
+                <article className="flex h-full min-w-0 flex-col rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-4">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <p className="truncate text-base font-bold text-[#0A0A0A]">
+                      @{handle}
                     </p>
-                    <h2 className="mt-0.5 line-clamp-2 text-[14px] font-black leading-snug text-[var(--rs-logo-blue-deep,#0A0A0A)] sm:mt-1 sm:text-base md:text-lg">
+                    <span className="rs-pill max-w-[min(100%,220px)] truncate">
                       {p.job_title}
-                    </h2>
-                    <p className="mt-1 text-xs text-[#0A0A0A]/70 sm:text-sm">
-                      {p.city ?? "—"}
-                    </p>
+                    </span>
                   </div>
-
-                  <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-dashed border-[#ddd]/90 pt-2">
-                    {p.portfolio_url ? (
-                      <a
-                        href={p.portfolio_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rs-btn rs-btn--ghost px-2.5 py-1.5 text-[11px] sm:text-[13px]"
-                      >
-                        Portfolio
-                      </a>
-                    ) : null}
+                  <p className="mt-2 text-[12px] font-normal text-[#6B6B6B]">
+                    {p.city ?? "—"}
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-[#0A0A0A]">
+                    <span className="font-bold text-[#F472B6]">{likes}</span>{" "}
+                    likes · rang{" "}
+                    <span className="font-bold text-[#F472B6]">#{rank}</span>
+                  </p>
+                  {p.portfolio_url ? (
                     <a
-                      href={`/profil/${p.id}`}
-                      className="rs-btn rs-btn--primary px-2.5 py-1.5 text-[11px] sm:text-[13px]"
+                      href={p.portfolio_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-flex w-fit text-xs font-medium text-[#F472B6] no-underline hover:underline"
                     >
-                      Ouvrir le CV
+                      Portfolio
                     </a>
+                  ) : null}
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={(e) => onOpenCv(e, p.id)}
+                      className="rs-btn rs-btn--ghost w-full justify-center sm:flex-1"
+                    >
+                      Voir le CV
+                    </button>
+                    <Link
+                      href="/swipe"
+                      className="rs-btn rs-btn--primary w-full justify-center text-center no-underline hover:no-underline sm:flex-1"
+                    >
+                      Voter
+                    </Link>
                   </div>
-                </div>
-
-                <div className="rs-profils-card__preview rs-profils-card__preview--beside relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-white">
-                  <ProfilCvThumb profileId={p.id} />
-                </div>
-              </article>
-            </li>
-          ))}
+                </article>
+              </li>
+            );
+          })}
         </ul>
       ) : (
-        <div className="rs-panel rounded-xl p-8 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)]">
+        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-8 text-sm text-[#6B6B6B]">
           Aucun profil publié pour le moment.
         </div>
       )}

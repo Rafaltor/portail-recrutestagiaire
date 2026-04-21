@@ -3,7 +3,7 @@
  */
 
 :root {
-  --rs-portal-main-shadow: 0 0 0 1px #ddd, 0 12px 32px -16px rgba(10, 10, 10, 0.08);
+  --rs-portal-main-shadow: none;
 }
 
 html {
@@ -14,9 +14,9 @@ html {
 body.rs-portal-body {
   overflow-x: clip;
   max-width: 100%;
-  background: var(--rs-page-bg, #efefef);
+  background: var(--rs-page-bg, #ffffff);
   color: var(--rs-brand-ink, #0a0a0a);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 main.rs-portal-main {
@@ -24,8 +24,8 @@ main.rs-portal-main {
   overflow-x: clip;
   max-width: 100%;
   background: var(--rs-block-bg, #ffffff);
-  border-left: 1px solid var(--rs-block-border, #ddd);
-  border-right: 1px solid var(--rs-block-border, #ddd);
+  border-left: 1px solid var(--rs-block-border, #f0f0f0);
+  border-right: 1px solid var(--rs-block-border, #f0f0f0);
   box-shadow: var(--rs-portal-main-shadow);
   padding: clamp(14px, 2.4vw, 22px) clamp(12px, 2vw, 18px) clamp(28px, 4vw, 40px);
 }
@@ -53,9 +53,9 @@ html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
 }
 
 .rs-panel {
-  border-radius: 12px;
-  border: 1px solid var(--rs-block-border, #ddd);
-  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.05);
+  border-radius: 8px;
+  border: 1px solid var(--rs-block-border, #f0f0f0);
+  box-shadow: none;
 }
 
 main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier) {
@@ -72,11 +72,6 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
 
 main.rs-portal-main h1 {
   color: var(--rs-brand-ink, #0a0a0a);
-}
-
-/* Labels uppercase (classe Tailwind `uppercase`) */
-main.rs-portal-main .uppercase {
-  color: var(--rs-brand-pink, #f472b6);
 }
 
 .footer.skin-dark-footer {

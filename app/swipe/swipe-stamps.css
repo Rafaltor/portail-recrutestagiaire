@@ -40,7 +40,7 @@
 }
 
 #rs-swipe-page .rs-swipe-loader-title {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
   font-size: 0.92rem;
   letter-spacing: 0.04em;
@@ -51,7 +51,7 @@
 
 #rs-swipe-page .rs-swipe-loader-sub {
   margin-top: 0.35rem;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.75rem;
   color: rgba(10, 10, 10, 0.72);
 }

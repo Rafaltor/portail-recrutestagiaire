@@ -3,9 +3,9 @@
 :root {
   --rs-brand-pink: #f472b6;
   --rs-brand-ink: #0a0a0a;
-  --rs-page-bg: #efefef;
+  --rs-page-bg: #ffffff;
   --rs-block-bg: #ffffff;
-  --rs-block-border: #dddddd;
+  --rs-block-border: #f0f0f0;
 
   /* Anciens noms « bleu » → encre */
   --rs-logo-blue: #0a0a0a;
@@ -30,53 +30,42 @@
   --rs-logo-red: #b3122a;
   --rs-eu-yellow: #f472b6;
   --rs-eu-yellow-lite: #fbcfe8;
-  --rs-panel-bg: #ffffff;
-  --rs-panel-border: #dddddd;
+  --rs-panel-bg: #fafafa;
+  --rs-panel-border: #f0f0f0;
 
   /* Bordures rgba() héritées du header (ex-bs-primary) */
   --bs-primary-rgb: 10, 10, 10;
 }
 
-/* ===== Shopify "abt-btn" (relief) — bouton principal charte ===== */
+/* ===== Shopify "abt-btn" — neutre (surchargé dans rs-modern-portal pour le header) ===== */
 .abt-btn {
-  --rs-btn-chamfer: 3px;
-  border-radius: 0 !important;
-  clip-path: polygon(
-    var(--rs-btn-chamfer) 0%,
-    calc(100% - var(--rs-btn-chamfer)) 0%,
-    100% var(--rs-btn-chamfer),
-    100% calc(100% - var(--rs-btn-chamfer)),
-    calc(100% - var(--rs-btn-chamfer)) 100%,
-    0% calc(100% - var(--rs-btn-chamfer)),
-    0% var(--rs-btn-chamfer)
-  );
+  border-radius: 6px !important;
+  clip-path: none;
 }
 
 .rs-caf-btn-dossier.abt-btn {
-  background: linear-gradient(180deg, #fb9ac8 0%, var(--rs-brand-pink) 45%, #ec4899 100%) !important;
-  color: #fff !important;
+  background: #ffffff !important;
+  color: #0a0a0a !important;
   font-size: 12px !important;
-  font-weight: bold !important;
-  padding: 7px 16px !important;
-  border-radius: 0 !important;
-  border: 2px solid rgba(255, 255, 255, 0.35) !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.35),
-    inset -1px -1px 0 rgba(157, 23, 77, 0.35) !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  border: 1px solid #f0f0f0 !important;
+  text-shadow: none;
+  box-shadow: none !important;
 }
 
 .rs-caf-btn-dossier__label {
-  color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+  color: #0a0a0a !important;
+  text-shadow: none;
 }
 
 .rs-banner-top__cart {
-  color: #fff !important;
+  color: #0a0a0a !important;
 }
 
 .rs-banner-top__cart:visited {
-  color: #fff !important;
+  color: #0a0a0a !important;
 }
 
 .rs-banner-top__actions .rs-caf-btn-dossier {
@@ -99,14 +88,12 @@
 
 .rs-caf-btn-dossier.abt-btn:hover,
 .rs-caf-btn-dossier.abt-btn:focus-visible {
-  background: linear-gradient(180deg, #fbcfe8 0%, var(--rs-brand-pink) 100%) !important;
-  border: 2px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.28),
-    inset -1px -1px 0 rgba(157, 23, 77, 0.4) !important;
+  background: #fafafa !important;
+  border: 1px solid #f0f0f0 !important;
+  box-shadow: none !important;
   text-decoration: none !important;
-  color: #fff !important;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12) !important;
+  color: #0a0a0a !important;
+  text-shadow: none !important;
   transform: none;
 }
 
@@ -114,7 +101,7 @@
 .rs-panel {
   background: var(--rs-panel-bg);
   border: 1px solid var(--rs-panel-border);
-  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06);
+  box-shadow: none;
 }
 
 /* Boutons portail */
@@ -123,15 +110,16 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: 900;
+  font-family: inherit;
+  font-weight: 500;
   font-size: 14px;
-  padding: 9px 14px;
+  line-height: 1.25;
+  padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
   user-select: none;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   box-shadow: none;
 }
 
@@ -154,23 +142,23 @@
 
 .rs-btn--ghost {
   background: #fff;
-  color: var(--rs-brand-pink);
-  border: 2px solid var(--rs-brand-pink);
+  color: #0a0a0a;
+  border: 1px solid #f0f0f0;
 }
 
 .rs-btn--ghost:hover {
-  background: #fff5fa;
-  color: var(--rs-brand-pink);
+  background: #fafafa;
+  color: #0a0a0a;
 }
 
 .rs-btn--danger {
-  background: linear-gradient(180deg, #fff5f5 0%, #ffe3e6 100%);
+  background: #fff5f5;
   color: #6b0f1a;
   border-color: rgba(107, 15, 26, 0.22);
 }
 
 .rs-btn--danger:hover {
-  background: linear-gradient(180deg, #ffeef0 0%, #ffd7dc 100%);
+  background: #ffeef0;
 }
 
 /* Footer — fond clair, liens rose */

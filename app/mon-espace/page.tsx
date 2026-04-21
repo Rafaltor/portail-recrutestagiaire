@@ -438,40 +438,32 @@ export default function MonEspacePage() {
                 </p>
               </section>
 
-              <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Vues CV
-                  </p>
-                  <p className="mt-2 text-2xl font-black">
+              <section className="grid grid-cols-2 gap-3">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.candidate.stats.cvViews}
                   </p>
+                  <p className="rs-metric-card__label">Vues CV</p>
                 </article>
-                <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Likes
-                  </p>
-                  <p className="mt-2 text-2xl font-black">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.candidate.stats.likes}
                   </p>
+                  <p className="rs-metric-card__label">Likes</p>
                 </article>
-                <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Dislikes
-                  </p>
-                  <p className="mt-2 text-2xl font-black">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.candidate.stats.dislikes}
                   </p>
+                  <p className="rs-metric-card__label">Dislikes</p>
                 </article>
-                <article className="rs-panel rounded-lg p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Rang
-                  </p>
-                  <p className="mt-2 text-2xl font-black">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.candidate.stats.rank
                       ? `#${effectiveData.candidate.stats.rank}`
-                      : "Non classé"}
+                      : "—"}
                   </p>
+                  <p className="rs-metric-card__label">Rang</p>
                 </article>
               </section>
 
@@ -529,40 +521,32 @@ export default function MonEspacePage() {
                 Espace votant
               </p>
               <h2 className="mt-2 text-lg font-black">Tes stats de vote</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Votes totaux
-                  </div>
-                  <div className="mt-1 text-2xl font-black">
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.voter.totalVotes}
-                  </div>
+                  </p>
+                  <p className="rs-metric-card__label">Votes totaux</p>
                 </article>
-                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Likes donnés
-                  </div>
-                  <div className="mt-1 text-2xl font-black">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.voter.likesGiven}
-                  </div>
+                  </p>
+                  <p className="rs-metric-card__label">Likes donnés</p>
                 </article>
-                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Profils likés
-                  </div>
-                  <div className="mt-1 text-2xl font-black">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0">
                     {effectiveData.voter.uniqueProfilesLiked}
-                  </div>
+                  </p>
+                  <p className="rs-metric-card__label">Profils likés</p>
                 </article>
-                <article className="rounded-md border border-[#ddd] bg-white p-3 text-sm">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#0A0A0A]/70">
-                    Récompense
-                  </div>
-                  <div className="mt-1 text-sm font-semibold">
+                <article className="rs-metric-card">
+                  <p className="rs-metric-card__value m-0 text-lg leading-snug">
                     {effectiveData.voter.rewardProgress.unlocked
-                      ? "Débloquée"
+                      ? "✓"
                       : `${effectiveData.voter.rewardProgress.currentLikes}/${effectiveData.voter.rewardProgress.nextMilestoneLikes}`}
-                  </div>
+                  </p>
+                  <p className="rs-metric-card__label">Récompense</p>
                 </article>
               </div>
               <p className="mt-3 text-xs text-[#0A0A0A]/85">

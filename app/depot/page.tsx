@@ -271,35 +271,60 @@ export default function DepotPage() {
         </p>
       </div>
 
-      <div className="rs-panel rounded-lg p-6">
+      <div className="rs-panel rounded-[8px] p-6">
+        <div className="rs-depot-stepper" aria-label="Progression">
+          <div
+            className={`rs-depot-step ${!stepTwo ? "rs-depot-step--active" : ""}`}
+          >
+            <span className="rs-depot-step__num">1</span>
+            <span>Upload &amp; analyse</span>
+          </div>
+          <div className={`rs-depot-step ${stepTwo ? "rs-depot-step--active" : ""}`}>
+            <span className="rs-depot-step__num">2</span>
+            <span>Vérifier &amp; envoyer</span>
+          </div>
+        </div>
+
         <p className="text-sm font-bold text-[#0A0A0A]">Étape 1 — Upload</p>
         <div className="mt-4 grid gap-4">
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">Pseudo Instagram (obligatoire)</span>
+            <span className="text-sm font-medium text-[#0A0A0A]">
+              Pseudo Instagram (obligatoire)
+            </span>
             <input
               value={form.handle}
               onChange={(e) => {
                 setForm({ ...form, handle: e.target.value });
                 resetStatusForInput();
               }}
-              className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+              className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
               placeholder="@pseudo"
             />
           </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">CV en PDF (obligatoire)</span>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => {
-                setFile(e.target.files?.[0] ?? null);
-                setStepTwo(null);
-                resetStatusForInput();
-              }}
-              className="rounded-md border border-[#ddd] bg-white px-3 py-2 text-sm"
-            />
-          </label>
+          <div className="grid gap-1">
+            <span className="text-sm font-medium text-[#0A0A0A]">
+              CV en PDF (obligatoire)
+            </span>
+            <label className="rs-depot-dropzone cursor-pointer">
+              <span className="block text-sm font-medium text-[#6B6B6B]">
+                Glisse-dépose ton PDF ou clique pour choisir un fichier
+              </span>
+              <span className="mt-1 block text-xs font-normal text-[#6B6B6B]/90">
+                Un seul fichier · PDF uniquement
+              </span>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => {
+                  setFile(e.target.files?.[0] ?? null);
+                  setStepTwo(null);
+                  resetStatusForInput();
+                }}
+                className="mt-4 block w-full max-w-full cursor-pointer text-xs text-[#6B6B6B] file:mr-3 file:cursor-pointer file:rounded-[6px] file:border file:border-[#F0F0F0] file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-[#0A0A0A]"
+              />
+            </label>
+          </div>
         </div>
 
         <button
@@ -311,9 +336,9 @@ export default function DepotPage() {
         </button>
 
         {parsing ? (
-          <div className="mt-4 flex items-center gap-2 rounded-md border border-[#ddd] bg-[#fafafa] p-3 text-sm text-[#0A0A0A]/85">
+          <div className="mt-4 flex items-center gap-2 rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-3 text-sm text-[#6B6B6B]">
             <span
-              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#ddd] border-t-[#F472B6]"
+              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#F0F0F0] border-t-[#F472B6]"
               aria-hidden
             />
             Analyse de votre CV...
@@ -321,13 +346,13 @@ export default function DepotPage() {
         ) : null}
 
         {stepTwo ? (
-          <div className="mt-8 border-t border-[#ddd] pt-6">
+          <div className="mt-8 border-t border-[#F0F0F0] pt-6">
             <p className="text-sm font-bold text-[#0A0A0A]">
               Étape 2 — Vérifier et compléter
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="grid gap-1 sm:col-span-2">
-                <span className="text-sm font-semibold">Nom complet</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">Nom complet</span>
                 <input
                   value={stepTwo.name}
                   onChange={(e) =>
@@ -336,12 +361,14 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                 />
               </label>
 
               <label className="grid gap-1">
-                <span className="text-sm font-semibold">Métier / spécialité</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">
+                  Métier / spécialité
+                </span>
                 <input
                   value={stepTwo.jobTitle}
                   onChange={(e) =>
@@ -350,12 +377,12 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                 />
               </label>
 
               <label className="grid gap-1">
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-medium text-[#0A0A0A]">
                   Email (non affiché publiquement)
                 </span>
                 <input
@@ -366,25 +393,25 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                   inputMode="email"
                 />
               </label>
 
               <label className="grid gap-1">
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-medium text-[#0A0A0A]">
                   Compétences principales (max 5)
                 </span>
                 <input
                   value={stepTwo.skills}
                   onChange={(e) => onSkillsChange(e.target.value)}
                   placeholder="Non détecté — à compléter"
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                 />
               </label>
 
               <label className="grid gap-1">
-                <span className="text-sm font-semibold">Ville</span>
+                <span className="text-sm font-medium text-[#0A0A0A]">Ville</span>
                 <input
                   value={stepTwo.city}
                   onChange={(e) =>
@@ -393,7 +420,7 @@ export default function DepotPage() {
                     )
                   }
                   placeholder="Détectée ou préfecture si code postal trouvé"
-                  className="rounded-md border border-[#ddd] px-3 py-2 text-sm"
+                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
                 />
               </label>
             </div>

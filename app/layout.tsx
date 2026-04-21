@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +14,14 @@ import "./rs-shopify-header.css";
 import "./rs-shopify-header-mobile.css";
 import "./rs-shopify-ui.css";
 import "./portal-theme.css";
+import "./rs-modern-portal.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
 
 export const viewport = {
   width: "device-width",
@@ -47,28 +56,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" data-rs-header-tab="offres">
-      <body className="rs-portal-body flex min-h-dvh flex-col text-[#0A0A0A]">
+      <body
+        className={`rs-portal-body rs-portal-body--inter flex min-h-dvh flex-col text-[#0A0A0A] ${inter.variable}`}
+      >
         <RouteHtmlDataset />
         <HeaderMobileNav />
-        <div
-          className="header-wrap rs-header rs-header--banner"
-          role="banner"
-          style={
-            {
-              ["--rs-header-bg-img"]: `url(https://recrutestagiaire.eu/cdn/shop/files/geometric-glass-city-architecture.jpg?v=1776117913&width=2400)`,
-            } as CSSProperties
-          }
-        >
+        <div className="header-wrap rs-header rs-header--banner" role="banner">
           <div
             className="rs-header-kitsch-pop rs-header-kitsch-pop--brand"
             aria-hidden="true"
-            style={
-              {
-                ["--rs-kitsch-pop-a"]: "#f472b6",
-                ["--rs-kitsch-pop-b"]: "#e8e8f0",
-                ["--rs-kitsch-pop-fg"]: "#f472b6",
-              } as CSSProperties
-            }
           >
             <div className="rs-header-kitsch-pop__track">
               {Array.from({ length: 6 }, (_, i) => (
@@ -84,8 +80,8 @@ export default function RootLayout({
             className="rs-header-body"
             style={
               {
-                ["--rs-header-logo-col"]: "124px",
-                ["--rs-header-logo-inset"]: "14px",
+                ["--rs-header-logo-col"]: "44px",
+                ["--rs-header-logo-inset"]: "12px",
               } as CSSProperties
             }
           >
