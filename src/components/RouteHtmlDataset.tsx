@@ -21,6 +21,12 @@ export function RouteHtmlDataset() {
       tab = "cand";
     }
     document.documentElement.setAttribute("data-rs-header-tab", tab);
+
+    if (pathname.startsWith("/swipe")) {
+      document.documentElement.setAttribute("data-rs-swipe", "1");
+    } else {
+      document.documentElement.removeAttribute("data-rs-swipe");
+    }
   }, [pathname]);
 
   return null;
