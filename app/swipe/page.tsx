@@ -15,6 +15,7 @@ import {
   writeLocalInt,
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
+import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
 
 function formatSwipeError(e: unknown): string {
   if (e instanceof Error && e.message.trim()) return e.message;
@@ -522,12 +523,16 @@ export default function SwipePage() {
 
   const swipePdfMode = "fit-page" as const;
 
+  const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
+  const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
+
   return (
     <div
       id="rs-swipe-page"
       className="rs-swipe-page-root relative flex w-full min-w-0 max-w-full min-h-0 flex-1 flex-col overscroll-y-contain overflow-x-hidden overflow-y-visible bg-[#0A0A0A]"
       style={{ minHeight: swipeChromeHeight }}
     >
+      <SwipeWelcomeModal />
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
@@ -625,26 +630,55 @@ export default function SwipePage() {
         </div>
       ) : done || !current ? (
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-lg border border-[#ddd] bg-white p-6">
-            <div className="text-lg font-black">
-              {hasLoadedProfiles ? "C’est tout pour l’instant." : "Aucun profil pour l’instant, revenez bientôt."}
-            </div>
-            <p className="mt-2 text-sm text-[#0A0A0A]/85">
-              {hasLoadedProfiles
-                ? "Tu as voté sur tous les profils disponibles."
-                : "Aucun CV publié n’est disponible pour le swipe actuellement."}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {hasLoadedProfiles ? (
-                <a href="/profils" className="rs-btn rs-btn--ghost text-sm font-semibold">
-                  Voir les profils
-                </a>
-              ) : null}
-              <a href="/depot" className="rs-btn rs-btn--primary text-sm font-semibold">
-                Déposer
+          {!hasLoadedProfiles ? (
+            <div
+              className="w-full max-w-md rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 text-center"
+              style={{
+                fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+              }}
+            >
+              <p className="text-base font-semibold text-[#0A0A0A]">
+                Pas de profil à voter pour l&apos;instant.
+              </p>
+              <p className="mt-2 text-sm font-normal text-[#6B6B6B]">
+                Reviens demain ou dépose ton CV
+              </p>
+              <a
+                href="/depot"
+                className="mt-5 inline-flex w-full items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-95"
+              >
+                Déposer mon CV
               </a>
             </div>
-          </div>
+          ) : (
+            <div
+              className="w-full max-w-md rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 text-center"
+              style={{
+                fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+              }}
+            >
+              <p className="text-base font-semibold text-[#0A0A0A]">
+                C&apos;est tout pour l&apos;instant.
+              </p>
+              <p className="mt-2 text-sm font-normal text-[#6B6B6B]">
+                Tu as voté sur tous les profils disponibles.
+              </p>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <a
+                  href="/profils"
+                  className="inline-flex w-full min-w-[140px] flex-1 items-center justify-center rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-sm font-medium text-[#0A0A0A] no-underline sm:w-auto sm:flex-none"
+                >
+                  Voir les profils
+                </a>
+                <a
+                  href="/depot"
+                  className="inline-flex w-full min-w-[140px] flex-1 items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline sm:w-auto sm:flex-none"
+                >
+                  Déposer mon CV
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex min-h-0 w-full min-w-0 max-w-full flex-1 flex-col px-3 pb-0 pt-1">
@@ -831,20 +865,15 @@ export default function SwipePage() {
       {!blockedByFreeLimit ? (
         <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[9000] flex flex-col items-center gap-3 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
           <p
-            className="text-center text-[12px] font-medium"
+            className="text-center text-[12px] font-medium text-[#F472B6]"
             style={{
               fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
-              color: "#666666",
             }}
           >
             {isConnected ? (
-              <>
-                {Math.max(0, AUTH_LIKES_PER_DAY - likesToday)} likes restants aujourd&apos;hui
-              </>
+              <>{likesLeft} likes restants aujourd&apos;hui</>
             ) : (
-              <>
-                {Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed)} swipes gratuits restants
-              </>
+              <>{freeLeft} swipes gratuits restants</>
             )}
           </p>
           <div className="flex items-center justify-center gap-10 pointer-events-auto">

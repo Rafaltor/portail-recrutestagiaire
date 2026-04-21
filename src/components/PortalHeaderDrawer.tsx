@@ -229,7 +229,7 @@ export function PortalHeaderDrawer() {
       >
         <div className="rs-header-drawer__head">
           <span className="rs-header-drawer__menu-label" id="rs-header-drawer-title">
-            MENU
+            Menu
           </span>
           <button
             type="button"

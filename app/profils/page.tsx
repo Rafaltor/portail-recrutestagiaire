@@ -188,17 +188,17 @@ export default function ProfilsPage() {
                       Portfolio
                     </a>
                   ) : null}
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <div className="mt-4 flex flex-col items-stretch gap-1.5">
                     <button
                       type="button"
                       onClick={(e) => onOpenCv(e, p.id)}
-                      className="rs-btn rs-btn--ghost w-full justify-center sm:flex-1"
+                      className="w-full rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-center text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA]"
                     >
                       Voir le CV
                     </button>
                     <Link
                       href="/swipe"
-                      className="rs-btn rs-btn--primary w-full justify-center text-center no-underline hover:no-underline sm:flex-1"
+                      className="text-center text-[12px] font-normal text-[#F472B6] no-underline hover:underline"
                     >
                       Voter
                     </Link>

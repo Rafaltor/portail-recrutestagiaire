@@ -35,8 +35,7 @@ export function HomeHeroStats() {
         supabase
           .from("profiles")
           .select("id", { count: "exact", head: true })
-          .eq("status", "published")
-          .gt("likes", 0),
+          .in("status", ["recrute", "recruited", "recruté"]),
       ]);
       if (!alive) return;
       setCounts({
@@ -51,10 +50,13 @@ export function HomeHeroStats() {
     };
   }, []);
 
+  const showRecruited =
+    counts.recruited !== null && counts.recruited !== undefined && counts.recruited > 0;
+
   const items = [
     { value: counts.profiles, label: "profils" },
     { value: counts.votes, label: "votes" },
-    { value: counts.recruited, label: "recrutés" },
+    ...(showRecruited ? [{ value: counts.recruited, label: "recrutés" as const }] : []),
   ];
 
   return (

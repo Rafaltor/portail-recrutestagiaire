@@ -984,7 +984,7 @@ html[data-rs-swipe="1"] .header-wrap .rs-banner-top__actions {
    * ligne 2 = onglets pleine largeur, collés au bas du header (filet or).
    */
   html[data-rs-swipe="1"] {
-    --rs-swipe-top-offset: calc(96px + env(safe-area-inset-top, 0px));
+    --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
   }
 
   html[data-rs-swipe="1"] .header-wrap .container {

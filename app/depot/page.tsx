@@ -228,9 +228,7 @@ export default function DepotPage() {
 
       const data = (await r.json()) as DepotSuccess;
       setStatus("done");
-      setMessage(
-        "Ta candidature est en cours d'examen. Dans la limite des postes disponibles.",
-      );
+      setMessage("");
       if (data.profileUrl) {
         setOwnerProfileUrl(data.profileUrl);
       }
@@ -247,7 +245,10 @@ export default function DepotPage() {
   }
 
   return (
-    <div className="grid gap-6">
+    <div
+      className="grid gap-6 bg-white pb-8"
+      style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
+    >
       <PortalDesktopPageHeader
         eyebrow="Candidature"
         title="Dépose ta candidature"
@@ -260,18 +261,50 @@ export default function DepotPage() {
         }
       />
 
-      <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <h1 className="text-xl font-black tracking-tight">
+      <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 lg:hidden">
+        <h1 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
           Dépose ta candidature
         </h1>
-        <p className="mt-2 text-sm text-[#0A0A0A]/85">
+        <p className="mt-2 text-sm font-normal text-[#6B6B6B]">
           Un seul fichier suffit.
           <br />
           La communauté fait le reste.
         </p>
       </div>
 
-      <div className="rs-panel rounded-[8px] p-6">
+      {status === "done" ? (
+        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 sm:p-8">
+          <span className="rs-pill inline-flex rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wide">
+            EN ATTENTE
+          </span>
+          <p className="mt-4 text-base font-medium leading-relaxed text-[#0A0A0A]">
+            Ton CV est en cours de validation. On revient vers toi.
+          </p>
+          {ownerProfileUrl ? (
+            <div className="mt-6 grid gap-3">
+              <a
+                href={ownerProfileUrl}
+                className="inline-flex w-full max-w-md items-center justify-center rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-sm font-medium text-[#0A0A0A] no-underline hover:bg-[#FAFAFA]"
+              >
+                {`/mon-profil/${ownerToken || "[token]"}`}
+              </a>
+              {ownerToken ? (
+                <a
+                  href={`/connexion?token=${encodeURIComponent(
+                    ownerToken,
+                  )}&profileUrl=${encodeURIComponent(
+                    ownerProfileAbsoluteUrl || ownerProfileUrl,
+                  )}`}
+                  className="inline-flex w-full max-w-md items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-95"
+                >
+                  Créer un compte / se connecter
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : (
+      <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 sm:p-8">
         <div className="rs-depot-stepper" aria-label="Progression">
           <div
             className={`rs-depot-step ${!stepTwo ? "rs-depot-step--active" : ""}`}
@@ -330,7 +363,7 @@ export default function DepotPage() {
         <button
           disabled={!canAnalyze || parsing}
           onClick={onAnalyzeCv}
-          className="rs-btn rs-btn--primary mt-5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-5 w-full rounded-[6px] border-0 bg-[#F472B6] px-4 py-3 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
         >
           Analyser mon CV
         </button>
@@ -473,34 +506,8 @@ export default function DepotPage() {
           </p>
         ) : null}
 
-        {status === "done" && ownerProfileUrl ? (
-          <div className="mt-3 grid gap-3">
-            <a
-              href={ownerProfileUrl}
-              className="inline-flex w-fit rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-            >
-              {`/mon-profil/${ownerToken || "[token]"}`}
-            </a>
-            <div className="rounded-md border border-[#ddd] bg-[#fafafa] p-3 text-sm text-[#0A0A0A]/85">
-              <p>
-                Optionnel : crée un compte pour suivre tes stats plus facilement.
-              </p>
-              {ownerToken ? (
-                <a
-                  href={`/connexion?token=${encodeURIComponent(
-                    ownerToken,
-                  )}&profileUrl=${encodeURIComponent(
-                    ownerProfileAbsoluteUrl || ownerProfileUrl,
-                  )}`}
-                  className="mt-2 inline-flex rounded-md border-2 border-[#F472B6] bg-white px-3 py-2 text-sm font-semibold text-[#F472B6] hover:bg-[#fff5fa]"
-                >
-                  Créer un compte / se connecter
-                </a>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
       </div>
+      )}
     </div>
   );
 }

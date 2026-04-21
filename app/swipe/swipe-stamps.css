@@ -16,7 +16,7 @@
 
 html[data-rs-swipe="1"] {
   --rs-swipe-bottom-chrome: calc(120px + env(safe-area-inset-bottom, 0px));
-  --rs-swipe-top-offset: calc(52px + env(safe-area-inset-top, 0px));
+  --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
 }
 
 html[data-rs-swipe="1"] body.rs-portal-body {
@@ -30,11 +30,11 @@ html[data-rs-swipe="1"] main.rs-portal-main {
   box-shadow: none !important;
 }
 
-/* Header : transparent, logo centré, texte blanc */
+/* Header swipe : fond blanc, texte / logo #0A0A0A (pas de transparence) */
 html[data-rs-swipe="1"] .header-wrap {
-  background: transparent !important;
+  background: #ffffff !important;
   box-shadow: none !important;
-  border-bottom: none !important;
+  border-bottom: 1px solid #f0f0f0 !important;
 }
 
 html[data-rs-swipe="1"] .header-wrap.rs-header--banner::before,
@@ -60,17 +60,27 @@ html[data-rs-swipe="1"] .rs-banner-top__actions {
 html[data-rs-swipe="1"] .rs-header-top-line {
   justify-content: center !important;
   border-bottom: none !important;
-  min-height: 48px !important;
+  min-height: 56px !important;
 }
 
 html[data-rs-swipe="1"] .rs-nav-brand__name.logo,
 html[data-rs-swipe="1"] .rs-nav-brand__name--headline,
 html[data-rs-swipe="1"] .rs-header-mobile-bar__title {
-  color: #ffffff !important;
+  color: #0a0a0a !important;
 }
 
 html[data-rs-swipe="1"] .rs-banner-top.rs-header-pole-brand {
   border-bottom: none !important;
+}
+
+html[data-rs-swipe="1"] .rs-header-body {
+  background: #ffffff !important;
+}
+
+@media (min-width: 992px) {
+  html[data-rs-swipe="1"] {
+    --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
+  }
 }
 
 @keyframes rsSwipeLoadingSweep {
