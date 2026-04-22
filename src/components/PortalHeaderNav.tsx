@@ -8,7 +8,7 @@ export function PortalHeaderNav() {
         Boutique
       </a>
       <Link href="/profils">Profils candidats</Link>
-      <Link href="/swipe">Voter (swipe)</Link>
+      <Link href="/swipe">Voter</Link>
       <a href="https://recrutestagiaire.eu/pages/about">Le collectif</a>
     </nav>
   );

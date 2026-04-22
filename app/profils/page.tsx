@@ -154,13 +154,13 @@ export default function ProfilsPage() {
           Chargement des profils…
         </div>
       ) : ranked.length ? (
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {ranked.map((p) => {
             const handle = p.handle.replace(/^@/, "");
             const rank = rankById.get(p.id) ?? 0;
             return (
               <li key={p.id} className="min-w-0">
-                <article className="flex h-full min-w-0 flex-col rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-4">
+                <article className="rs-profils-card flex h-full min-w-0 flex-col">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <p className="truncate text-base font-bold text-[#0A0A0A]">
                       @{handle}

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
-import Image from "next/image";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
@@ -77,14 +76,7 @@ export default function RootLayout({
                     className="rs-header-mobile-bar__brand rs-ph-mbrand"
                     href="https://recrutestagiaire.eu"
                   >
-                    <Image
-                      className="rs-header-mobile-bar__logo"
-                      src="/rs-logo-eu.png"
-                      alt=""
-                      width={160}
-                      height={56}
-                      priority
-                    />
+                    <span className="rs-ph-dot" aria-hidden />
                     <span className="rs-header-mobile-bar__title">
                       RECRUTE STAGIAIRE
                     </span>
@@ -115,14 +107,7 @@ export default function RootLayout({
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
                         href="https://recrutestagiaire.eu"
                       >
-                        <Image
-                          className="rs-ph-brandlink-logo"
-                          src="/rs-logo-eu.png"
-                          alt=""
-                          width={132}
-                          height={48}
-                          priority
-                        />
+                        <span className="rs-ph-dot" aria-hidden />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
                           RECRUTE STAGIAIRE
                         </span>
@@ -182,12 +167,12 @@ export default function RootLayout({
           <PortalHeaderDrawer />
         </div>
 
-        <main className="rs-portal-main mx-auto w-full max-w-[980px] flex-1">
+        <main className="rs-portal-main mx-auto w-full flex-1">
           {children}
         </main>
 
         <footer className="footer skin-dark-footer rs-footer-portal-simple">
-          <div className="container mx-auto max-w-[980px] px-4 py-10">
+          <div className="container mx-auto max-w-[var(--rs-content-max,1200px)] px-4 py-10">
             <div className="flex flex-col gap-6 border-b border-[var(--gray-200)] pb-8">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                 <span className="text-sm font-bold tracking-wide text-[var(--black)]">

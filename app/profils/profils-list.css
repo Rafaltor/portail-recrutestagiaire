@@ -1,13 +1,14 @@
-/* Liste profils — charte rose / encre / blocs #fff + bordure #ddd */
+/* Liste profils — cartes & recherche (charte portail) */
 
 .rs-profils-list__hero-title {
-  color: var(--rs-brand-ink, #0a0a0a);
+  color: var(--black, #0a0a0a);
   letter-spacing: -0.02em;
 }
 
 .rs-profils-list__search {
-  border: 1px solid var(--rs-panel-border, #ddd);
+  border: 1px solid var(--gray-200, #e8e8e4);
   background: #fff;
+  border-radius: 12px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
@@ -17,18 +18,45 @@
 }
 
 .rs-profils-card {
-  border-radius: 14px;
-  border: 1px solid var(--rs-panel-border, #ddd) !important;
-  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06);
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid var(--gray-200, #e8e8e4) !important;
+  background: #fff !important;
+  padding: 28px !important;
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.rs-profils-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: 20px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--accent, #f472b6);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.rs-profils-card:hover::before {
+  opacity: 1;
 }
 
 .rs-profils-card:hover {
-  box-shadow: 0 4px 16px rgba(10, 10, 10, 0.08);
+  border-color: var(--gray-400, #999990) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .rs-profils-card__preview--beside {
   border-bottom: none;
-  border-left: 1px solid var(--rs-panel-border, #ddd);
+  border-left: 1px solid var(--gray-200, #e8e8e4);
 }
 
 .rs-profils-card__preview .rs-pdf-canvas-list {

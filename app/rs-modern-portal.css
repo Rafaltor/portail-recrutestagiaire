@@ -11,14 +11,14 @@
 }
 
 body.rs-portal-body {
-  background: #ffffff !important;
+  background: #fafaf8 !important;
   color: #0a0a0a;
 }
 
 main.rs-portal-main {
-  background: #ffffff !important;
-  border-left: 1px solid #f0f0f0 !important;
-  border-right: 1px solid #f0f0f0 !important;
+  background: #fafaf8 !important;
+  border-left: none !important;
+  border-right: none !important;
   box-shadow: none !important;
 }
 
@@ -57,7 +57,7 @@ main.rs-portal-main {
 .header-wrap .rs-header-kitsch-pop__track,
 .rs-header-kitsch-pop__chunk {
   color: #f472b6 !important;
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--font-syne), system-ui !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   letter-spacing: 0.04em;
@@ -145,16 +145,17 @@ main.rs-portal-main .rs-panel {
   border-radius: 8px;
 }
 
-/* Badges utilitaires */
+/* Badges utilitaires — surchargés par rs-ds-paris (.rs-pill) pour les tags profils */
 .rs-pill {
   display: inline-flex;
   align-items: center;
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 12px;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
   font-weight: 500;
-  background: #fdf2f8;
-  color: #f472b6;
+  background: #f4f4f2;
+  color: #555550;
+  border: 1px solid transparent;
 }
 
 /* Zone upload dépôt */

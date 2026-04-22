@@ -246,9 +246,8 @@ export function PortalHeaderDrawer() {
                 Boutique
               </a>
               <Link href="/profils">Profils candidats</Link>
-              <Link href="/swipe">Voter (swipe)</Link>
+              <Link href="/swipe">Voter</Link>
               <a href="https://recrutestagiaire.eu/pages/about">Le collectif</a>
-              <a href="https://recrutestagiaire.eu/pages/contact">Contact</a>
             </div>
           </div>
         </nav>

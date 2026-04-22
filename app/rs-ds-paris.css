@@ -37,7 +37,7 @@ html {
 
 body.rs-ds-paris,
 body.rs-ds-paris.rs-portal-body {
-  font-family: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-dm), system-ui;
   font-size: 15px;
   line-height: 1.6;
   font-weight: 400;
@@ -47,7 +47,7 @@ body.rs-ds-paris.rs-portal-body {
 
 body.rs-ds-paris h1,
 body.rs-ds-paris .rs-ds-h1 {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui;
   font-weight: 800;
   letter-spacing: -0.02em;
   font-size: clamp(38px, 4.5vw, 58px);
@@ -56,7 +56,7 @@ body.rs-ds-paris .rs-ds-h1 {
 
 body.rs-ds-paris h2,
 body.rs-ds-paris .rs-ds-h2 {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui;
   font-weight: 800;
   letter-spacing: -0.02em;
   font-size: clamp(28px, 3vw, 40px);
@@ -64,7 +64,7 @@ body.rs-ds-paris .rs-ds-h2 {
 }
 
 body.rs-ds-paris .rs-ds-section-label {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -100,7 +100,7 @@ body.rs-ds-paris .rs-ds-section-label {
   align-items: center;
   flex-shrink: 0;
   padding-right: 3rem;
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -122,8 +122,11 @@ body.rs-ds-paris .rs-ds-section-label {
   }
 }
 
-/* --- Header shell --- */
+/* --- Header shell : ticker + barre sticky ensemble (z-index charte) --- */
 .header-wrap.rs-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: transparent !important;
   border-bottom: none !important;
   box-shadow: none !important;
@@ -187,7 +190,7 @@ body.rs-ds-paris .rs-ds-section-label {
 
 .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
 .rs-header-mobile-bar__title {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--font-syne), system-ui !important;
   font-weight: 800 !important;
   font-size: 14px !important;
   letter-spacing: 0.08em !important;
@@ -196,11 +199,9 @@ body.rs-ds-paris .rs-ds-section-label {
   text-shadow: none !important;
 }
 
-/* Sticky bar (sous ticker) */
+/* Barre nav (sous ticker) — floue, collée au bloc parent sticky */
 .header-wrap .rs-header-two-tier {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative;
   background: rgba(250, 250, 248, 0.92);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
@@ -301,8 +302,8 @@ body.rs-ds-paris .rs-ds-section-label {
 
 .rs-ph-navdesk a,
 .rs-ph-navdesk a:visited {
-  font-family: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px;
+  font-family: var(--font-dm), system-ui;
+  font-size: 13px;
   font-weight: 400;
   color: var(--gray-600);
   text-decoration: none !important;
@@ -320,12 +321,12 @@ body.rs-ds-paris .rs-ds-section-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 12px;
+  padding: 14px 28px;
   border-radius: var(--radius-pill);
   background: var(--black);
   color: #fff !important;
-  font-family: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
-  font-size: 12px;
+  font-family: var(--font-dm), system-ui;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none !important;
   border: none;
@@ -355,7 +356,7 @@ body.rs-ds-paris .rs-ds-section-label {
   clip-path: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
-  font-family: var(--font-dm), sans-serif !important;
+  font-family: var(--font-dm), system-ui !important;
   font-size: 11px !important;
   font-weight: 500 !important;
   padding: 4px 10px !important;
@@ -491,7 +492,7 @@ body.rs-ds-paris .rs-ds-section-label {
 }
 
 .rs-header-drawer__sublinks a {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--font-syne), system-ui !important;
   font-size: 20px !important;
   font-weight: 700 !important;
   color: var(--black) !important;
@@ -523,7 +524,7 @@ body.rs-ds-paris .rs-ds-section-label {
   border-radius: var(--radius-pill) !important;
   background: var(--accent) !important;
   color: #fff !important;
-  font-family: var(--font-dm), sans-serif !important;
+  font-family: var(--font-dm), system-ui !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   text-decoration: none !important;
@@ -571,7 +572,7 @@ a.rs-btn.rs-btn--primary {
   border: none !important;
   border-radius: var(--radius-pill) !important;
   padding: 14px 28px !important;
-  font-family: var(--font-dm), sans-serif !important;
+  font-family: var(--font-dm), system-ui !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   box-shadow: none !important;
@@ -594,7 +595,7 @@ a.rs-btn.rs-btn--ghost {
   border: 1.5px solid var(--gray-200) !important;
   border-radius: var(--radius-pill) !important;
   padding: 14px 28px !important;
-  font-family: var(--font-dm), sans-serif !important;
+  font-family: var(--font-dm), system-ui !important;
   font-weight: 500 !important;
   font-size: 14px !important;
   box-shadow: none !important;
@@ -656,7 +657,7 @@ main.rs-portal-main .rs-panel {
   border-radius: var(--radius-pill) !important;
   font-size: 11px !important;
   font-weight: 500 !important;
-  font-family: var(--font-dm), sans-serif !important;
+  font-family: var(--font-dm), system-ui !important;
 }
 
 /* --- Hero stagger --- */

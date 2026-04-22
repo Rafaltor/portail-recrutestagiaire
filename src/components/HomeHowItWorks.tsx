@@ -15,6 +15,39 @@ const prisBullets = [
   "• CV sur le packaging",
 ];
 
+/** Flèches de schéma en SVG (pas de glyphes ASCII). */
+function FlowArrow({
+  dir,
+  className = "",
+}: {
+  dir: "right" | "down" | "up" | "left";
+  className?: string;
+}) {
+  const base = "block shrink-0 text-[var(--accent)]";
+  const paths: Record<typeof dir, ReactNode> = {
+    right: <path d="M4 12h16M12 6l6 6-6 6" />,
+    left: <path d="M20 12H4M12 6l-6 6 6 6" />,
+    down: <path d="M12 4v16M8 10l4 4 4-4" />,
+    up: <path d="M12 20V4M8 14l4-4 4 4" />,
+  };
+  return (
+    <svg
+      className={`${base} ${className}`.trim()}
+      width={22}
+      height={22}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.25}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {paths[dir]}
+    </svg>
+  );
+}
+
 function CycleCard({
   step,
   title,
@@ -28,7 +61,7 @@ function CycleCard({
 }) {
   return (
     <div
-      className={`flex min-h-0 min-w-0 flex-col rounded-[var(--radius)] border border-[var(--gray-200)] bg-[var(--white)] px-3 py-3 transition-colors duration-200 hover:bg-[var(--gray-100)] md:min-h-0 md:px-3.5 md:py-3.5 lg:px-4 lg:py-4 ${
+      className={`flex min-h-0 min-w-0 flex-col rounded-[var(--radius)] border border-[var(--gray-200)] bg-white px-3 py-3 transition-colors duration-200 hover:bg-[var(--gray-100)] md:min-h-0 md:px-3.5 md:py-3.5 lg:px-4 lg:py-4 ${
         highlight ? "ring-1 ring-[var(--accent)]" : ""
       }`}
     >
@@ -46,23 +79,6 @@ function CycleCard({
         </ul>
       ) : null}
     </div>
-  );
-}
-
-function Arrow({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`flex select-none items-center justify-center text-base font-bold leading-none text-[var(--accent)] md:text-lg lg:text-xl ${className}`.trim()}
-      aria-hidden
-    >
-      {children}
-    </span>
   );
 }
 
@@ -84,26 +100,30 @@ function FlowCycleGrid({
             <CycleCard {...c} />
             {idx < list.length - 1 ? (
               <div className="flex justify-center py-0.5">
-                <Arrow>↓</Arrow>
+                <FlowArrow dir="down" />
               </div>
             ) : null}
           </div>
         ))}
       </div>
 
-      <div className="mx-auto hidden w-full max-w-2xl md:grid md:grid-cols-[minmax(0,1fr)_1.25rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:items-start md:[grid-template-rows:auto_max-content_auto]">
+      <div className="mx-auto hidden w-full max-w-2xl md:grid md:grid-cols-[minmax(0,1fr)_1.75rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:items-start md:[grid-template-rows:auto_max-content_auto]">
         <CycleCard {...tl} />
-        <Arrow className="self-center justify-center">→</Arrow>
+        <div className="flex items-center justify-center self-center">
+          <FlowArrow dir="right" />
+        </div>
         <CycleCard {...tr} />
         <div className="flex justify-center place-self-center leading-none">
-          <Arrow className="inline-flex !h-auto !min-h-0 py-0 leading-none">↑</Arrow>
+          <FlowArrow dir="up" className="!h-auto !min-h-0" />
         </div>
         <div className="h-0 min-h-0 w-full place-self-center overflow-visible" aria-hidden />
         <div className="flex justify-center place-self-center leading-none">
-          <Arrow className="inline-flex !h-auto !min-h-0 py-0 leading-none">↓</Arrow>
+          <FlowArrow dir="down" className="!h-auto !min-h-0" />
         </div>
         <CycleCard {...bl} />
-        <Arrow className="self-center justify-center">←</Arrow>
+        <div className="flex items-center justify-center self-center">
+          <FlowArrow dir="left" />
+        </div>
         <CycleCard {...br} />
       </div>
     </>
@@ -142,8 +162,9 @@ function PrisBlock() {
         <p className="text-[12px] font-medium uppercase tracking-[2px] text-[var(--gray-600)]">
           Sortie du cycle
         </p>
-        <p className="mt-0.5 font-[family-name:var(--font-syne)] text-xl font-bold tracking-tight text-[var(--black)] sm:text-2xl">
-          T&apos;as été pris →
+        <p className="mt-0.5 inline-flex flex-wrap items-center gap-2 font-[family-name:var(--font-syne)] text-xl font-bold tracking-tight text-[var(--black)] sm:text-2xl">
+          <span>T&apos;as été pris</span>
+          <FlowArrow dir="right" className="translate-y-px" />
         </p>
         <ul className="mt-3 space-y-1 text-sm font-normal leading-snug text-[var(--gray-600)]">
           {prisBullets.map((b) => (
@@ -152,10 +173,10 @@ function PrisBlock() {
         </ul>
       </div>
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full border border-[var(--gray-200)] bg-[var(--white)] text-lg text-[var(--accent)] sm:self-start sm:h-12 sm:w-12"
+        className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full border border-[var(--gray-200)] bg-[var(--white)] sm:self-start sm:h-12 sm:w-12"
         aria-hidden
       >
-        ↓
+        <FlowArrow dir="down" className="text-[var(--accent)]" />
       </div>
     </div>
   );

@@ -110,12 +110,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: inherit;
+  font-family: var(--font-dm), system-ui;
   font-weight: 500;
   font-size: 14px;
   line-height: 1.25;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 14px 28px;
+  border-radius: 100px;
   cursor: pointer;
   text-decoration: none;
   user-select: none;
@@ -128,27 +128,30 @@
 }
 
 .rs-btn--primary {
-  background: var(--rs-brand-pink);
+  background: var(--rs-brand-ink);
   color: #fff;
-  border-color: var(--rs-brand-pink);
+  border-color: var(--rs-brand-ink);
 }
 
 .rs-btn--primary:hover {
-  background: #ec4899;
+  background: var(--rs-brand-pink);
   color: #fff;
   text-decoration: none;
-  border-color: #ec4899;
+  border-color: var(--rs-brand-pink);
+  transform: translateY(-1px);
 }
 
 .rs-btn--ghost {
-  background: #fff;
+  background: transparent;
   color: #0a0a0a;
-  border: 1px solid #f0f0f0;
+  border: 1.5px solid #e8e8e4;
 }
 
 .rs-btn--ghost:hover {
-  background: #fafafa;
+  background: transparent;
   color: #0a0a0a;
+  border-color: #0a0a0a;
+  transform: translateY(-1px);
 }
 
 .rs-btn--danger {

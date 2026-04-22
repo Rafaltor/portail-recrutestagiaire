@@ -2,15 +2,13 @@
 export function ParisTicker() {
   const segment = (
     <>
-      <span>POSTE DISPONIBLE · </span>
-      <span className="rs-ticker__accent">TEE EN STOCK</span>
-      <span> · CANDIDATURE OUVERTE · DÉPOSE TON CV · </span>
+      <span>CANDIDATURE OUVERTE · </span>
+      <span className="rs-ticker__accent">DÉPOSE TON CV</span>
+      <span> · </span>
       <span className="rs-ticker__accent">SWIPE LES PROFILS</span>
       <span> · </span>
       <span className="rs-ticker__accent">REJOINS LE COLLECTIF</span>
-      <span> · CDD · CDI · </span>
-      <span className="rs-ticker__accent">TEE-SHIRT</span>
-      <span> · À TOI DE CHOISIR · </span>
+      <span> · </span>
       <span className="rs-ticker__accent">LES MEILLEURS FINISSENT SUR LE PACKAGING</span>
       <span> · </span>
     </>
