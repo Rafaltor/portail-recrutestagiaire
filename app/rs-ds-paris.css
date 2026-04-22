@@ -724,7 +724,7 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   background-color: var(--gray-100);
 }
 
-/* Fond photo : calque dédié (évite qu’un gradient CSS ne masque l’image) */
+/* Fond hero : image via background-image (HomeHeroBackdrop), pas d’<img> */
 .rs-home-hero__bg {
   position: absolute;
   inset: 0;
@@ -732,17 +732,9 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   overflow: hidden;
   pointer-events: none;
   background-color: var(--gray-100);
-}
-
-.rs-home-hero__bg-img {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Voile léger pour lisibilité du texte (au-dessus de la photo) */

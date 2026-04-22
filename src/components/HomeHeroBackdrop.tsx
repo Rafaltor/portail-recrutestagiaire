@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-/** Photos optionnelles dans public/swipe-stamps/ — testées sans afficher d’URL cassée. */
+/** Fichiers testés dans public/swipe-stamps/ (sans <img> = pas d’icône « cassée »). */
 const RASTER = [
   "/swipe-stamps/background-portail.png",
+  "/swipe-stamps/background_portail.jpg",
   "/swipe-stamps/background-portail.jpg",
   "/swipe-stamps/background-portail.jpeg",
   "/swipe-stamps/background-portail.webp",
@@ -13,10 +14,11 @@ const RASTER = [
 const FALLBACK_SVG = "/swipe-stamps/background-portail.svg";
 
 /**
- * Fond hero : affiche d’abord le SVG versionné, puis remplace par une photo si elle charge.
+ * Fond hero : `background-image` sur un div (cover).
+ * D’abord SVG versionné, puis remplacement par la première photo qui charge.
  */
 export function HomeHeroBackdrop() {
-  const [src, setSrc] = useState(FALLBACK_SVG);
+  const [bgUrl, setBgUrl] = useState(FALLBACK_SVG);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,7 +29,7 @@ export function HomeHeroBackdrop() {
       const path = RASTER[i]!;
       const probe = new Image();
       probe.onload = () => {
-        if (!cancelled) setSrc(path);
+        if (!cancelled) setBgUrl(path);
       };
       probe.onerror = () => {
         i += 1;
@@ -43,17 +45,15 @@ export function HomeHeroBackdrop() {
   }, []);
 
   return (
-    <div className="rs-home-hero__bg" aria-hidden>
-      <img
-        key={src}
-        className="rs-home-hero__bg-img"
-        src={src}
-        alt=""
-        width={1920}
-        height={1080}
-        decoding="async"
-        fetchPriority="high"
-      />
-    </div>
+    <div
+      className="rs-home-hero__bg"
+      aria-hidden
+      style={{
+        backgroundImage: `url("${bgUrl}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    />
   );
 }
