@@ -1,24 +1,45 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
-const CANDIDATES = [
+/** Photos optionnelles dans public/swipe-stamps/ — testées sans afficher d’URL cassée. */
+const RASTER = [
   "/swipe-stamps/background-portail.png",
   "/swipe-stamps/background-portail.jpg",
   "/swipe-stamps/background-portail.jpeg",
   "/swipe-stamps/background-portail.webp",
-  "/swipe-stamps/background-portail.svg",
 ] as const;
 
+const FALLBACK_SVG = "/swipe-stamps/background-portail.svg";
+
 /**
- * Fond hero : essaie raster puis retombe sur le SVG versionné si absent.
+ * Fond hero : affiche d’abord le SVG versionné, puis remplace par une photo si elle charge.
  */
 export function HomeHeroBackdrop() {
-  const [i, setI] = useState(0);
-  const src = CANDIDATES[i] ?? CANDIDATES[CANDIDATES.length - 1];
+  const [src, setSrc] = useState(FALLBACK_SVG);
 
-  const onError = useCallback(() => {
-    setI((prev) => Math.min(prev + 1, CANDIDATES.length - 1));
+  useEffect(() => {
+    let cancelled = false;
+    let i = 0;
+
+    function tryRaster() {
+      if (cancelled || i >= RASTER.length) return;
+      const path = RASTER[i]!;
+      const probe = new Image();
+      probe.onload = () => {
+        if (!cancelled) setSrc(path);
+      };
+      probe.onerror = () => {
+        i += 1;
+        tryRaster();
+      };
+      probe.src = path;
+    }
+
+    tryRaster();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -31,7 +52,7 @@ export function HomeHeroBackdrop() {
         width={1920}
         height={1080}
         decoding="async"
-        onError={onError}
+        fetchPriority="high"
       />
     </div>
   );
