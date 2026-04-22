@@ -11,6 +11,8 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+const TOP_N = 3;
+
 function weekAgoIso() {
   return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 }
@@ -28,12 +30,15 @@ function aggregateScores(rows: VoteRow[]): Map<string, number> {
   return m;
 }
 
-function topEntry(scores: Map<string, number>): { id: string; score: number } | null {
-  let best: { id: string; score: number } | null = null;
-  for (const [id, score] of scores) {
-    if (!best || score > best.score) best = { id, score };
-  }
-  return best;
+function topN(
+  scores: Map<string, number>,
+  n: number,
+): { id: string; score: number }[] {
+  return [...scores.entries()]
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([id, score]) => ({ id, score }));
 }
 
 export async function OPTIONS() {
@@ -41,7 +46,7 @@ export async function OPTIONS() {
 }
 
 /**
- * Meilleur profil publié (score = somme des votes) sur la fenêtre glissante 7 jours,
+ * Meilleurs profils publiés (score = somme des votes) sur la fenêtre glissante 7 jours,
  * avec repli sur tout l’historique si aucun vote récent.
  */
 export async function GET() {
@@ -78,11 +83,12 @@ export async function GET() {
   }
 
   const scores = aggregateScores(rows);
-  const winner = topEntry(scores);
-  if (!winner || winner.score <= 0) {
+  const winners = topN(scores, TOP_N);
+  if (winners.length === 0) {
     return NextResponse.json(
       {
         ok: true,
+        profiles: [],
         profile: null,
         likes: 0,
         rank_label: "Profil N°1 cette semaine",
@@ -91,26 +97,27 @@ export async function GET() {
     );
   }
 
+  const ids = winners.map((w) => w.id);
   const profRes = await supabase
     .from("profiles")
     .select("id,handle,job_title,status,cv_path")
-    .eq("id", winner.id)
-    .eq("status", "published")
-    .maybeSingle();
+    .in("id", ids)
+    .eq("status", "published");
 
-  if (profRes.error || !profRes.data) {
+  if (profRes.error || !profRes.data?.length) {
     return NextResponse.json(
       {
         ok: true,
+        profiles: [],
         profile: null,
-        likes: winner.score,
+        likes: winners[0]?.score ?? 0,
         rank_label: "Profil N°1 cette semaine",
       },
       { status: 200, headers: CORS },
     );
   }
 
-  const p = profRes.data as {
+  type ProfileRow = {
     id: string;
     handle: string;
     job_title: string;
@@ -118,29 +125,68 @@ export async function GET() {
     cv_path: string | null;
   };
 
-  let cvUrl = "";
-  const cvKey = normalizeCvObjectKey(p.cv_path);
-  if (cvKey) {
-    const signed = await supabase.storage.from("cvs").createSignedUrl(cvKey, 60 * 15);
-    if (!signed.error && signed.data?.signedUrl) {
-      cvUrl = signed.data.signedUrl;
-    }
+  const byId = new Map(
+    (profRes.data as ProfileRow[]).map((p) => [p.id, p] as const),
+  );
+
+  const ordered: { p: ProfileRow; score: number }[] = [];
+  for (const w of winners) {
+    const p = byId.get(w.id);
+    if (p) ordered.push({ p, score: w.score });
   }
+
+  const profilesPayload: {
+    id: string;
+    handle: string;
+    job_title: string;
+    likes: number;
+    rank_label: string;
+    profile_url: string;
+    cv?: string;
+    cv_url?: string;
+  }[] = [];
+
+  for (let i = 0; i < ordered.length; i++) {
+    const { p, score } = ordered[i]!;
+    const rank = i + 1;
+    const rank_label =
+      rank === 1
+        ? "Profil N°1 cette semaine"
+        : rank === 2
+          ? "Profil N°2 cette semaine"
+          : "Profil N°3 cette semaine";
+
+    let cvUrl = "";
+    if (rank === 1) {
+      const cvKey = normalizeCvObjectKey(p.cv_path);
+      if (cvKey) {
+        const signed = await supabase.storage.from("cvs").createSignedUrl(cvKey, 60 * 15);
+        if (!signed.error && signed.data?.signedUrl) {
+          cvUrl = signed.data.signedUrl;
+        }
+      }
+    }
+
+    profilesPayload.push({
+      id: p.id,
+      handle: p.handle,
+      job_title: p.job_title,
+      likes: score,
+      rank_label,
+      profile_url: `/profil/${encodeURIComponent(p.id)}`,
+      ...(cvUrl ? { cv: cvUrl, cv_url: cvUrl } : {}),
+    });
+  }
+
+  const first = profilesPayload[0] ?? null;
 
   return NextResponse.json(
     {
       ok: true,
-      profile: {
-        id: p.id,
-        handle: p.handle,
-        job_title: p.job_title,
-        likes: winner.score,
-        rank_label: "Profil N°1 cette semaine",
-        profile_url: `/profil/${encodeURIComponent(p.id)}`,
-        /** URL signée PDF/image — pour la vitrine Shopify (iframe / Google viewer) */
-        cv: cvUrl || undefined,
-        cv_url: cvUrl || undefined,
-      },
+      profiles: profilesPayload,
+      profile: first,
+      likes: first?.likes ?? 0,
+      rank_label: first?.rank_label ?? "Profil N°1 cette semaine",
     },
     { status: 200, headers: CORS },
   );

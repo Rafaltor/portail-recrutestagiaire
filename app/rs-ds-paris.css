@@ -933,6 +933,24 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   }
 }
 
+.rs-home-profiles__grid {
+  display: grid;
+  gap: clamp(16px, 3vw, 24px);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .rs-home-profiles__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .rs-home-profiles__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .rs-home-profiles__card {
   margin-left: auto;
   margin-right: auto;
@@ -945,6 +963,12 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+.rs-home-profiles__grid .rs-home-profiles__card {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
 }
 
 .rs-home-profiles__card:hover {

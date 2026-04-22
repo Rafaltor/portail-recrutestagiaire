@@ -3,14 +3,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+type ProfileItem = {
+  id: string;
+  handle: string;
+  job_title: string;
+  likes: number;
+  rank_label?: string;
+};
+
 type TopPayload = {
   ok: boolean;
-  profile: {
-    id: string;
-    handle: string;
-    job_title: string;
-    likes: number;
-  } | null;
+  profiles?: ProfileItem[];
+  /** @deprecated compat — premier profil */
+  profile?: ProfileItem | null;
 };
 
 export function HomeTopProfile() {
@@ -22,7 +27,7 @@ export function HomeTopProfile() {
       const r = await fetch("/api/profils/top");
       const j = (await r.json().catch(() => ({}))) as TopPayload;
       if (!alive) return;
-      setData(j.ok ? j : { ok: true, profile: null });
+      setData(j.ok ? j : { ok: true, profiles: [] });
     }
     void load();
     return () => {
@@ -30,9 +35,14 @@ export function HomeTopProfile() {
     };
   }, []);
 
-  if (!data?.profile) return null;
+  const list =
+    data?.profiles?.length ?
+      data.profiles
+    : data?.profile ?
+      [data.profile]
+    : [];
 
-  const h = data.profile.handle.replace(/^@/, "");
+  if (!data || list.length === 0) return null;
 
   return (
     <section
@@ -49,39 +59,47 @@ export function HomeTopProfile() {
               id="rs-home-top-profile"
               className="rs-ds-h2 text-center sm:text-left"
             >
-              Meilleur profil
+              Meilleurs profils
             </h2>
           </div>
           <p className="max-w-md text-sm leading-snug text-[var(--gray-600)] sm:text-right">
-            La communauté vote en continu — aperçu du profil le plus soutenu sur la
-            fenêtre en cours.
+            La communauté vote en continu — les trois profils les plus soutenus sur la fenêtre
+            en cours.
           </p>
         </div>
-        <div className="rs-home-profiles__card">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate font-[family-name:var(--font-syne)] text-lg font-bold text-[var(--black)]">
-                @{h}
-              </p>
-              <p className="mt-1 text-sm text-[var(--gray-600)]">
-                {data.profile.job_title}
-              </p>
-              <p className="mt-2 text-sm text-[var(--black)]">
-                <span className="font-semibold text-[var(--accent)]">
-                  {data.profile.likes}
-                </span>{" "}
-                <span className="text-[var(--gray-600)]">likes (fenêtre en cours)</span>
-              </p>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Link
-              href={`/profil/${encodeURIComponent(data.profile.id)}`}
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)] no-underline hover:underline"
-            >
-              Voir son profil →
-            </Link>
-          </div>
+        <div className="rs-home-profiles__grid">
+          {list.map((profile) => {
+            const h = profile.handle.replace(/^@/, "");
+            return (
+              <div key={profile.id} className="rs-home-profiles__card">
+                {profile.rank_label ? (
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--gray-500)]">
+                    {profile.rank_label}
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-[family-name:var(--font-syne)] text-lg font-bold text-[var(--black)]">
+                      @{h}
+                    </p>
+                    <p className="mt-1 text-sm text-[var(--gray-600)]">{profile.job_title}</p>
+                    <p className="mt-2 text-sm text-[var(--black)]">
+                      <span className="font-semibold text-[var(--accent)]">{profile.likes}</span>{" "}
+                      <span className="text-[var(--gray-600)]">likes (fenêtre en cours)</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Link
+                    href={`/profil/${encodeURIComponent(profile.id)}`}
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)] no-underline hover:underline"
+                  >
+                    Voir le profil →
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
