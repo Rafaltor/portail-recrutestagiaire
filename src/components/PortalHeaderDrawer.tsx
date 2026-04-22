@@ -5,8 +5,7 @@ import { useEffect } from "react";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 
 /**
- * Panneau menu mobile + logique alignée sur `sections/header.liquid` (boutique).
- * Le markup vit dans le layout ; les sélecteurs attendent `.header-wrap` parent.
+ * Menu mobile : panneau pleine largeur depuis le haut (design system Paris).
  */
 export function PortalHeaderDrawer() {
   useEffect(() => {
@@ -23,9 +22,9 @@ export function PortalHeaderDrawer() {
 
     function isMobileDrawer() {
       try {
-        return window.matchMedia("(max-width: 767.98px)").matches;
+        return window.matchMedia("(max-width: 899.98px)").matches;
       } catch {
-        return (window.innerWidth || 0) <= 767;
+        return (window.innerWidth || 0) <= 899;
       }
     }
 
@@ -73,7 +72,7 @@ export function PortalHeaderDrawer() {
         if (!drawer.classList.contains("rs-header-drawer--open")) {
           drawer.setAttribute("hidden", "");
         }
-      }, 320);
+      }, 280);
     }
 
     const onOpenClick = (e: Event) => {
@@ -133,9 +132,9 @@ export function PortalHeaderDrawer() {
 
     function isMobileHeader() {
       try {
-        return window.matchMedia("(max-width: 767.98px)").matches;
+        return window.matchMedia("(max-width: 899.98px)").matches;
       } catch {
-        return (window.innerWidth || 0) <= 767;
+        return (window.innerWidth || 0) <= 899;
       }
     }
 
@@ -228,7 +227,7 @@ export function PortalHeaderDrawer() {
         aria-labelledby="rs-header-drawer-title"
       >
         <div className="rs-header-drawer__head">
-          <span className="rs-header-drawer__menu-label" id="rs-header-drawer-title">
+          <span className="sr-only" id="rs-header-drawer-title">
             Menu
           </span>
           <button
@@ -237,37 +236,24 @@ export function PortalHeaderDrawer() {
             data-rs-header-drawer-close
             aria-label="Fermer le menu"
           >
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
         <nav className="rs-header-drawer__nav" aria-label="Navigation principale">
-          <details className="rs-header-drawer__section">
-            <summary className="rs-header-drawer__summary">Offres</summary>
-            <div className="rs-header-drawer__sublinks">
-              <a href="https://recrutestagiaire.eu/collections/abcdrs">Collection ABCDRS</a>
-              <a href="https://recrutestagiaire.eu/collections/les-stagiaires-de-base">
-                Les stagiaires de base
-              </a>
-            </div>
-          </details>
-          <details className="rs-header-drawer__section">
-            <summary className="rs-header-drawer__summary">Candidatures</summary>
+          <div className="rs-header-drawer__section">
             <div className="rs-header-drawer__sublinks">
               <Link href="/profils">Profils candidats</Link>
-              <Link href="/depot">Déposer sa candidature</Link>
-              <Link href="/swipe">Vote (swipe)</Link>
-            </div>
-          </details>
-          <details className="rs-header-drawer__section">
-            <summary className="rs-header-drawer__summary">Le collectif</summary>
-            <div className="rs-header-drawer__sublinks">
-              <a href="https://recrutestagiaire.eu/pages/about">Histoire</a>
+              <Link href="/swipe">Voter (swipe)</Link>
+              <a href="https://recrutestagiaire.eu/pages/about">Le collectif</a>
               <a href="https://recrutestagiaire.eu/pages/contact">Contact</a>
             </div>
-          </details>
+          </div>
         </nav>
         <div className="rs-header-drawer__footer">
           <div className="rs-banner-top__actions rs-header-drawer__footer-actions d-inline-flex flex-column align-items-stretch gap-2 w-100">
+            <Link href="/depot" className="rs-ph-drawer-cta text-center no-underline hover:no-underline">
+              Déposer mon CV
+            </Link>
             <a
               href="https://recrutestagiaire.eu/cart"
               className="abt-btn rs-caf-btn-dossier rs-banner-top__cart rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap"

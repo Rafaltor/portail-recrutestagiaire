@@ -16,12 +16,12 @@ export const metadata: Metadata = pageMetadata({
 export default function Home() {
   return (
     <div className="grid gap-0">
-      <section className="bg-white px-1 pb-12 pt-6 sm:px-2 sm:pt-10 md:pb-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-balance text-[36px] font-bold leading-[1.1] tracking-tight text-[#0A0A0A] sm:text-[40px] lg:text-[52px]">
+      <section className="bg-[var(--white)] px-1 pb-12 pt-6 sm:px-2 sm:pt-10 md:pb-16">
+        <div className="rs-hero-stagger mx-auto max-w-3xl text-center">
+          <h1 className="rs-ds-h1 text-balance">
             On a commencé stagiaires. Pourquoi pas vous ?
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-base font-normal leading-relaxed text-[#6B6B6B]">
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base font-normal leading-relaxed text-[var(--gray-600)]">
             Dépose ton CV. La communauté vote. Les meilleurs rejoignent le collectif.
           </p>
           <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">

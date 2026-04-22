@@ -22,7 +22,7 @@ function useTapSubnavForRoute(pathname: string | null): boolean {
 function shouldLockBodyForOpenMenu(pathname: string | null): boolean {
   if (pathname === "/swipe" && typeof window !== "undefined") {
     try {
-      if (window.matchMedia("(min-width: 768px)").matches) return false;
+      if (window.matchMedia("(min-width: 900px)").matches) return false;
     } catch {
       /* ignore */
     }

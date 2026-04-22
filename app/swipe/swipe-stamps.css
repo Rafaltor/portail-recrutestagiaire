@@ -2,7 +2,7 @@
  * Page /swipe — fond noir, carte CV, tampons PNG (approved / declined), drag & drop, chrome bas.
  */
 
-@media (max-width: 767.98px) {
+@media (max-width: 899.98px) {
   html:has(#rs-swipe-page) {
     overflow: hidden;
     min-height: 100dvh;
@@ -15,7 +15,8 @@
 
 html[data-rs-swipe="1"] {
   --rs-swipe-bottom-chrome: calc(120px + env(safe-area-inset-bottom, 0px));
-  --rs-swipe-top-offset: calc(72px + env(safe-area-inset-top, 0px));
+  /* Ticker 36px + barre header (aligné design Paris) */
+  --rs-swipe-top-offset: calc(36px + 56px + env(safe-area-inset-top, 0px));
 }
 
 html[data-rs-swipe="1"] body.rs-portal-body {
@@ -29,11 +30,11 @@ html[data-rs-swipe="1"] main.rs-portal-main {
   box-shadow: none !important;
 }
 
-/* Header swipe : fond blanc, texte / logo #0A0A0A (pas de transparence) */
+/* Swipe : chrome header = même bandeau Paris (ticker + sticky) ; on ne refond pas le corps de page. */
 html[data-rs-swipe="1"] .header-wrap {
-  background: #ffffff !important;
+  background: transparent !important;
   box-shadow: none !important;
-  border-bottom: 1px solid #f0f0f0 !important;
+  border-bottom: none !important;
 }
 
 html[data-rs-swipe="1"] .header-wrap.rs-header--banner::before,
@@ -41,25 +42,18 @@ html[data-rs-swipe="1"] .header-wrap::after {
   display: none !important;
 }
 
-html[data-rs-swipe="1"] .rs-header-kitsch-pop--brand {
+html[data-rs-swipe="1"] .rs-header-tabstrip {
   display: none !important;
 }
 
-html[data-rs-swipe="1"] .rs-header-tabstrip,
-html[data-rs-swipe="1"] .rs-banner-top__actions {
-  display: none !important;
-}
-
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   html[data-rs-swipe="1"] .rs-header-mobile-bar {
     display: none !important;
   }
 }
 
 html[data-rs-swipe="1"] .rs-header-top-line {
-  justify-content: center !important;
   border-bottom: none !important;
-  min-height: 56px !important;
 }
 
 html[data-rs-swipe="1"] .rs-nav-brand__name.logo,
@@ -76,9 +70,9 @@ html[data-rs-swipe="1"] .rs-header-body {
   background: #ffffff !important;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 900px) {
   html[data-rs-swipe="1"] {
-    --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
+    --rs-swipe-top-offset: calc(36px + 64px + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -380,4 +374,24 @@ html[data-rs-swipe="1"] .rs-header-body {
     width: 148px !important;
     max-height: 66px !important;
   }
+}
+
+/* Pied de page : ne pas appliquer le footer clair « Paris » sur /swipe (hors périmètre refonte). */
+html[data-rs-swipe="1"] .footer.rs-footer-portal-simple {
+  background: #0a0a0a !important;
+  border-top: 1px solid #262626 !important;
+  color: #e5e5e5 !important;
+}
+
+html[data-rs-swipe="1"] .footer.rs-footer-portal-simple > div > div:first-child {
+  border-bottom-color: #333333 !important;
+}
+
+html[data-rs-swipe="1"] .footer.rs-footer-portal-simple a,
+html[data-rs-swipe="1"] .footer.rs-footer-portal-simple span {
+  color: inherit !important;
+}
+
+html[data-rs-swipe="1"] .footer.rs-footer-portal-simple a:hover {
+  color: #f472b6 !important;
 }

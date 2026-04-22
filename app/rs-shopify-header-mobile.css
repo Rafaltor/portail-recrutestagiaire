@@ -1,6 +1,6 @@
-/* Aligné sur recrutestagiaire/assets/rs-shopify-header.css — barre mobile + drawer (<768px). */
+/* Aligné sur recrutestagiaire/assets/rs-shopify-header.css — barre mobile + drawer (<900px). */
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .rs-header-mobile-bar,
   .rs-header-drawer {
     display: none !important;
@@ -11,7 +11,7 @@
   display: none;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 899.98px) {
   .header-wrap::after {
     display: none !important;
   }
