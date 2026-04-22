@@ -15,34 +15,43 @@ export const metadata: Metadata = pageMetadata({
 
 export default function Home() {
   return (
-    <div className="grid gap-0">
-      <section className="bg-[var(--white)] px-1 pb-12 pt-6 sm:px-2 sm:pt-10 md:pb-16">
-        <div className="rs-hero-stagger mx-auto max-w-3xl text-center">
-          <h1 className="rs-ds-h1 text-balance">
-            On a commencé stagiaires. Pourquoi pas vous ?
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-base font-normal leading-relaxed text-[var(--gray-600)]">
-            Dépose ton CV. La communauté vote. Les meilleurs rejoignent le collectif.
-          </p>
-          <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-            <Link
-              href="/depot"
-              className="rs-btn rs-btn--primary inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
-            >
-              Poste ton CV
-            </Link>
-            <Link
-              href="/profils"
-              className="rs-btn rs-btn--ghost inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
-            >
-              Voir les profils
-            </Link>
+    <div className="rs-home-page">
+      <section className="rs-home-hero">
+        <div className="rs-home-hero__grid relative z-[1]">
+          <div className="rs-home-hero__copy rs-hero-stagger">
+            <div className="rs-home-hero__badge">
+              <span className="rs-home-hero__badge-dot" aria-hidden />
+              Candidatures ouvertes
+            </div>
+            <h1 className="rs-ds-h1 text-balance">
+              On a commencé{" "}
+              <em className="not-italic text-[var(--accent)]">stagiaires</em>.
+              <br className="hidden sm:block" /> Pourquoi pas vous ?
+            </h1>
+            <p className="rs-home-hero__lede text-pretty">
+              Dépose ton CV. La communauté vote. Les meilleurs rejoignent le
+              collectif — label parisien mode & textile.
+            </p>
+            <div className="rs-home-hero__actions">
+              <Link
+                href="/depot"
+                className="rs-btn rs-btn--primary inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
+              >
+                Poste ton CV
+              </Link>
+              <Link
+                href="/profils"
+                className="rs-btn rs-btn--ghost inline-flex justify-center px-5 py-2.5 text-center no-underline hover:no-underline"
+              >
+                Voir les profils
+              </Link>
+            </div>
           </div>
           <HomeHeroStats />
         </div>
       </section>
 
-      <div className="mt-2 sm:mt-3">
+      <div className="rs-home-how-wrap">
         <HomeHowItWorks />
       </div>
 

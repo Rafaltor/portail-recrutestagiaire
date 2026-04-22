@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
@@ -83,7 +84,14 @@ export default function RootLayout({
               href="https://recrutestagiaire.eu"
               aria-label="Recrute Stagiaire — boutique"
             >
-              <span className="sr-only">Boutique</span>
+              <Image
+                className="rs-nav-brand__img rs-header-logo-tile__img"
+                src="/rs-logo-eu.png"
+                alt=""
+                width={200}
+                height={80}
+                priority
+              />
             </a>
 
             <div className="container">
@@ -93,7 +101,14 @@ export default function RootLayout({
                     className="rs-header-mobile-bar__brand rs-ph-mbrand"
                     href="https://recrutestagiaire.eu"
                   >
-                    <span className="rs-ph-dot" aria-hidden="true" />
+                    <Image
+                      className="rs-header-mobile-bar__logo"
+                      src="/rs-logo-eu.png"
+                      alt=""
+                      width={160}
+                      height={56}
+                      priority
+                    />
                     <span className="rs-header-mobile-bar__title">
                       RECRUTE STAGIAIRE
                     </span>

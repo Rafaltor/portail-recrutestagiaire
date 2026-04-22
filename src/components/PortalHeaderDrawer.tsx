@@ -242,6 +242,9 @@ export function PortalHeaderDrawer() {
         <nav className="rs-header-drawer__nav" aria-label="Navigation principale">
           <div className="rs-header-drawer__section">
             <div className="rs-header-drawer__sublinks">
+              <a href="https://recrutestagiaire.eu" rel="noopener noreferrer">
+                Boutique
+              </a>
               <Link href="/profils">Profils candidats</Link>
               <Link href="/swipe">Voter (swipe)</Link>
               <a href="https://recrutestagiaire.eu/pages/about">Le collectif</a>

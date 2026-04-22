@@ -14,6 +14,14 @@ function fmt(n: number | null) {
   return String(n);
 }
 
+type StatRow = {
+  key: string;
+  value: number | null;
+  label: string;
+  icon: string;
+  tone: "accent" | "ink" | "muted";
+};
+
 export function HomeHeroStats() {
   const [counts, setCounts] = useState<Counts>({
     profiles: null,
@@ -51,34 +59,53 @@ export function HomeHeroStats() {
   }, []);
 
   const showRecruited =
-    counts.recruited !== null && counts.recruited !== undefined && counts.recruited > 0;
+    counts.recruited !== null &&
+    counts.recruited !== undefined &&
+    counts.recruited > 0;
 
-  const items = [
-    { value: counts.profiles, label: "profils" },
-    { value: counts.votes, label: "votes" },
-    ...(showRecruited ? [{ value: counts.recruited, label: "recrutés" as const }] : []),
+  const rows: StatRow[] = [
+    {
+      key: "profiles",
+      value: counts.profiles,
+      label: "CV dans la base",
+      icon: "📄",
+      tone: "accent",
+    },
+    {
+      key: "votes",
+      value: counts.votes,
+      label: "Votes enregistrés",
+      icon: "↑",
+      tone: "ink",
+    },
+    ...(showRecruited
+      ? [
+          {
+            key: "recruited",
+            value: counts.recruited,
+            label: "Sur le packaging",
+            icon: "🎽",
+            tone: "muted" as const,
+          },
+        ]
+      : []),
   ];
 
   return (
-    <div
-      className="mt-10 flex flex-wrap items-center justify-center gap-x-0 gap-y-2 text-sm sm:flex-nowrap"
-      aria-live="polite"
-    >
-      {items.map((it, i) => (
-        <span key={it.label} className="inline-flex items-center">
-          {i > 0 ? (
-            <span
-              className="mx-3 inline-block h-4 w-px shrink-0 bg-[#F0F0F0] sm:mx-5"
-              aria-hidden
-            />
-          ) : null}
-          <span className="inline-flex flex-wrap items-baseline gap-1.5">
-            <span className="text-lg font-bold text-[#F472B6] sm:text-xl">
-              {fmt(it.value)}
-            </span>
-            <span className="font-normal text-[#6B6B6B]">{it.label}</span>
-          </span>
-        </span>
+    <div className="rs-home-stat-stack" aria-live="polite">
+      {rows.map((it) => (
+        <div key={it.key} className="rs-home-stat-card">
+          <div
+            className={`rs-home-stat-card__icon rs-home-stat-card__icon--${it.tone}`}
+            aria-hidden
+          >
+            {it.icon}
+          </div>
+          <div className="min-w-0">
+            <div className="rs-home-stat-card__num">{fmt(it.value)}</div>
+            <div className="rs-home-stat-card__label">{it.label}</div>
+          </div>
+        </div>
       ))}
     </div>
   );
