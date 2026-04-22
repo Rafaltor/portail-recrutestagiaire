@@ -9,6 +9,12 @@ type CardDef = {
 
 const shell = "mx-auto w-full max-w-[var(--rs-content-max)]";
 
+const prisBullets = [
+  "• vernissage",
+  "• guest list bons votants",
+  "• CV sur le packaging",
+];
+
 function CycleCard({
   step,
   title,
@@ -85,7 +91,7 @@ function FlowCycleGrid({
         ))}
       </div>
 
-      <div className="mx-auto hidden w-full max-w-md md:grid md:grid-cols-[minmax(0,1fr)_1.25rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:items-start md:[grid-template-rows:auto_max-content_auto] lg:max-w-none">
+      <div className="mx-auto hidden w-full max-w-2xl md:grid md:grid-cols-[minmax(0,1fr)_1.25rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:items-start md:[grid-template-rows:auto_max-content_auto]">
         <CycleCard {...tl} />
         <Arrow className="self-center justify-center">→</Arrow>
         <CycleCard {...tr} />
@@ -129,16 +135,28 @@ function ColumnTitle({
   );
 }
 
-function DividerLabel({ children }: { children: ReactNode }) {
+function PrisBlock() {
   return (
-    <div className={`relative ${shell} py-0`}>
+    <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--gray-100)] px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5 sm:py-5 lg:px-6">
+      <div className="min-w-0 flex-1">
+        <p className="text-[12px] font-medium uppercase tracking-[2px] text-[var(--gray-600)]">
+          Sortie du cycle
+        </p>
+        <p className="mt-0.5 font-[family-name:var(--font-syne)] text-xl font-bold tracking-tight text-[var(--black)] sm:text-2xl">
+          T&apos;as été pris →
+        </p>
+        <ul className="mt-3 space-y-1 text-sm font-normal leading-snug text-[var(--gray-600)]">
+          {prisBullets.map((b) => (
+            <li key={b}>{b}</li>
+          ))}
+        </ul>
+      </div>
       <div
-        className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--gray-200)]"
+        className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full border border-[var(--gray-200)] bg-[var(--white)] text-lg text-[var(--accent)] sm:self-start sm:h-12 sm:w-12"
         aria-hidden
-      />
-      <p className="relative mx-auto w-max bg-[var(--white)] px-3 text-center text-[12px] font-medium uppercase tracking-[2px] text-[var(--gray-600)]">
-        {children}
-      </p>
+      >
+        ↓
+      </div>
     </div>
   );
 }
@@ -152,101 +170,21 @@ export function HomeHowItWorks() {
       bullets: ["• ton CV est boosté", "• -10% sur le shop"],
     },
     { step: "04", title: "Bosse et redépose" },
-    { step: "03", title: "Les non-stagiaires t'approuvent" },
-  ];
-
-  const cycleCards: [CardDef, CardDef, CardDef, CardDef] = [
-    { step: "01", title: "Vote" },
-    { step: "02", title: "Classement" },
-    { step: "04", title: "Nouvelle session" },
-    {
-      step: "03",
-      title: "Nouvelle recrue",
-      bullets: [
-        "• vernissage",
-        "• guest list bons votants",
-        "• CV sur le packaging",
-      ],
-      highlight: true,
-    },
+    { step: "03", title: "Classement" },
   ];
 
   return (
     <section
       className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--white)] px-4 py-4 sm:px-5 sm:py-6 md:py-7"
-      aria-labelledby="rs-home-how-parcours rs-home-how-cycle"
+      aria-labelledby="rs-home-how-parcours"
     >
-      <div className={`${shell} flex flex-col gap-4 md:hidden`}>
-        <div>
-          <p className="mb-1.5 text-sm font-semibold text-[var(--black)]">Ton parcours</p>
-          <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
-        </div>
-        <div className="border-t border-[var(--gray-200)] pt-4">
-          <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--gray-100)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5">
-            <div className="min-w-0">
-              <p className="text-[12px] font-medium uppercase tracking-[2px] text-[var(--gray-600)]">
-                Sortie du cycle
-              </p>
-              <p className="mt-0.5 font-[family-name:var(--font-syne)] text-xl font-bold tracking-tight text-[var(--black)] sm:text-2xl">
-                T&apos;as été pris →
-              </p>
-            </div>
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full border border-[var(--gray-200)] bg-[var(--white)] text-lg text-[var(--accent)] sm:self-center sm:h-12 sm:w-12"
-              aria-hidden
-            >
-              ↓
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-[var(--gray-200)] pt-4">
-          <p className="mb-1.5 text-sm font-semibold text-[var(--black)]">Le cycle RS</p>
-          <FlowCycleGrid cards={cycleCards} mobileOrder={[0, 1, 3, 2]} />
-        </div>
+      <div className={`${shell} space-y-4 md:space-y-5`}>
+        <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
+        <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
+        <PrisBlock />
       </div>
 
-      <div
-        className={`${shell} mt-0 hidden md:grid md:grid-cols-1 md:gap-4 lg:mt-0 lg:grid-cols-[minmax(0,1fr)_minmax(200px,260px)_minmax(0,1fr)] lg:items-stretch lg:gap-0`}
-      >
-        <div className="min-w-0 space-y-3 lg:space-y-4 lg:pr-6">
-          <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
-          <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
-        </div>
-
-        <div className="flex min-h-0 flex-col justify-center border-y border-[var(--gray-200)] py-4 lg:border-x lg:border-y-0 lg:px-5 lg:py-0">
-          <div className="mx-auto flex w-full max-w-sm flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--gray-100)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5 lg:mx-0 lg:max-w-none lg:flex-col lg:items-stretch lg:px-4 lg:py-5">
-            <div className="min-w-0">
-              <p className="text-[12px] font-medium uppercase tracking-[2px] text-[var(--gray-600)]">
-                Sortie du cycle
-              </p>
-              <p className="mt-0.5 font-[family-name:var(--font-syne)] text-xl font-bold tracking-tight text-[var(--black)] sm:text-2xl lg:text-xl">
-                T&apos;as été pris →
-              </p>
-            </div>
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-full border border-[var(--gray-200)] bg-[var(--white)] text-lg text-[var(--accent)] sm:self-center sm:h-12 sm:w-12 lg:self-center"
-              aria-hidden
-            >
-              ↓
-            </div>
-          </div>
-        </div>
-
-        <div className="min-w-0 space-y-3 lg:space-y-4 lg:pl-6">
-          <div className="lg:hidden">
-            <DividerLabel>Le recrutement</DividerLabel>
-          </div>
-
-          <ColumnTitle title="Le cycle RS" id="rs-home-how-cycle" />
-          <FlowCycleGrid cards={cycleCards} mobileOrder={[0, 1, 3, 2]} />
-        </div>
-      </div>
-
-      <div className={`${shell} mt-3 hidden lg:block`}>
-        <DividerLabel>Le recrutement</DividerLabel>
-      </div>
-
-      <div className={`${shell} mt-4 md:mt-5 lg:mt-5`}>
+      <div className={`${shell} mt-4 md:mt-5`}>
         <a
           href="/depot"
           className="rs-btn rs-btn--primary flex w-full flex-col items-center gap-0.5 py-4 text-center no-underline hover:no-underline sm:py-5"
