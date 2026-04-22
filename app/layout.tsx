@@ -3,7 +3,6 @@ import { Syne, DM_Sans } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
-import type { CSSProperties } from "react";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
@@ -70,30 +69,7 @@ export default function RootLayout({
         <div className="header-wrap rs-header" role="banner">
           <ParisTicker />
 
-          <div
-            className="rs-header-body"
-            style={
-              {
-                ["--rs-header-logo-col"]: "96px",
-                ["--rs-header-logo-inset"]: "10px",
-              } as CSSProperties
-            }
-          >
-            <a
-              className="rs-header-logo-tile nav-brand rs-nav-brand"
-              href="https://recrutestagiaire.eu"
-              aria-label="Recrute Stagiaire — boutique"
-            >
-              <Image
-                className="rs-nav-brand__img rs-header-logo-tile__img"
-                src="/rs-logo-eu.png"
-                alt=""
-                width={200}
-                height={80}
-                priority
-              />
-            </a>
-
+          <div className="rs-header-body">
             <div className="container">
               <header className="rs-header-two-tier" aria-label="En-tête du site">
                 <div className="rs-header-mobile-bar" data-rs-header-mobile-bar>
@@ -139,8 +115,15 @@ export default function RootLayout({
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
                         href="https://recrutestagiaire.eu"
                       >
-                        <span className="rs-ph-dot" aria-hidden="true" />
-                        <span className="rs-nav-brand__name logo rs-nav-brand__name--headline">
+                        <Image
+                          className="rs-ph-brandlink-logo"
+                          src="/rs-logo-eu.png"
+                          alt=""
+                          width={132}
+                          height={48}
+                          priority
+                        />
+                        <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
                           RECRUTE STAGIAIRE
                         </span>
                       </a>

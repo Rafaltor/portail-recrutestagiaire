@@ -17,7 +17,17 @@ export default function Home() {
   return (
     <div className="rs-home-page">
       <section className="rs-home-hero">
-        <div className="rs-home-hero__grid relative z-[1]">
+        <div className="rs-home-hero__bg" aria-hidden>
+          <img
+            className="rs-home-hero__bg-img"
+            src="/swipe-stamps/background-portail.png"
+            alt=""
+            width={1920}
+            height={1080}
+            decoding="async"
+          />
+        </div>
+        <div className="rs-home-hero__grid rs-home-hero__grid--front">
           <div className="rs-home-hero__copy rs-hero-stagger">
             <div className="rs-home-hero__badge">
               <span className="rs-home-hero__badge-dot" aria-hidden />
