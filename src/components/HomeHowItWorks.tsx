@@ -131,7 +131,7 @@ function ColumnTitle({
 
 function DividerLabel({ children }: { children: ReactNode }) {
   return (
-    <div className={`relative ${shell} py-1`}>
+    <div className={`relative ${shell} py-0`}>
       <div
         className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[var(--gray-200)]"
         aria-hidden
@@ -173,31 +173,23 @@ export function HomeHowItWorks() {
 
   return (
     <section
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--white)] px-4 py-5 sm:px-8 sm:py-8 md:py-10"
+      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--white)] px-4 py-4 sm:px-5 sm:py-6 md:py-7"
       aria-labelledby="rs-home-how-parcours rs-home-how-cycle"
     >
-      <p className="rs-ds-section-label mb-4 text-center md:hidden">
-        Comment ça marche
-      </p>
-
-      <div className={`${shell} flex flex-col gap-5 md:hidden`}>
+      <div className={`${shell} flex flex-col gap-4 md:hidden`}>
         <div>
-          <p className="mb-2 text-sm font-semibold text-[var(--black)]">Ton parcours</p>
+          <p className="mb-1.5 text-sm font-semibold text-[var(--black)]">Ton parcours</p>
           <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
         </div>
-        <div className="border-t border-[var(--gray-200)] pt-5">
-          <p className="mb-2 text-sm font-semibold text-[var(--black)]">Le cycle RS</p>
+        <div className="border-t border-[var(--gray-200)] pt-4">
+          <p className="mb-1.5 text-sm font-semibold text-[var(--black)]">Le cycle RS</p>
           <FlowCycleGrid cards={cycleCards} mobileOrder={[0, 1, 2, 3]} />
         </div>
       </div>
 
-      <div className={`${shell} mt-0 hidden md:flex md:flex-col md:gap-5 lg:mt-0 lg:flex-row lg:items-stretch lg:gap-8`}>
-          <div className="min-w-0 flex-1 space-y-4 lg:space-y-5">
-            <ColumnTitle
-              kicker="Comment ça marche"
-              title="Ton parcours"
-              id="rs-home-how-parcours"
-            />
+      <div className={`${shell} mt-0 hidden md:flex md:flex-col md:gap-4 lg:mt-0 lg:flex-row lg:items-stretch lg:gap-5`}>
+          <div className="min-w-0 flex-1 space-y-3 lg:space-y-4">
+            <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
             <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
 
             <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--gray-100)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5 lg:px-6">
