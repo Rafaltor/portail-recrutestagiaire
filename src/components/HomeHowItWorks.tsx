@@ -85,16 +85,16 @@ function FlowCycleGrid({
         ))}
       </div>
 
-      <div className="mx-auto hidden w-full max-w-md md:grid md:grid-cols-[minmax(0,1fr)_1.25rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:[grid-template-rows:auto_min-content_auto] lg:max-w-none">
+      <div className="mx-auto hidden w-full max-w-md md:grid md:grid-cols-[minmax(0,1fr)_1.25rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-0 md:items-start md:[grid-template-rows:auto_max-content_auto] lg:max-w-none">
         <CycleCard {...tl} />
         <Arrow className="self-center justify-center">→</Arrow>
         <CycleCard {...tr} />
-        <div className="flex min-h-0 items-center justify-center py-0 leading-none [&_span]:leading-none">
-          <Arrow className="py-0">↑</Arrow>
+        <div className="flex justify-center place-self-center leading-none">
+          <Arrow className="inline-flex !h-auto !min-h-0 py-0 leading-none">↑</Arrow>
         </div>
-        <div className="min-h-0" aria-hidden />
-        <div className="flex min-h-0 items-center justify-center py-0 leading-none [&_span]:leading-none">
-          <Arrow className="py-0">↓</Arrow>
+        <div className="h-0 min-h-0 w-full place-self-center overflow-visible" aria-hidden />
+        <div className="flex justify-center place-self-center leading-none">
+          <Arrow className="inline-flex !h-auto !min-h-0 py-0 leading-none">↓</Arrow>
         </div>
         <CycleCard {...bl} />
         <Arrow className="self-center justify-center">←</Arrow>

@@ -901,7 +901,6 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   margin-left: auto;
   margin-right: auto;
   width: 100%;
-  padding: 0 var(--rs-pad-x);
 }
 
 .rs-home-profiles {
