@@ -660,6 +660,12 @@ main.rs-portal-main .rs-panel {
   font-family: var(--font-dm), system-ui !important;
 }
 
+.rs-pill--accent {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--accent-border) !important;
+}
+
 /* --- Hero stagger --- */
 .rs-hero-stagger > * {
   opacity: 0;
@@ -883,7 +889,7 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
 }
 
 .rs-home-stat-card__num {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-syne), system-ui;
   font-size: clamp(24px, 4vw, 28px);
   font-weight: 800;
   letter-spacing: -0.02em;
