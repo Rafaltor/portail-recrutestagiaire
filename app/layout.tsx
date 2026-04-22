@@ -80,8 +80,8 @@ export default function RootLayout({
             className="rs-header-body"
             style={
               {
-                ["--rs-header-logo-col"]: "44px",
-                ["--rs-header-logo-inset"]: "12px",
+                ["--rs-header-logo-col"]: "96px",
+                ["--rs-header-logo-inset"]: "10px",
               } as CSSProperties
             }
           >

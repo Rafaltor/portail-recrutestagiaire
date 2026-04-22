@@ -158,7 +158,6 @@ export default function ProfilsPage() {
           {ranked.map((p) => {
             const handle = p.handle.replace(/^@/, "");
             const rank = rankById.get(p.id) ?? 0;
-            const likes = Number(p.likes ?? 0);
             return (
               <li key={p.id} className="min-w-0">
                 <article className="flex h-full min-w-0 flex-col rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-4">
@@ -174,8 +173,7 @@ export default function ProfilsPage() {
                     {p.city ?? "—"}
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#0A0A0A]">
-                    <span className="font-bold text-[#F472B6]">{likes}</span>{" "}
-                    likes · rang{" "}
+                    Rang{" "}
                     <span className="font-bold text-[#F472B6]">#{rank}</span>
                   </p>
                   {p.portfolio_url ? (

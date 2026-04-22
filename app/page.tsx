@@ -42,7 +42,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="mt-4">
+      <div className="mt-2 sm:mt-3">
         <HomeHowItWorks />
       </div>
 

@@ -15,7 +15,7 @@
 
 html[data-rs-swipe="1"] {
   --rs-swipe-bottom-chrome: calc(120px + env(safe-area-inset-bottom, 0px));
-  --rs-swipe-top-offset: calc(56px + env(safe-area-inset-top, 0px));
+  --rs-swipe-top-offset: calc(72px + env(safe-area-inset-top, 0px));
 }
 
 html[data-rs-swipe="1"] body.rs-portal-body {

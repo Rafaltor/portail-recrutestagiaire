@@ -63,7 +63,7 @@ main.rs-portal-main {
   letter-spacing: 0.04em;
 }
 
-/* Barre principale ~56px, logo compact */
+/* Barre principale desktop ~56px ; logo tuile piloté par --rs-header-logo-col (layout) */
 .header-wrap .rs-header-body {
   border-bottom: none;
 }

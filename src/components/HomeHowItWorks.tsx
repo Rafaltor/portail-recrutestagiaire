@@ -60,36 +60,6 @@ function Arrow({
   );
 }
 
-/** Grille 2×2 compacte (mobile, cycles côte à côte). */
-function MiniCycleGrid({
-  cards,
-  order,
-}: {
-  cards: [CardDef, CardDef, CardDef, CardDef];
-  order: [number, number, number, number];
-}) {
-  const ordered = order.map((i) => cards[i]!);
-  return (
-    <div className="mt-1 grid grid-cols-2 gap-1">
-      {ordered.map((c) => (
-        <div
-          key={`${c.step}-${c.title}`}
-          className={`rounded-[6px] border border-[#F0F0F0] bg-[#FAFAFA] p-1.5 ${
-            c.highlight ? "ring-1 ring-[#F472B6]" : ""
-          }`}
-        >
-          <p className="text-[10px] font-medium uppercase tracking-wide text-[#6B6B6B]">
-            {c.step}
-          </p>
-          <p className="mt-0.5 line-clamp-3 text-[11px] font-semibold leading-tight text-[#0A0A0A]">
-            {c.title}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function FlowCycleGrid({
   cards,
   mobileOrder,
@@ -107,7 +77,7 @@ function FlowCycleGrid({
           <div key={`${c.step}-${c.title}-${idx}`}>
             <CycleCard {...c} />
             {idx < list.length - 1 ? (
-              <div className="flex justify-center py-1">
+              <div className="flex justify-center py-0.5">
                 <Arrow>↓</Arrow>
               </div>
             ) : null}
@@ -115,7 +85,7 @@ function FlowCycleGrid({
         ))}
       </div>
 
-      <div className="mx-auto hidden w-full max-w-md md:grid md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-2 lg:max-w-none">
+      <div className="mx-auto hidden w-full max-w-md md:grid md:grid-cols-[minmax(0,1fr)_2rem_minmax(0,1fr)] md:grid-rows-3 md:gap-x-0 md:gap-y-1.5 lg:max-w-none">
         <CycleCard {...tl} />
         <Arrow className="self-center justify-center">→</Arrow>
         <CycleCard {...tr} />
@@ -163,7 +133,7 @@ function ColumnTitle({
 
 function DividerLabel({ children }: { children: ReactNode }) {
   return (
-    <div className={`relative ${shell} py-2`}>
+    <div className={`relative ${shell} py-1`}>
       <div
         className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[#F0F0F0]"
         aria-hidden
@@ -205,27 +175,26 @@ export function HomeHowItWorks() {
 
   return (
     <section
-      className="overflow-hidden rounded-[8px] border border-[#F0F0F0] bg-white px-4 py-6 sm:px-8 sm:py-12"
+      className="overflow-hidden rounded-[8px] border border-[#F0F0F0] bg-white px-4 py-5 sm:px-6 sm:py-8 md:py-10"
       aria-labelledby="rs-home-how-parcours rs-home-how-cycle"
     >
-      <p className="mb-2 text-center text-[13px] font-medium uppercase tracking-[0.12em] text-[#6B6B6B] md:hidden">
+      <p className="mb-3 text-center text-[13px] font-medium uppercase tracking-[0.12em] text-[#6B6B6B] md:hidden">
         Comment ça marche
       </p>
 
-      <div className="mx-auto max-h-[340px] min-h-0 overflow-y-auto md:max-h-none md:overflow-visible">
-        <div className={`${shell} grid grid-cols-2 gap-2 md:hidden`}>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-[#0A0A0A]">Ton parcours</p>
-            <MiniCycleGrid cards={parcoursCards} order={[0, 1, 3, 2]} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-[#0A0A0A]">Le cycle RS</p>
-            <MiniCycleGrid cards={cycleCards} order={[0, 1, 2, 3]} />
-          </div>
+      <div className={`${shell} flex flex-col gap-5 md:hidden`}>
+        <div>
+          <p className="mb-2 text-sm font-semibold text-[#0A0A0A]">Ton parcours</p>
+          <FlowCycleGrid cards={parcoursCards} mobileOrder={[0, 1, 3, 2]} />
         </div>
+        <div className="border-t border-[#F0F0F0] pt-5">
+          <p className="mb-2 text-sm font-semibold text-[#0A0A0A]">Le cycle RS</p>
+          <FlowCycleGrid cards={cycleCards} mobileOrder={[0, 1, 2, 3]} />
+        </div>
+      </div>
 
-        <div className={`${shell} hidden md:flex md:flex-col md:gap-10 lg:flex-row lg:items-start`}>
-          <div className="min-w-0 flex-1 space-y-6 lg:space-y-8">
+      <div className={`${shell} mt-0 hidden md:flex md:flex-col md:gap-5 lg:mt-0 lg:flex-row lg:items-start lg:gap-8`}>
+          <div className="min-w-0 flex-1 space-y-4 lg:space-y-5">
             <ColumnTitle
               kicker="Comment ça marche"
               title="Ton parcours"
@@ -256,7 +225,7 @@ export function HomeHowItWorks() {
             aria-hidden
           />
 
-          <div className="min-w-0 flex-1 space-y-6 lg:space-y-8">
+          <div className="min-w-0 flex-1 space-y-4 lg:space-y-5">
             <div className="lg:hidden">
               <DividerLabel>Le recrutement</DividerLabel>
             </div>
@@ -265,13 +234,12 @@ export function HomeHowItWorks() {
             <FlowCycleGrid cards={cycleCards} mobileOrder={[0, 1, 2, 3]} />
           </div>
         </div>
-      </div>
 
-      <div className={`${shell} mt-6 hidden lg:block`}>
+      <div className={`${shell} mt-4 hidden lg:block`}>
         <DividerLabel>Le recrutement</DividerLabel>
       </div>
 
-      <div className={`${shell} mt-6 md:mt-8 lg:mt-10`}>
+      <div className={`${shell} mt-5 md:mt-6 lg:mt-7`}>
         <a
           href="/depot"
           className="rs-btn rs-btn--primary flex w-full flex-col items-center gap-0.5 rounded-[6px] py-4 text-center no-underline hover:no-underline sm:py-5"
