@@ -706,9 +706,15 @@ main.rs-portal-main .rs-panel {
   gap: clamp(16px, 2.5vw, 32px);
 }
 
+/* Accueil : le main a un fond blanc forcé ailleurs (rs-modern-portal) — on le retire ici pour laisser voir le hero. */
+body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
+  background: transparent !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
 .rs-home-hero {
   position: relative;
-  isolation: isolate;
   overflow: hidden;
   max-width: var(--rs-content-max);
   margin: 0 auto;
@@ -748,9 +754,9 @@ main.rs-portal-main .rs-panel {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(250, 250, 248, 0.38) 0%,
-    rgba(250, 250, 248, 0.72) 55%,
-    rgba(250, 250, 248, 0.88) 100%
+    rgba(250, 250, 248, 0.2) 0%,
+    rgba(250, 250, 248, 0.45) 50%,
+    rgba(250, 250, 248, 0.65) 100%
   );
 }
 

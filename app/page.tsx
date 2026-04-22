@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeHowItWorks } from "@/components/HomeHowItWorks";
+import { HomeHeroBackdrop } from "@/components/HomeHeroBackdrop";
 import { HomeHeroStats } from "@/components/HomeHeroStats";
 import { HomeTopProfile } from "@/components/HomeTopProfile";
 import { pageMetadata } from "@/lib/seo";
@@ -17,16 +18,7 @@ export default function Home() {
   return (
     <div className="rs-home-page">
       <section className="rs-home-hero">
-        <div className="rs-home-hero__bg" aria-hidden>
-          <img
-            className="rs-home-hero__bg-img"
-            src="/swipe-stamps/background-portail.png"
-            alt=""
-            width={1920}
-            height={1080}
-            decoding="async"
-          />
-        </div>
+        <HomeHeroBackdrop />
         <div className="rs-home-hero__grid rs-home-hero__grid--front">
           <div className="rs-home-hero__copy rs-hero-stagger">
             <div className="rs-home-hero__badge">
