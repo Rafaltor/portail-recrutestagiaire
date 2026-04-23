@@ -79,7 +79,14 @@ export default function RootLayout({
                     className="rs-header-mobile-bar__brand rs-ph-mbrand"
                     href="https://recrutestagiaire.eu"
                   >
-                    <span className="rs-ph-dot" aria-hidden />
+                    <img
+                      src="/rs-logo-eu.svg"
+                      alt=""
+                      width={36}
+                      height={36}
+                      className="rs-ph-brandlink-logo"
+                      decoding="async"
+                    />
                     <span className="rs-header-mobile-bar__title">
                       <span className="lg:hidden">RS</span>
                       <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>
@@ -111,7 +118,14 @@ export default function RootLayout({
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
                         href="https://recrutestagiaire.eu"
                       >
-                        <span className="rs-ph-dot" aria-hidden />
+                        <img
+                          src="/rs-logo-eu.svg"
+                          alt=""
+                          width={36}
+                          height={36}
+                          className="rs-ph-brandlink-logo"
+                          decoding="async"
+                        />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
                           <span className="lg:hidden">RS</span>
                           <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>

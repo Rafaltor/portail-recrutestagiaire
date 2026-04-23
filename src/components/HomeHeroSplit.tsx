@@ -44,7 +44,7 @@ export function HomeHeroSplit() {
       <HomeHeroBackdrop />
       <div className="rs-home-hero__grid--front relative z-[3] flex w-full flex-col">
         {/* Bandeau blanc pleine largeur (texte + CTA) */}
-        <div className="w-full border-b border-[#E8E8E8]/80 bg-white/95 px-4 py-8 backdrop-blur-[6px] sm:px-8 sm:py-12 md:px-12 md:py-14 lg:px-16">
+        <div className="w-full border-b border-[#E8E8E8]/40 bg-transparent px-4 py-8 sm:px-8 sm:py-12 md:px-12 md:py-14 lg:px-16">
           <div className="mx-auto min-w-0 w-full max-w-[1200px]">
             <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
               Collectif · Paris · 2026
@@ -71,7 +71,7 @@ export function HomeHeroSplit() {
         </div>
 
         {/* Bandeau noir pleine largeur (stats en ligne) */}
-        <div className="w-full bg-[#0A0A0A] px-4 py-6 text-white sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
+        <div className="w-full bg-transparent px-4 py-6 text-white sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
           <div className="mx-auto flex min-w-0 w-full max-w-[1200px] flex-col gap-6 sm:gap-8 md:flex-row md:items-end md:justify-between md:gap-10">
             <div className="min-w-0">
               <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 sm:text-[11px] sm:tracking-[0.14em]">
