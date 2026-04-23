@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { HomeHeroBackdrop } from "@/components/HomeHeroBackdrop";
 
 function fmt(n: number | null) {
   if (n === null || Number.isNaN(n)) return "—";
@@ -39,10 +40,11 @@ export function HomeHeroSplit() {
     "inline-flex min-h-[48px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-7 py-3 text-center font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline";
 
   return (
-    <section className="min-h-[min(100vh,720px)] w-full overflow-hidden bg-white md:min-h-[560px]">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 md:grid-cols-[1fr_420px]">
+    <section className="rs-home-hero rs-home-hero--wide relative min-h-[min(100vh,720px)] w-full overflow-hidden md:min-h-[560px]">
+      <HomeHeroBackdrop />
+      <div className="rs-home-hero__grid--front rs-home-hero__grid relative z-[3] mx-auto grid max-w-[1200px] grid-cols-1 md:grid-cols-[1fr_420px]">
         {/* Colonne gauche */}
-        <div className="flex flex-col justify-center px-6 py-10 md:px-16 md:py-20 lg:pl-16 lg:pr-12">
+        <div className="flex flex-col justify-center bg-white/90 px-6 py-10 backdrop-blur-[6px] md:px-16 md:py-20 md:bg-white/85 lg:pl-16 lg:pr-12">
           <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
             Collectif · Paris · 2026
           </p>

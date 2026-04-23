@@ -585,7 +585,15 @@ a.rs-btn.rs-btn--primary {
 .rs-btn.rs-btn--primary:hover,
 a.rs-btn.rs-btn--primary:hover {
   background: #db2777 !important;
+  color: #fff !important;
   transform: translateY(-1px);
+}
+
+.rs-btn.rs-btn--primary:focus-visible,
+a.rs-btn.rs-btn--primary:focus-visible,
+.rs-btn.rs-btn--primary:visited,
+a.rs-btn.rs-btn--primary:visited {
+  color: #fff !important;
 }
 
 .rs-btn.rs-btn--ghost,
@@ -729,6 +737,13 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   min-height: min(52vh, 560px);
   padding: clamp(32px, 5vw, 72px) var(--rs-pad-x) clamp(28px, 4vw, 56px);
   background-color: var(--gray-100);
+}
+
+/* Hero accueil : fond image sur toute la largeur du viewport */
+.rs-home-hero.rs-home-hero--wide {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* Fond hero : image via background-image (HomeHeroBackdrop), pas d’<img> */

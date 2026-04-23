@@ -167,7 +167,7 @@ export default function ProfilsPage() {
           Chargement des profils…
         </div>
       ) : ranked.length ? (
-        <ul className="grid w-full grid-cols-1 gap-4">
+        <ul className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
           {ranked.map((p) => {
             const handle = p.handle.replace(/^@/, "");
             const rank = rankById.get(p.id) ?? 0;

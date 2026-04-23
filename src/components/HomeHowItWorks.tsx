@@ -19,7 +19,7 @@ const prisLines = [
 ];
 
 const cardClass =
-  "flex min-h-[160px] flex-col rounded-xl border border-[#E8E8E8] bg-white p-6";
+  "flex h-full min-h-[220px] flex-col rounded-xl border border-[#E8E8E8] bg-white p-6 lg:min-h-[240px]";
 
 function ParcoursCard({
   step,
@@ -30,7 +30,7 @@ function ParcoursCard({
   body,
 }: CardDef) {
   return (
-    <article className={`${cardClass} min-w-0`}>
+    <article className={`${cardClass} min-w-0 w-full`}>
       <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.1em] text-[#f472b6]">
         {step}
       </p>
@@ -166,7 +166,7 @@ export function HomeHowItWorks() {
 
         <div className="mx-auto w-full max-w-[var(--rs-content-max)]">
           {/* Mobile / tablette : 2 colonnes */}
-          <div className="grid grid-cols-2 gap-4 lg:hidden">
+          <div className="grid grid-cols-2 items-stretch gap-4 lg:hidden">
             {steps.map((c) => (
               <ParcoursCard key={c.step} {...c} />
             ))}
@@ -174,19 +174,19 @@ export function HomeHowItWorks() {
 
           {/* Desktop : 1 ligne + chevrons */}
           <div className="hidden items-stretch gap-2 lg:flex">
-            <div className="min-w-0 flex-1">
+            <div className="flex min-h-0 min-w-0 flex-1">
               <ParcoursCard {...steps[0]!} />
             </div>
             <Chevron />
-            <div className="min-w-0 flex-1">
+            <div className="flex min-h-0 min-w-0 flex-1">
               <ParcoursCard {...steps[1]!} />
             </div>
             <Chevron />
-            <div className="min-w-0 flex-1">
+            <div className="flex min-h-0 min-w-0 flex-1">
               <ParcoursCard {...steps[2]!} />
             </div>
             <Chevron />
-            <div className="min-w-0 flex-1">
+            <div className="flex min-h-0 min-w-0 flex-1">
               <ParcoursCard {...steps[3]!} />
             </div>
           </div>

@@ -133,12 +133,17 @@
   border-color: #f472b6;
 }
 
-.rs-btn--primary:hover {
+.rs-btn--primary:hover,
+.rs-btn--primary:focus-visible {
   background: #db2777;
   color: #fff;
   text-decoration: none;
   border-color: #db2777;
   transform: translateY(-1px);
+}
+
+a.rs-btn--primary:visited {
+  color: #fff;
 }
 
 .rs-btn--ghost {

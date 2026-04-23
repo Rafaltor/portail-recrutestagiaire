@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-/** Fichiers testés dans public/swipe-stamps/ (sans <img> = pas d’icône « cassée »). */
+/** Fichiers dans public/ (sans <img> = pas d’icône « cassée »). */
 const RASTER = [
+  "/background-portail.png",
   "/swipe-stamps/background-portail.png",
   "/swipe-stamps/background_portail.jpg",
   "/swipe-stamps/background-portail.jpg",
