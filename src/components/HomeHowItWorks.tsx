@@ -67,34 +67,35 @@ function ParcoursCard({
 
 function BlocPris() {
   return (
-    <article className="flex w-full flex-col gap-6 rounded-xl bg-[#0A0A0A] px-6 py-7 text-white sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-8 sm:py-8">
-      <div className="min-w-0 shrink-0 sm:max-w-[38%]">
-        <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
-          Sortie du cycle
-        </p>
-        <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
-          Le meilleur CV
-        </h3>
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col sm:items-end sm:text-right">
-        <ul className="mt-0 list-none space-y-2.5 p-0 font-[family-name:var(--font-dm)] text-[15px] font-normal leading-relaxed text-[#E8E8E8] sm:mt-0">
-          {prisLines.map((line) => (
-            <li key={line}>
-              <span className="mr-2 text-[#f472b6]" aria-hidden>
-                ✦
-              </span>
-              {line}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-6 w-full sm:mt-6 sm:w-auto sm:self-end">
-          <Link
-            href="/depot"
-            className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#f472b6] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:w-auto"
-          >
-            Déposer mon CV →
-          </Link>
+    <article className="flex w-full flex-col gap-5 rounded-xl bg-[#0A0A0A] px-6 py-7 text-white sm:gap-6 sm:px-8 sm:py-8">
+      <div className="flex flex-row items-start justify-between gap-4">
+        <div className="min-w-0 pr-2">
+          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
+            Sortie du cycle
+          </p>
+          <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
+            Le meilleur CV
+          </h3>
         </div>
+        <Link
+          href="/depot"
+          className="rs-on-pink inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-sm"
+        >
+          Déposer mon CV →
+        </Link>
+      </div>
+      <div className="-mx-1 flex min-w-0 flex-nowrap items-center gap-x-2 overflow-x-auto px-1 pb-0.5 font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:gap-x-3 sm:text-[13px] md:gap-x-4 md:text-[15px]">
+        {prisLines.map((line) => (
+          <span
+            key={line}
+            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap"
+          >
+            <span className="shrink-0 text-[#f472b6]" aria-hidden>
+              ✦
+            </span>
+            {line}
+          </span>
+        ))}
       </div>
     </article>
   );
@@ -141,7 +142,7 @@ export function HomeHowItWorks() {
     {
       step: "01",
       title: "Poste ton CV",
-      subtitle: "(Monopage + pas de photo)",
+      sublines: ["Monopage", "Pas de photo"],
     },
     {
       step: "02",
@@ -156,7 +157,6 @@ export function HomeHowItWorks() {
     {
       step: "04",
       title: "Bosse et redépose",
-      body: "Améliore ton profil. Chaque dépôt te rapproche du recrutement.",
     },
   ];
 

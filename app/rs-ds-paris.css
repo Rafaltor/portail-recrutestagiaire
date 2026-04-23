@@ -596,6 +596,38 @@ a.rs-btn.rs-btn--primary:visited {
   color: #fff !important;
 }
 
+/* Libellé blanc sur tout fond rose (surcharge abt-btn / héritages) */
+.rs-on-pink,
+a.rs-on-pink,
+a.rs-on-pink:hover,
+a.rs-on-pink:focus-visible,
+a.rs-on-pink:visited,
+main.rs-portal-main a.rs-btn.rs-btn--primary,
+main.rs-portal-main a.rs-btn.rs-btn--primary:hover,
+main.rs-portal-main a.rs-btn.rs-btn--primary:focus-visible,
+main.rs-portal-main a.rs-btn.rs-btn--primary:visited,
+main.rs-portal-main button.rs-btn.rs-btn--primary,
+main.rs-portal-main button.rs-btn.rs-btn--primary:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+.header-wrap a.rs-ph-cta,
+.header-wrap a.rs-ph-cta:hover,
+.header-wrap a.rs-ph-cta:focus-visible,
+.header-wrap a.rs-ph-cta:visited {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+/* Liens / boutons Tailwind fond rose (tokens séparés) : texte blanc */
+a[class~="bg-[#f472b6]"],
+a[class~="!bg-[#f472b6]"],
+button[class~="bg-[#f472b6]"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
 .rs-btn.rs-btn--ghost,
 a.rs-btn.rs-btn--ghost {
   background: transparent !important;
@@ -759,7 +791,7 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   background-repeat: no-repeat;
 }
 
-/* Voile léger pour lisibilité du texte (au-dessus de la photo) */
+/* Voile léger + léger flou sur le fond image (au-dessus de la photo) */
 .rs-home-hero::after {
   content: "";
   position: absolute;
@@ -768,10 +800,12 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(250, 250, 248, 0.2) 0%,
-    rgba(250, 250, 248, 0.45) 50%,
-    rgba(250, 250, 248, 0.65) 100%
+    rgba(250, 250, 248, 0.14) 0%,
+    rgba(250, 250, 248, 0.34) 50%,
+    rgba(250, 250, 248, 0.52) 100%
   );
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 
 .rs-home-hero__grid--front {
