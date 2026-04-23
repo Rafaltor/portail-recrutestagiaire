@@ -49,7 +49,7 @@ export function HomeHeroSplit() {
             <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
               Collectif · Paris · 2026
             </p>
-            <h1 className="mt-3 max-w-full break-words font-[family-name:var(--font-syne)] text-[clamp(1.5rem,6.8vw,2.15rem)] font-extrabold leading-[1.08] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[40px] sm:leading-[1.05] md:text-[56px] lg:text-[64px]">
+            <h1 className="mt-3 max-w-full break-words font-[family-name:var(--font-syne)] text-[clamp(1.15rem,5.2vw,1.65rem)] font-extrabold leading-[1.12] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[40px] sm:leading-[1.05] md:text-[56px] lg:text-[64px]">
               On a commencé <span className="text-[#f472b6]">stagiaires.</span>
               <br />
               Pourquoi pas vous ?
@@ -72,38 +72,27 @@ export function HomeHeroSplit() {
 
         {/* Bandeau noir pleine largeur (stats en ligne) */}
         <div className="w-full bg-transparent px-4 py-6 text-white sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
-          <div className="mx-auto flex min-w-0 w-full max-w-[1200px] flex-col gap-6 sm:gap-8 md:flex-row md:items-end md:justify-between md:gap-10">
-            <div className="min-w-0">
-              <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 sm:text-[11px] sm:tracking-[0.14em]">
-                En direct
-              </p>
-              <div className="mt-4 flex min-w-0 flex-row flex-wrap items-end gap-6 sm:mt-5 sm:gap-12 md:gap-16 lg:gap-24">
-                <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
-                  <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
-                    {fmt(profiles)}
-                  </p>
-                  <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">CVs dans la base</p>
-                </div>
-                <div
-                  className="hidden h-[min(4.5rem,18vw)] w-px shrink-0 self-center bg-white/15 sm:block sm:h-[72px] md:h-[88px]"
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
-                  <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
-                    {fmt(votes)}
-                  </p>
-                  <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">Votes enregistrés</p>
-                </div>
+          <div className="mx-auto min-w-0 w-full max-w-[1200px]">
+            <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 sm:text-[11px] sm:tracking-[0.14em]">
+              En direct
+            </p>
+            <div className="mt-4 flex min-w-0 flex-row flex-wrap items-end gap-6 sm:mt-5 sm:gap-12 md:gap-16 lg:gap-24">
+              <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
+                <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
+                  {fmt(profiles)}
+                </p>
+                <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">CVs dans la base</p>
               </div>
-            </div>
-            <div className="flex shrink-0 justify-start md:justify-end">
-              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-medium leading-snug text-white sm:gap-2 sm:px-3.5 sm:text-xs">
-                <span
-                  className="inline-block h-2 w-2 shrink-0 rounded-full bg-[#22C55E] animate-pulse"
-                  aria-hidden
-                />
-                Candidatures ouvertes
-              </span>
+              <div
+                className="hidden h-[min(4.5rem,18vw)] w-px shrink-0 self-center bg-white/15 sm:block sm:h-[72px] md:h-[88px]"
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
+                <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
+                  {fmt(votes)}
+                </p>
+                <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">Votes enregistrés</p>
+              </div>
             </div>
           </div>
         </div>

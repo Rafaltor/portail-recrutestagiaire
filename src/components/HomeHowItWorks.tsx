@@ -84,11 +84,11 @@ function BlocPris() {
           Déposer mon CV →
         </Link>
       </div>
-      <div className="-mx-1 flex min-w-0 flex-nowrap items-center gap-x-2 overflow-x-auto px-1 pb-0.5 font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:gap-x-3 sm:text-[13px] md:gap-x-4 md:text-[15px]">
+      <div className="-mx-1 flex min-w-0 flex-col gap-2 px-1 pb-0.5 font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:flex-row sm:flex-nowrap sm:items-center sm:gap-x-3 sm:overflow-x-auto sm:text-[13px] md:gap-x-4 md:text-[15px]">
         {prisLines.map((line) => (
           <span
             key={line}
-            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap"
+            className="flex w-full items-center gap-1.5 sm:inline-flex sm:w-auto sm:shrink-0 sm:whitespace-nowrap"
           >
             <span className="shrink-0 text-[#f472b6]" aria-hidden>
               ✦
@@ -157,6 +157,7 @@ export function HomeHowItWorks() {
     {
       step: "04",
       title: "Bosse et redépose",
+      subtitle: "Améliore ton CV",
     },
   ];
 

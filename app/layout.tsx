@@ -15,6 +15,8 @@ import "./rs-shopify-ui.css";
 import "./portal-theme.css";
 import "./rs-modern-portal.css";
 import "./rs-ds-paris.css";
+import "./rs-portal-header.css";
+import "./rs-portal-header-next.css";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -62,13 +64,10 @@ export default function RootLayout({
 
   return (
     <html lang="fr" data-rs-header-tab="offres" className={fontVars}>
-      <body className="rs-portal-body rs-ds-paris flex min-h-dvh flex-col text-[#0a0a0a]">
+      <body className="rs-portal-body rs-ds-paris rs-portal-header flex min-h-dvh flex-col text-[#0a0a0a]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
-        <div
-          className="header-wrap rs-header sticky top-0 z-50 min-h-16 border-b border-[#E8E8E8] bg-white/95 backdrop-blur-md"
-          role="banner"
-        >
+        <div className="header-wrap rs-header z-50" role="banner">
           <ParisTicker />
 
           <div className="rs-header-body">
@@ -80,11 +79,12 @@ export default function RootLayout({
                     href="https://recrutestagiaire.eu"
                   >
                     <img
-                      src="/rs-logo-eu.svg"
+                      src="/rs-logo-eu.png"
                       alt=""
-                      width={36}
-                      height={36}
-                      className="rs-ph-brandlink-logo"
+                      width={72}
+                      height={72}
+                      className="rs-header-mobile-bar__logo"
+                      loading="eager"
                       decoding="async"
                     />
                     <span className="rs-header-mobile-bar__title">
@@ -94,20 +94,16 @@ export default function RootLayout({
                   </a>
                   <button
                     type="button"
-                    className="rs-header-mobile-bar__menu-btn"
+                    className="rs-header-mobile-bar__menu-btn rs-header-burger-btn"
                     id="rs-header-mobile-menu-btn"
                     aria-expanded="false"
                     aria-controls="rs-header-drawer-panel"
                     data-rs-header-drawer-open
                   >
                     <span className="sr-only">Ouvrir le menu</span>
-                    <span
-                      className="rs-header-mobile-bar__burger"
-                      aria-hidden="true"
-                    >
-                      <span className="rs-header-mobile-bar__burger-line" />
-                      <span className="rs-header-mobile-bar__burger-line" />
-                      <span className="rs-header-mobile-bar__burger-line" />
+                    <span className="rs-header-burger" aria-hidden="true">
+                      <span className="rs-header-burger__line" />
+                      <span className="rs-header-burger__line" />
                     </span>
                   </button>
                 </div>
@@ -119,11 +115,13 @@ export default function RootLayout({
                         href="https://recrutestagiaire.eu"
                       >
                         <img
-                          src="/rs-logo-eu.svg"
+                          src="/rs-logo-eu.png"
                           alt=""
-                          width={36}
-                          height={36}
+                          width={80}
+                          height={80}
                           className="rs-ph-brandlink-logo"
+                          style={{ maxHeight: 80, width: "auto" }}
+                          loading="eager"
                           decoding="async"
                         />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
@@ -138,13 +136,13 @@ export default function RootLayout({
                     <div className="rs-banner-top__actions d-inline-flex align-items-center">
                       <Link
                         href="/depot"
-                        className="rs-ph-cta no-underline hover:no-underline !bg-[#f472b6] !px-7 !py-3 !text-[15px] !font-bold !text-white transition-colors duration-150 hover:!bg-[#db2777]"
+                        className="rs-ph-cta rs-btn rs-btn--primary text-decoration-none no-underline hover:no-underline"
                       >
                         Déposer mon CV
                       </Link>
                       <a
                         href="https://recrutestagiaire.eu/cart"
-                        className="rs-nav-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]"
+                        className="rs-header-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]"
                         aria-label="Mon dossier"
                       >
                         <svg
@@ -176,7 +174,7 @@ export default function RootLayout({
                         </span>
                       </a>
 
-                      <HeaderAccountLink className="!border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]" />
+                      <HeaderAccountLink className="rs-header-ghost-link !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]" />
                     </div>
                   </div>
                 </div>

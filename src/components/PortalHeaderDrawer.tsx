@@ -253,12 +253,15 @@ export function PortalHeaderDrawer() {
         </nav>
         <div className="rs-header-drawer__footer">
           <div className="rs-banner-top__actions rs-header-drawer__footer-actions d-inline-flex flex-column align-items-stretch gap-2 w-100">
-            <Link href="/depot" className="rs-ph-drawer-cta text-center no-underline hover:no-underline">
+            <Link
+              href="/depot"
+              className="rs-ph-drawer-cta rs-btn rs-btn--primary rs-header-drawer__caf-btn text-center text-decoration-none no-underline hover:no-underline"
+            >
               Déposer mon CV
             </Link>
             <a
               href="https://recrutestagiaire.eu/cart"
-              className="abt-btn rs-caf-btn-dossier rs-banner-top__cart rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap"
+              className="rs-header-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap"
               aria-label="Mon dossier"
             >
               <svg
@@ -289,7 +292,7 @@ export function PortalHeaderDrawer() {
                 </span>
               </span>
             </a>
-            <HeaderAccountLink className="rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap" />
+            <HeaderAccountLink className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap" />
           </div>
         </div>
       </div>
