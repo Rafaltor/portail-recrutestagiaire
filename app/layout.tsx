@@ -124,13 +124,13 @@ export default function RootLayout({
                     <div className="rs-banner-top__actions d-inline-flex align-items-center">
                       <Link
                         href="/depot"
-                        className="rs-ph-cta no-underline hover:no-underline !bg-[#E11D48] !px-7 !py-3 !text-[15px] !font-bold !text-white transition-colors duration-150 hover:!bg-[#C41A3E]"
+                        className="rs-ph-cta no-underline hover:no-underline !bg-[#f472b6] !px-7 !py-3 !text-[15px] !font-bold !text-white transition-colors duration-150 hover:!bg-[#db2777]"
                       >
                         Déposer mon CV
                       </Link>
                       <a
                         href="https://recrutestagiaire.eu/cart"
-                        className="rs-nav-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#E11D48]"
+                        className="rs-nav-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]"
                         aria-label="Mon dossier"
                       >
                         <svg
@@ -162,7 +162,7 @@ export default function RootLayout({
                         </span>
                       </a>
 
-                      <HeaderAccountLink className="!border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#E11D48]" />
+                      <HeaderAccountLink className="!border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]" />
                     </div>
                   </div>
                 </div>

@@ -31,7 +31,7 @@ function ParcoursCard({
 }: CardDef) {
   return (
     <article className={`${cardClass} min-w-0`}>
-      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.1em] text-[#E11D48]">
+      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.1em] text-[#f472b6]">
         {step}
       </p>
       <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[18px] font-extrabold leading-snug tracking-tight text-[#0A0A0A]">
@@ -68,7 +68,7 @@ function ParcoursCard({
 function BlocPris() {
   return (
     <article className="w-full rounded-xl bg-[#0A0A0A] px-6 py-7 text-white sm:px-8 sm:py-8">
-      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#E11D48]">
+      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
         Sortie du cycle
       </p>
       <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
@@ -77,7 +77,7 @@ function BlocPris() {
       <ul className="mt-4 list-none space-y-2.5 p-0 font-[family-name:var(--font-dm)] text-[15px] font-normal leading-relaxed text-[#E8E8E8]">
         {prisLines.map((line) => (
           <li key={line}>
-            <span className="mr-2 text-[#E11D48]" aria-hidden>
+            <span className="mr-2 text-[#f472b6]" aria-hidden>
               ✦
             </span>
             {line}
@@ -87,7 +87,7 @@ function BlocPris() {
       <div className="mt-6">
         <Link
           href="/depot"
-          className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#E11D48] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#C41A3E] sm:w-auto"
+          className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#f472b6] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:w-auto"
         >
           Déposer mon CV →
         </Link>
@@ -124,7 +124,7 @@ function ColumnTitle({
 function Chevron() {
   return (
     <span
-      className="hidden shrink-0 select-none items-center justify-center self-center px-1 font-[family-name:var(--font-syne)] text-2xl font-bold leading-none text-[#E11D48] lg:flex"
+      className="hidden shrink-0 select-none items-center justify-center self-center px-1 font-[family-name:var(--font-syne)] text-2xl font-bold leading-none text-[#f472b6] lg:flex"
       aria-hidden
     >
       ›
@@ -192,10 +192,10 @@ export function HomeHowItWorks() {
           </div>
 
           <div className="mt-6 flex flex-col items-center gap-1 pt-2">
-            <span className="text-xl font-bold text-[#E11D48] lg:hidden" aria-hidden>
+            <span className="text-xl font-bold text-[#f472b6] lg:hidden" aria-hidden>
               ↓
             </span>
-            <span className="hidden text-2xl font-bold text-[#E11D48] lg:inline" aria-hidden>
+            <span className="hidden text-2xl font-bold text-[#f472b6] lg:inline" aria-hidden>
               ↓
             </span>
           </div>

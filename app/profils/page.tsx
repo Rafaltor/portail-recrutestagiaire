@@ -44,7 +44,7 @@ async function openCvPdf(profileId: string) {
 }
 
 const searchInputClass =
-  "w-full rounded-xl border-[1.5px] border-[#E8E8E8] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] outline-none transition-colors placeholder:text-[#6B6B6B]/70 focus:border-[#E11D48]";
+  "w-full rounded-xl border-[1.5px] border-[#E8E8E8] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] outline-none transition-colors placeholder:text-[#6B6B6B]/70 focus:border-[#f472b6]";
 
 export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
@@ -152,7 +152,7 @@ export default function ProfilsPage() {
           />
           <a
             href="/depot"
-            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#E11D48] px-6 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#C41A3E]"
+            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#f472b6] px-6 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777]"
           >
             Déposer un CV
           </a>
@@ -184,7 +184,7 @@ export default function ProfilsPage() {
                     </span>
                     <p className="mt-2 text-[13px] text-[#6B6B6B]">{p.city ?? "—"}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-3">
-                      <p className="text-sm font-bold text-[#E11D48]">
+                      <p className="text-sm font-bold text-[#f472b6]">
                         Rang #{rank}
                       </p>
                       {p.portfolio_url ? (
@@ -192,7 +192,7 @@ export default function ProfilsPage() {
                           href={p.portfolio_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs font-semibold text-[#E11D48] underline-offset-2 hover:underline"
+                          className="text-xs font-semibold text-[#f472b6] underline-offset-2 hover:underline"
                         >
                           Portfolio
                         </a>
@@ -203,13 +203,13 @@ export default function ProfilsPage() {
                       <button
                         type="button"
                         onClick={(e) => onOpenCv(e, p.id)}
-                        className="inline-flex min-h-[40px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-5 py-2 text-sm font-bold text-[#0A0A0A] transition-colors hover:border-[#E11D48]"
+                        className="inline-flex min-h-[40px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-5 py-2 text-sm font-bold text-[#0A0A0A] transition-colors hover:border-[#f472b6]"
                       >
                         Voir le CV
                       </button>
                       <Link
                         href="/swipe"
-                        className="inline-flex min-h-[40px] items-center justify-center rounded-full bg-[#E11D48] px-5 py-2 text-sm font-bold text-white no-underline transition-colors hover:bg-[#C41A3E]"
+                        className="inline-flex min-h-[40px] items-center justify-center rounded-full bg-[#f472b6] px-5 py-2 text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777]"
                       >
                         Voter ♥
                       </Link>

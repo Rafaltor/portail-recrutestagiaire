@@ -128,16 +128,16 @@
 }
 
 .rs-btn--primary {
-  background: #e11d48;
+  background: #f472b6;
   color: #fff;
-  border-color: #e11d48;
+  border-color: #f472b6;
 }
 
 .rs-btn--primary:hover {
-  background: #c41a3e;
+  background: #db2777;
   color: #fff;
   text-decoration: none;
-  border-color: #c41a3e;
+  border-color: #db2777;
   transform: translateY(-1px);
 }
 
@@ -150,7 +150,7 @@
 .rs-btn--ghost:hover {
   background: transparent;
   color: #0a0a0a;
-  border-color: #e11d48;
+  border-color: #f472b6;
   transform: translateY(-1px);
 }
 

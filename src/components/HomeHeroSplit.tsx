@@ -34,20 +34,20 @@ export function HomeHeroSplit() {
   }, []);
 
   const primary =
-    "inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#E11D48] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#C41A3E] hover:no-underline";
+    "inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#f472b6] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#db2777] hover:no-underline";
   const secondary =
-    "inline-flex min-h-[48px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-7 py-3 text-center font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#E11D48] hover:no-underline";
+    "inline-flex min-h-[48px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-7 py-3 text-center font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline";
 
   return (
     <section className="min-h-[min(100vh,720px)] w-full overflow-hidden bg-white md:min-h-[560px]">
       <div className="mx-auto grid max-w-[1200px] grid-cols-1 md:grid-cols-[1fr_420px]">
         {/* Colonne gauche */}
         <div className="flex flex-col justify-center px-6 py-10 md:px-16 md:py-20 lg:pl-16 lg:pr-12">
-          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#E11D48]">
+          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
             Collectif · Paris · 2026
           </p>
           <h1 className="mt-4 max-w-full break-words font-[family-name:var(--font-syne)] text-[44px] font-extrabold leading-[1.05] tracking-tight text-[#0A0A0A] md:text-[64px]">
-            On a commencé <span className="text-[#E11D48]">stagiaires.</span>
+            On a commencé <span className="text-[#f472b6]">stagiaires.</span>
             <br />
             Pourquoi pas vous ?
           </h1>
@@ -75,7 +75,7 @@ export function HomeHeroSplit() {
             {/* Mobile : stats en ligne */}
             <div className="mt-4 flex flex-row items-stretch md:mt-6 md:flex-col">
               <div className="min-w-0 flex-1 md:flex-none">
-                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#E11D48] md:text-[72px]">
+                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#f472b6] md:text-[72px]">
                   {fmt(profiles)}
                 </p>
                 <p className="mt-2 text-sm text-white/90">CVs dans la base</p>
@@ -89,7 +89,7 @@ export function HomeHeroSplit() {
                 aria-hidden
               />
               <div className="min-w-0 flex-1 md:flex-none">
-                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#E11D48] md:text-[72px]">
+                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#f472b6] md:text-[72px]">
                   {fmt(votes)}
                 </p>
                 <p className="mt-2 text-sm text-white/90">Votes enregistrés</p>

@@ -339,7 +339,7 @@ export default function DepotPage() {
             <span className="text-sm font-medium text-[#0A0A0A]">
               CV en PDF (obligatoire)
             </span>
-            <label className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-[#E8E8E8] bg-white p-8 text-center transition-colors hover:border-[#E11D48] hover:bg-[#FFF5F7]">
+            <label className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-[#E8E8E8] bg-white p-8 text-center transition-colors hover:border-[#f472b6] hover:bg-[#FFF5F7]">
               <svg
                 className="mx-auto mb-3 h-8 w-8 text-[#6B6B6B]"
                 viewBox="0 0 24 24"
@@ -371,7 +371,7 @@ export default function DepotPage() {
                 className="sr-only"
               />
               {file ? (
-                <span className="mt-3 block text-sm font-semibold text-[#E11D48]">
+                <span className="mt-3 block text-sm font-semibold text-[#f472b6]">
                   ✓ {file.name}
                 </span>
               ) : null}
@@ -385,7 +385,7 @@ export default function DepotPage() {
           onClick={onAnalyzeCv}
           className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-bold transition-colors duration-150 ${
             canAnalyze
-              ? "cursor-pointer bg-[#E11D48] text-white hover:bg-[#C41A3E]"
+              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#db2777]"
               : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
           }`}
         >

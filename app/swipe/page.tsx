@@ -1067,7 +1067,7 @@ export default function SwipePage() {
         <button
           type="button"
           onClick={() => setShowOnboarding(true)}
-          className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-[#2A2A2A] text-xs text-[#6B6B6B] transition-colors hover:border-[#E11D48] hover:text-[#E11D48]"
+          className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-[#2A2A2A] text-xs text-[#6B6B6B] transition-colors hover:border-[#f472b6] hover:text-[#f472b6]"
           aria-label="Revoir les règles"
         >
           ?
@@ -1456,7 +1456,7 @@ export default function SwipePage() {
                       backgroundColor:
                         (isConnected ? likesLeft : freeLeft) <= 2
                           ? "#F59E0B"
-                          : "#E11D48",
+                          : "#f472b6",
                     }}
                   />
                 </div>
@@ -1514,7 +1514,7 @@ export default function SwipePage() {
                   onClick={(e) => {
                     void handleStampClick(e, "approved");
                   }}
-                  className={`flex h-[52px] w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#E11D48] text-xs font-bold text-white transition-opacity ${
+                  className={`flex h-[52px] w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f472b6] text-xs font-bold text-white transition-opacity ${
                     activeStampKind === "approved" ? "opacity-60" : ""
                   }`}
                   style={{

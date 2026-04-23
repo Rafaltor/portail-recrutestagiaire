@@ -29,7 +29,7 @@ export function PortalDesktopPageHeader({
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#E11D48]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
             {eyebrow}
           </p>
           <h1 className="rs-portal-page-hero__title mt-1 max-w-full break-words text-2xl font-black tracking-tight sm:text-3xl">

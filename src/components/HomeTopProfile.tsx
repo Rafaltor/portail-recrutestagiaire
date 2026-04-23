@@ -18,7 +18,7 @@ type TopPayload = {
 };
 
 const ghost =
-  "text-sm font-semibold text-[#E11D48] underline-offset-2 hover:underline";
+  "text-sm font-semibold text-[#f472b6] underline-offset-2 hover:underline";
 
 export function HomeTopProfile() {
   const [data, setData] = useState<TopPayload | null>(null);
@@ -81,7 +81,7 @@ export function HomeTopProfile() {
                 <div>
                   <span
                     className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold text-white ${
-                      badgeIsPink ? "bg-[#E11D48]" : "bg-[#0A0A0A]"
+                      badgeIsPink ? "bg-[#f472b6]" : "bg-[#0A0A0A]"
                     }`}
                   >
                     {rankLabel}
@@ -90,7 +90,7 @@ export function HomeTopProfile() {
                     @{h}
                   </p>
                   <p className="mt-1 text-xs text-[#6B6B6B]">{profile.job_title}</p>
-                  <p className="mt-3 text-sm font-bold text-[#E11D48]">
+                  <p className="mt-3 text-sm font-bold text-[#f472b6]">
                     ♥ {profile.likes} votes
                   </p>
                 </div>

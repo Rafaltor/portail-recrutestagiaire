@@ -200,7 +200,7 @@ main.rs-portal-main .rs-panel {
 }
 
 .rs-depot-step--active .rs-depot-step__num {
-  background: #e11d48;
+  background: #f472b6;
   color: #ffffff;
 }
 
@@ -229,7 +229,7 @@ main.rs-portal-main .rs-panel {
   font-size: 24px;
   line-height: 1.2;
   font-weight: 700;
-  color: #e11d48;
+  color: #f472b6;
 }
 
 .rs-metric-card__label {

@@ -337,7 +337,7 @@ body.rs-ds-paris .rs-ds-section-label {
 
 .rs-ph-cta:hover,
 .rs-ph-cta:focus-visible {
-  background: #c41a3e;
+  background: #db2777;
   color: #fff !important;
   transform: translateY(-1px);
 }
@@ -567,7 +567,7 @@ main.rs-portal-main {
 /* --- Boutons globaux (rs-btn) --- */
 .rs-btn.rs-btn--primary,
 a.rs-btn.rs-btn--primary {
-  background: #e11d48 !important;
+  background: #f472b6 !important;
   color: #fff !important;
   border: none !important;
   border-radius: 999px !important;
@@ -584,7 +584,7 @@ a.rs-btn.rs-btn--primary {
 
 .rs-btn.rs-btn--primary:hover,
 a.rs-btn.rs-btn--primary:hover {
-  background: #c41a3e !important;
+  background: #db2777 !important;
   transform: translateY(-1px);
 }
 
@@ -607,7 +607,7 @@ a.rs-btn.rs-btn--ghost {
 
 .rs-btn.rs-btn--ghost:hover,
 a.rs-btn.rs-btn--ghost:hover {
-  border-color: #e11d48 !important;
+  border-color: #f472b6 !important;
   transform: translateY(-1px);
 }
 
