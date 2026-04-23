@@ -39,6 +39,15 @@ export function ProfilStylePortalHeader({
   const err = errorMessage.trim();
   const hasEmpty = Boolean(emptyTitle) || emptyDescription != null;
 
+  const isRawDbError =
+    err &&
+    (err.toLowerCase().includes("uuid") ||
+      err.toLowerCase().includes("syntax") ||
+      err.toLowerCase().includes("invalid input"));
+  const displayError = isRawDbError
+    ? "Ce profil est introuvable ou n'est plus disponible."
+    : err;
+
   const title = profile
     ? profile.job_title
     : loading
@@ -52,7 +61,7 @@ export function ProfilStylePortalHeader({
   ) : loading ? (
     <>Récupération des informations du candidat…</>
   ) : err ? (
-    <span className="text-red-700">{err}</span>
+    <span className="text-red-700">{displayError}</span>
   ) : hasEmpty ? (
     (emptyDescription ?? "—") as ReactNode
   ) : (

@@ -25,14 +25,14 @@ export function PortalDesktopPageHeader({
 }: PortalDesktopPageHeaderProps) {
   return (
     <header
-      className={`rs-panel hidden overflow-hidden rounded-xl p-5 sm:p-7 md:p-8 lg:block ${className}`.trim()}
+      className={`rs-panel hidden overflow-hidden rounded-xl p-4 sm:p-6 md:p-8 lg:block ${className}`.trim()}
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--rs-logo-blue-mid,#F472B6)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#E11D48]">
             {eyebrow}
           </p>
-          <h1 className="rs-portal-page-hero__title mt-1 text-2xl font-black tracking-tight sm:text-3xl">
+          <h1 className="rs-portal-page-hero__title mt-1 max-w-full break-words text-2xl font-black tracking-tight sm:text-3xl">
             {title}
           </h1>
           {description != null && description !== "" ? (

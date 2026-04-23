@@ -200,12 +200,21 @@ main.rs-portal-main .rs-panel {
 }
 
 .rs-depot-step--active .rs-depot-step__num {
-  background: #f472b6;
+  background: #e11d48;
   color: #ffffff;
 }
 
 .rs-depot-step--active {
   color: #0a0a0a;
+}
+
+.rs-depot-step:not(.rs-depot-step--active) {
+  color: #bcbcbc;
+}
+
+.rs-depot-step:not(.rs-depot-step--active) .rs-depot-step__num {
+  background: #f0f0f0;
+  color: #bcbcbc;
 }
 
 /* Métriques mon-espace */
@@ -220,7 +229,7 @@ main.rs-portal-main .rs-panel {
   font-size: 24px;
   line-height: 1.2;
   font-weight: 700;
-  color: #f472b6;
+  color: #e11d48;
 }
 
 .rs-metric-card__label {

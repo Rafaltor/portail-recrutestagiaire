@@ -249,19 +249,17 @@ export default function DepotPage() {
       className="grid gap-6 bg-white pb-8"
       style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
     >
-      <div className="hidden lg:block">
-        <PortalDesktopPageHeader
-          eyebrow="Candidature"
-          title="Dépose ta candidature"
-          description={
-            <>
-              Un seul fichier suffit.
-              <br />
-              La communauté fait le reste.
-            </>
-          }
-        />
-      </div>
+      <PortalDesktopPageHeader
+        eyebrow="Candidature"
+        title="Dépose ta candidature"
+        description={
+          <>
+            Un seul fichier suffit.
+            <br />
+            La communauté fait le reste.
+          </>
+        }
+      />
 
       <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 lg:hidden">
         <h1 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
@@ -275,7 +273,7 @@ export default function DepotPage() {
       </div>
 
       {status === "done" ? (
-        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 sm:p-8">
+        <div className="rounded-xl border border-[#E8E8E8] bg-white p-6 sm:p-8">
           <span className="rs-pill inline-flex rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wide">
             EN ATTENTE
           </span>
@@ -306,7 +304,7 @@ export default function DepotPage() {
           ) : null}
         </div>
       ) : (
-      <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 sm:p-8">
+      <div className="rounded-xl border border-[#E8E8E8] bg-white p-6 sm:p-8">
         <div className="rs-depot-stepper" aria-label="Progression">
           <div
             className={`rs-depot-step ${!stepTwo ? "rs-depot-step--active" : ""}`}
@@ -341,7 +339,21 @@ export default function DepotPage() {
             <span className="text-sm font-medium text-[#0A0A0A]">
               CV en PDF (obligatoire)
             </span>
-            <label className="rs-depot-dropzone cursor-pointer">
+            <label className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-[#E8E8E8] bg-white p-8 text-center transition-colors hover:border-[#E11D48] hover:bg-[#FFF5F7]">
+              <svg
+                className="mx-auto mb-3 h-8 w-8 text-[#6B6B6B]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" x2="12" y1="3" y2="15" />
+              </svg>
               <span className="block text-sm font-medium text-[#6B6B6B]">
                 Glisse-dépose ton PDF ou clique pour choisir un fichier
               </span>
@@ -371,9 +383,9 @@ export default function DepotPage() {
           type="button"
           disabled={!canAnalyze || parsing}
           onClick={onAnalyzeCv}
-          className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-medium transition-colors duration-150 ${
+          className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-bold transition-colors duration-150 ${
             canAnalyze
-              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#e05aa5]"
+              ? "cursor-pointer bg-[#E11D48] text-white hover:bg-[#C41A3E]"
               : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
           }`}
         >

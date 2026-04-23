@@ -337,7 +337,7 @@ body.rs-ds-paris .rs-ds-section-label {
 
 .rs-ph-cta:hover,
 .rs-ph-cta:focus-visible {
-  background: var(--accent);
+  background: #c41a3e;
   color: #fff !important;
   transform: translateY(-1px);
 }
@@ -567,13 +567,13 @@ main.rs-portal-main {
 /* --- Boutons globaux (rs-btn) --- */
 .rs-btn.rs-btn--primary,
 a.rs-btn.rs-btn--primary {
-  background: var(--black) !important;
+  background: #e11d48 !important;
   color: #fff !important;
   border: none !important;
-  border-radius: var(--radius-pill) !important;
-  padding: 14px 28px !important;
+  border-radius: 999px !important;
+  padding: 12px 28px !important;
   font-family: var(--font-dm), system-ui !important;
-  font-weight: 500 !important;
+  font-weight: 700 !important;
   font-size: 14px !important;
   box-shadow: none !important;
   clip-path: none !important;
@@ -584,19 +584,19 @@ a.rs-btn.rs-btn--primary {
 
 .rs-btn.rs-btn--primary:hover,
 a.rs-btn.rs-btn--primary:hover {
-  background: var(--accent) !important;
+  background: #c41a3e !important;
   transform: translateY(-1px);
 }
 
 .rs-btn.rs-btn--ghost,
 a.rs-btn.rs-btn--ghost {
   background: transparent !important;
-  color: var(--black) !important;
-  border: 1.5px solid var(--gray-200) !important;
-  border-radius: var(--radius-pill) !important;
-  padding: 14px 28px !important;
+  color: #0a0a0a !important;
+  border: 1.5px solid #0a0a0a !important;
+  border-radius: 999px !important;
+  padding: 12px 28px !important;
   font-family: var(--font-dm), system-ui !important;
-  font-weight: 500 !important;
+  font-weight: 700 !important;
   font-size: 14px !important;
   box-shadow: none !important;
   clip-path: none !important;
@@ -607,7 +607,7 @@ a.rs-btn.rs-btn--ghost {
 
 .rs-btn.rs-btn--ghost:hover,
 a.rs-btn.rs-btn--ghost:hover {
-  border-color: var(--black) !important;
+  border-color: #e11d48 !important;
   transform: translateY(-1px);
 }
 

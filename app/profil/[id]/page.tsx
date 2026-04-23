@@ -80,7 +80,9 @@ export default function ProfilPage({
       />
 
       {profile && cvUrl ? (
-        <PdfPreview url={cvUrl} />
+        <div className="max-w-full overflow-hidden">
+          <PdfPreview url={cvUrl} />
+        </div>
       ) : null}
     </div>
   );

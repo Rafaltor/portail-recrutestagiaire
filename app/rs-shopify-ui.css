@@ -128,29 +128,29 @@
 }
 
 .rs-btn--primary {
-  background: var(--rs-brand-ink);
+  background: #e11d48;
   color: #fff;
-  border-color: var(--rs-brand-ink);
+  border-color: #e11d48;
 }
 
 .rs-btn--primary:hover {
-  background: var(--rs-brand-pink);
+  background: #c41a3e;
   color: #fff;
   text-decoration: none;
-  border-color: var(--rs-brand-pink);
+  border-color: #c41a3e;
   transform: translateY(-1px);
 }
 
 .rs-btn--ghost {
   background: transparent;
   color: #0a0a0a;
-  border: 1.5px solid #e8e8e4;
+  border: 1.5px solid #0a0a0a;
 }
 
 .rs-btn--ghost:hover {
   background: transparent;
   color: #0a0a0a;
-  border-color: #0a0a0a;
+  border-color: #e11d48;
   transform: translateY(-1px);
 }
 

@@ -10,7 +10,6 @@ import {
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
-import { CvThumbnail } from "@/components/CvThumbnail";
 import "./profils-list.css";
 
 type Profile = {
@@ -24,6 +23,16 @@ type Profile = {
   likes: number | null;
 };
 
+function handleStripeColor(handle: string): string {
+  const s = handle.replace(/^@/, "");
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  }
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue} 70% 42%)`;
+}
+
 async function openCvPdf(profileId: string) {
   const r = await fetch(
     `/api/cv/${encodeURIComponent(profileId)}?intent=preview`,
@@ -33,6 +42,9 @@ async function openCvPdf(profileId: string) {
   const j = (await r.json().catch(() => ({}))) as { url?: string };
   if (j.url) window.open(j.url, "_blank", "noopener,noreferrer");
 }
+
+const searchInputClass =
+  "w-full rounded-xl border-[1.5px] border-[#E8E8E8] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] outline-none transition-colors placeholder:text-[#6B6B6B]/70 focus:border-[#E11D48]";
 
 export default function ProfilsPage() {
   const [loading, setLoading] = useState(true);
@@ -115,15 +127,15 @@ export default function ProfilsPage() {
         }
       />
 
-      <div className="rs-panel space-y-4 rounded-[8px] p-4 sm:p-5 lg:hidden">
+      <div className="space-y-4 rounded-xl border border-[#E8E8E8] bg-white p-4 sm:p-6 lg:hidden">
         <div>
-          <p className="text-[12px] font-medium uppercase tracking-[2px] text-[#6B6B6B]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#6B6B6B]">
             Candidats publiés
           </p>
-          <h1 className="rs-portal-page-hero__title mt-1 text-xl font-bold tracking-tight sm:text-2xl">
+          <h1 className="mt-1 max-w-full break-words text-xl font-extrabold tracking-tight text-[#0A0A0A] sm:text-2xl">
             Profils
           </h1>
-          <p className="mt-2 max-w-xl text-sm font-normal leading-relaxed text-[#6B6B6B]">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#6B6B6B]">
             Les meilleurs profils de ta région.
           </p>
         </div>
@@ -136,11 +148,11 @@ export default function ProfilsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Métier, ville…"
-            className="rs-profils-list__search w-full rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] placeholder:text-[#6B6B6B]/70"
+            className={searchInputClass}
           />
           <a
             href="/depot"
-            className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
+            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#E11D48] px-6 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#C41A3E]"
           >
             Déposer un CV
           </a>
@@ -151,69 +163,70 @@ export default function ProfilsPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-8 text-sm text-[#6B6B6B]">
+        <div className="rounded-xl border border-[#E8E8E8] bg-white p-8 text-sm text-[#6B6B6B]">
           Chargement des profils…
         </div>
       ) : ranked.length ? (
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <ul className="grid w-full grid-cols-1 gap-4">
           {ranked.map((p) => {
             const handle = p.handle.replace(/^@/, "");
             const rank = rankById.get(p.id) ?? 0;
+            const stripe = handleStripeColor(p.handle);
             return (
               <li key={p.id} className="min-w-0">
-                <article className="rs-profils-card flex h-full min-w-0 flex-col">
-                  <div className="flex justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex min-w-0 flex-wrap items-center gap-2">
-                        <p className="truncate text-base font-bold text-[#0A0A0A]">
-                          @{handle}
-                        </p>
-                        <span className="rs-pill max-w-[min(100%,220px)] truncate">
-                          {p.job_title}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-[12px] font-normal text-[#6B6B6B]">
-                        {p.city ?? "—"}
-                      </p>
-                      <p className="mt-2 text-sm font-medium text-[#0A0A0A]">
-                        Rang{" "}
-                        <span className="font-bold text-[#F472B6]">#{rank}</span>
+                <article className="relative flex min-h-[140px] overflow-hidden rounded-xl border border-[#E8E8E8] bg-white p-5 pr-7 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <p className="truncate text-[15px] font-bold text-[#0A0A0A]">
+                      @{handle}
+                    </p>
+                    <span className="mt-2 inline-flex max-w-full rounded-full bg-[#F5F5F5] px-2.5 py-1 text-xs font-medium text-[#0A0A0A]">
+                      {p.job_title}
+                    </span>
+                    <p className="mt-2 text-[13px] text-[#6B6B6B]">{p.city ?? "—"}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <p className="text-sm font-bold text-[#E11D48]">
+                        Rang #{rank}
                       </p>
                       {p.portfolio_url ? (
                         <a
                           href={p.portfolio_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-2 inline-flex w-fit text-xs font-medium text-[#F472B6] no-underline hover:underline"
+                          className="text-xs font-semibold text-[#E11D48] underline-offset-2 hover:underline"
                         >
                           Portfolio
                         </a>
                       ) : null}
                     </div>
-                    <CvThumbnail cvUrl={`/api/cv/${p.id}`} />
+                    <div className="my-3 h-px w-full bg-[#E8E8E8]" />
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={(e) => onOpenCv(e, p.id)}
+                        className="inline-flex min-h-[40px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-5 py-2 text-sm font-bold text-[#0A0A0A] transition-colors hover:border-[#E11D48]"
+                      >
+                        Voir le CV
+                      </button>
+                      <Link
+                        href="/swipe"
+                        className="inline-flex min-h-[40px] items-center justify-center rounded-full bg-[#E11D48] px-5 py-2 text-sm font-bold text-white no-underline transition-colors hover:bg-[#C41A3E]"
+                      >
+                        Voter ♥
+                      </Link>
+                    </div>
                   </div>
-                  <div className="mt-4 flex flex-col items-stretch gap-1.5">
-                    <button
-                      type="button"
-                      onClick={(e) => onOpenCv(e, p.id)}
-                      className="w-full rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-center text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA]"
-                    >
-                      Voir le CV
-                    </button>
-                    <Link
-                      href="/swipe"
-                      className="text-center text-[12px] font-normal text-[#F472B6] no-underline hover:underline"
-                    >
-                      Voter
-                    </Link>
-                  </div>
+                  <div
+                    className="pointer-events-none absolute right-0 top-0 h-full w-2 rounded-r-xl"
+                    style={{ background: stripe }}
+                    aria-hidden
+                  />
                 </article>
               </li>
             );
           })}
         </ul>
       ) : (
-        <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-8 text-sm text-[#6B6B6B]">
+        <div className="rounded-xl border border-[#E8E8E8] bg-white p-8 text-sm text-[#6B6B6B]">
           Aucun profil publié pour le moment.
         </div>
       )}

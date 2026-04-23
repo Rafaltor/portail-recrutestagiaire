@@ -438,7 +438,7 @@ export default function MonEspacePage() {
                 </p>
               </section>
 
-              <section className="grid grid-cols-2 gap-3">
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <article className="rs-metric-card">
                   <p className="rs-metric-card__value m-0">
                     {effectiveData.candidate.stats.cvViews}
@@ -521,7 +521,7 @@ export default function MonEspacePage() {
                 Espace votant
               </p>
               <h2 className="mt-2 text-lg font-black">Tes stats de vote</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <article className="rs-metric-card">
                   <p className="rs-metric-card__value m-0">
                     {effectiveData.voter.totalVotes}

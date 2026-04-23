@@ -33,11 +33,11 @@ export function ProfilsListDesktopHeader({
         value={filterValue}
         onChange={(e) => onFilterChange?.(e.target.value)}
         placeholder="Métier, ville…"
-        className="rs-profils-list__search w-full rounded-lg px-4 py-2.5 text-sm text-[var(--rs-logo-blue-deep,#0A0A0A)] placeholder:text-[#0A0A0A]/55"
+        className="rs-profils-list__search w-full max-w-md rounded-xl border-[1.5px] border-[#E8E8E8] bg-white px-4 py-2.5 text-sm text-[#0A0A0A] outline-none transition-colors placeholder:text-[#6B6B6B]/70 focus:border-[#E11D48]"
       />
       <a
         href="/depot"
-        className="rs-btn rs-btn--primary shrink-0 whitespace-nowrap px-5 text-center"
+        className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#E11D48] px-7 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#C41A3E]"
       >
         Déposer un CV
       </a>

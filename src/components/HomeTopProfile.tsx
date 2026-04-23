@@ -14,9 +14,11 @@ type ProfileItem = {
 type TopPayload = {
   ok: boolean;
   profiles?: ProfileItem[];
-  /** @deprecated compat — premier profil */
   profile?: ProfileItem | null;
 };
+
+const ghost =
+  "text-sm font-semibold text-[#E11D48] underline-offset-2 hover:underline";
 
 export function HomeTopProfile() {
   const [data, setData] = useState<TopPayload | null>(null);
@@ -35,68 +37,72 @@ export function HomeTopProfile() {
     };
   }, []);
 
-  const list =
-    data?.profiles?.length ?
-      data.profiles
-    : data?.profile ?
-      [data.profile]
-    : [];
+  const list = data?.profiles?.length
+    ? data.profiles
+    : data?.profile
+      ? [data.profile]
+      : [];
 
   if (!data || list.length === 0) return null;
 
   return (
     <section
-      className="rs-home-profiles"
+      className="border-t border-[#E8E8E8] bg-[#F5F5F5] px-4 py-10 sm:px-6 sm:py-12"
       aria-labelledby="rs-home-top-profile"
     >
-      <div className="rs-home-profiles__inner">
-        <div className="rs-home-profiles__head">
+      <div className="mx-auto max-w-[var(--rs-content-max)]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="rs-ds-section-label mb-2 text-center sm:text-left">
+            <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#6B6B6B]">
               En tête du classement
             </p>
             <h2
               id="rs-home-top-profile"
-              className="rs-ds-h2 text-center sm:text-left"
+              className="mt-2 max-w-full break-words font-[family-name:var(--font-syne)] text-2xl font-extrabold tracking-tight text-[#0A0A0A] sm:text-3xl"
             >
               Meilleurs profils
             </h2>
           </div>
-          <p className="max-w-md text-sm leading-snug text-[var(--gray-600)] sm:text-right">
+          <p className="max-w-md text-sm leading-snug text-[#6B6B6B]">
             La communauté vote en continu — les trois profils les plus soutenus.
           </p>
         </div>
-        <div className="rs-home-profiles__grid">
-          {list.map((profile) => {
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((profile, idx) => {
             const h = profile.handle.replace(/^@/, "");
+            const rankLabel = profile.rank_label || `N°${idx + 1} cette semaine`;
+            const badgeIsPink = idx === 0;
             return (
-              <div key={profile.id} className="rs-home-profiles__card">
-                {profile.rank_label ? (
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--gray-500)]">
-                    {profile.rank_label}
+              <article
+                key={profile.id}
+                className="flex min-h-[220px] flex-col justify-between rounded-xl border border-[#E8E8E8] bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div>
+                  <span
+                    className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold text-white ${
+                      badgeIsPink ? "bg-[#E11D48]" : "bg-[#0A0A0A]"
+                    }`}
+                  >
+                    {rankLabel}
+                  </span>
+                  <p className="mt-3 truncate text-[15px] font-bold text-[#0A0A0A]">
+                    @{h}
                   </p>
-                ) : null}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-[family-name:var(--font-syne)] text-lg font-bold text-[var(--black)]">
-                      @{h}
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--gray-600)]">{profile.job_title}</p>
-                    <p className="mt-2 text-sm text-[var(--black)]">
-                      <span className="font-semibold text-[var(--accent)]">{profile.likes}</span>{" "}
-                      <span className="text-[var(--gray-600)]">likes</span>
-                    </p>
-                  </div>
+                  <p className="mt-1 text-xs text-[#6B6B6B]">{profile.job_title}</p>
+                  <p className="mt-3 text-sm font-bold text-[#E11D48]">
+                    ♥ {profile.likes} votes
+                  </p>
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 border-t border-[#E8E8E8] pt-4">
                   <Link
                     href={`/profil/${encodeURIComponent(profile.id)}`}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--accent)] no-underline hover:underline"
+                    className={`${ghost} inline-flex items-center gap-1 no-underline`}
                   >
                     Voir le profil →
                   </Link>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

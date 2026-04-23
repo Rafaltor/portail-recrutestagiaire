@@ -1,13 +1,12 @@
+import Link from "next/link";
+
 type CardDef = {
   step: string;
   title: string;
-  /** Sous le titre, une ligne (ex. contraintes CV). */
   subtitle?: string;
-  /** Lignes sous le titre (majuscules / détails). */
   sublines?: string[];
   bullets?: string[];
-  /** Dernière étape sur toute la largeur. */
-  fullWidth?: boolean;
+  body?: string;
 };
 
 const shell = "mx-auto w-full max-w-[var(--rs-content-max)]";
@@ -15,66 +14,12 @@ const shell = "mx-auto w-full max-w-[var(--rs-content-max)]";
 const prisLines = [
   "Nouvelle recrue stagiaire",
   "Soirée d'inauguration du stagiaire",
-  "Ton CV sur nos packaging",
-  "TEE limité avec ton CV",
+  "Ton CV sur nos packagings",
+  "T-shirt limité à ton effigie",
 ];
 
-function ArrowDownBetween({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`flex shrink-0 items-center justify-center text-[#f472b6] ${className}`.trim()}
-      aria-hidden
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M12 5v14M8 11l4 4 4-4"
-          stroke="currentColor"
-          strokeWidth="2.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function ArrowRightBetween({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`flex shrink-0 items-center justify-center text-[#f472b6] ${className}`.trim()}
-      aria-hidden
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M5 12h14M13 8l4 4-4 4"
-          stroke="currentColor"
-          strokeWidth="2.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
-
-function ArrowDownToPris({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`flex flex-col items-center justify-center gap-1 text-[#f472b6] ${className}`.trim()}
-      aria-hidden
-    >
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="opacity-95">
-        <path
-          d="M12 4v16M8 14l4 4 4-4"
-          stroke="currentColor"
-          strokeWidth="2.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
+const cardClass =
+  "flex min-h-[160px] flex-col rounded-xl border border-[#E8E8E8] bg-white p-6";
 
 function ParcoursCard({
   step,
@@ -82,34 +27,35 @@ function ParcoursCard({
   subtitle,
   sublines,
   bullets,
-  fullWidth,
+  body,
 }: CardDef) {
   return (
-    <article
-      className={`min-w-0 rounded-[20px] border border-[#e8e8e4] bg-[#fafaf8] px-5 py-6 sm:px-7 ${
-        fullWidth ? "w-full lg:py-8" : ""
-      }`}
-    >
-      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.14em] text-[#f472b6]">
+    <article className={`${cardClass} min-w-0`}>
+      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.1em] text-[#E11D48]">
         {step}
       </p>
-      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[18px] font-extrabold leading-snug tracking-tight text-[#0a0a0a]">
+      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[18px] font-extrabold leading-snug tracking-tight text-[#0A0A0A]">
         {title}
       </h3>
       {subtitle ? (
-        <p className="mt-2 font-[family-name:var(--font-dm)] text-[13px] font-normal leading-snug text-[#555550]">
+        <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
           {subtitle}
         </p>
       ) : null}
       {sublines?.length ? (
-        <div className="mt-3 space-y-1.5 font-[family-name:var(--font-dm)] text-[12px] font-semibold uppercase leading-snug tracking-wide text-[#555550]">
+        <div className="mt-2 space-y-1 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
           {sublines.map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>
       ) : null}
+      {body ? (
+        <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
+          {body}
+        </p>
+      ) : null}
       {bullets?.length ? (
-        <ul className="mt-3 space-y-1 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-relaxed text-[#555550]">
+        <ul className="mt-2 list-disc space-y-1 pl-4 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-relaxed text-[#6B6B6B]">
           {bullets.map((b) => (
             <li key={b}>{b}</li>
           ))}
@@ -121,18 +67,31 @@ function ParcoursCard({
 
 function BlocPris() {
   return (
-    <article className="w-full rounded-[20px] bg-[#0a0a0a] px-7 py-7 text-white sm:px-8 sm:py-8">
-      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
+    <article className="w-full rounded-xl bg-[#0A0A0A] px-6 py-7 text-white sm:px-8 sm:py-8">
+      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#E11D48]">
         Sortie du cycle
       </p>
       <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
-        Le meilleur CV&nbsp;:
+        Le meilleur CV
       </h3>
-      <ul className="mt-4 list-none space-y-2.5 p-0 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-relaxed text-[#c8c8c4]">
+      <ul className="mt-4 list-none space-y-2.5 p-0 font-[family-name:var(--font-dm)] text-[15px] font-normal leading-relaxed text-[#E8E8E8]">
         {prisLines.map((line) => (
-          <li key={line}>{line}</li>
+          <li key={line}>
+            <span className="mr-2 text-[#E11D48]" aria-hidden>
+              ✦
+            </span>
+            {line}
+          </li>
         ))}
       </ul>
+      <div className="mt-6">
+        <Link
+          href="/depot"
+          className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-[#E11D48] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#C41A3E] sm:w-auto"
+        >
+          Déposer mon CV →
+        </Link>
+      </div>
     </article>
   );
 }
@@ -154,7 +113,7 @@ function ColumnTitle({
       ) : null}
       <h2
         id={id}
-        className={`rs-ds-h2 text-left ${hasKicker ? "mt-3" : ""}`}
+        className={`rs-ds-h2 max-w-full break-words text-left ${hasKicker ? "mt-3" : ""}`}
       >
         {title}
       </h2>
@@ -162,8 +121,19 @@ function ColumnTitle({
   );
 }
 
+function Chevron() {
+  return (
+    <span
+      className="hidden shrink-0 select-none items-center justify-center self-center px-1 font-[family-name:var(--font-syne)] text-2xl font-bold leading-none text-[#E11D48] lg:flex"
+      aria-hidden
+    >
+      ›
+    </span>
+  );
+}
+
 export function HomeHowItWorks() {
-  const row1: [CardDef, CardDef, CardDef] = [
+  const steps: CardDef[] = [
     {
       step: "01",
       title: "Poste ton CV",
@@ -179,72 +149,59 @@ export function HomeHowItWorks() {
       title: "Classement",
       sublines: ["Observe tes stats", "Regarde les meilleurs CV"],
     },
+    {
+      step: "04",
+      title: "Bosse et redépose",
+      body: "Améliore ton profil. Chaque dépôt te rapproche du recrutement.",
+    },
   ];
-
-  const row2: CardDef = {
-    step: "04",
-    title: "Bosse et redépose",
-    fullWidth: true,
-  };
 
   return (
     <section
-      className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--gray-200)] bg-[var(--white)] px-4 py-4 sm:px-5 sm:py-6 md:py-7"
+      className="overflow-hidden rounded-xl border border-[#E8E8E8] bg-white px-4 py-6 sm:px-6 sm:py-8"
       aria-labelledby="rs-home-how-parcours"
     >
-      <div className={`${shell} space-y-4 md:space-y-5`}>
+      <div className={`${shell} space-y-6`}>
         <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
 
-        <div className="mx-auto flex w-full max-w-[var(--rs-content-max)] flex-col gap-4 sm:gap-5">
-          {/* Mobile : cartes + flèches empilées */}
-          <div className="flex flex-col gap-2 lg:hidden">
-            {row1.map((c, i) => (
-              <div key={c.step} className="flex flex-col gap-2">
-                <ParcoursCard {...c} />
-                {i < row1.length - 1 ? (
-                  <ArrowDownBetween className="py-0.5" />
-                ) : null}
-              </div>
+        <div className="mx-auto w-full max-w-[var(--rs-content-max)]">
+          {/* Mobile / tablette : 2 colonnes */}
+          <div className="grid grid-cols-2 gap-4 lg:hidden">
+            {steps.map((c) => (
+              <ParcoursCard key={c.step} {...c} />
             ))}
-            <ArrowDownBetween className="py-1" />
-            <ParcoursCard {...row2} />
           </div>
 
-          {/* Desktop : 3 cartes + flèches entre elles */}
-          <div className="hidden gap-2 lg:flex lg:flex-row lg:items-stretch">
+          {/* Desktop : 1 ligne + chevrons */}
+          <div className="hidden items-stretch gap-2 lg:flex">
             <div className="min-w-0 flex-1">
-              <ParcoursCard {...row1[0]!} />
+              <ParcoursCard {...steps[0]!} />
             </div>
-            <ArrowRightBetween className="w-9 shrink-0 self-center px-0.5" />
+            <Chevron />
             <div className="min-w-0 flex-1">
-              <ParcoursCard {...row1[1]!} />
+              <ParcoursCard {...steps[1]!} />
             </div>
-            <ArrowRightBetween className="w-9 shrink-0 self-center px-0.5" />
+            <Chevron />
             <div className="min-w-0 flex-1">
-              <ParcoursCard {...row1[2]!} />
+              <ParcoursCard {...steps[2]!} />
+            </div>
+            <Chevron />
+            <div className="min-w-0 flex-1">
+              <ParcoursCard {...steps[3]!} />
             </div>
           </div>
 
-          <div className="hidden lg:block">
-            <ParcoursCard {...row2} />
-          </div>
-
-          <div className="flex flex-col items-center gap-1 pt-1">
-            <ArrowDownToPris />
-            <ArrowDownBetween className="opacity-80" />
+          <div className="mt-6 flex flex-col items-center gap-1 pt-2">
+            <span className="text-xl font-bold text-[#E11D48] lg:hidden" aria-hidden>
+              ↓
+            </span>
+            <span className="hidden text-2xl font-bold text-[#E11D48] lg:inline" aria-hidden>
+              ↓
+            </span>
           </div>
 
           <BlocPris />
         </div>
-      </div>
-
-      <div className={`${shell} mt-4 md:mt-5`}>
-        <a
-          href="/depot"
-          className="rs-btn rs-btn--primary flex w-full items-center justify-center py-4 text-center text-base font-medium no-underline hover:no-underline sm:py-5 sm:text-lg"
-        >
-          Poste ton CV
-        </a>
       </div>
     </section>
   );

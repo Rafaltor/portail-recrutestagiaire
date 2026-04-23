@@ -65,7 +65,10 @@ export default function RootLayout({
       <body className="rs-portal-body rs-ds-paris flex min-h-dvh flex-col text-[#0a0a0a]">
         <RouteHtmlDataset />
         <HeaderMobileNav />
-        <div className="header-wrap rs-header" role="banner">
+        <div
+          className="header-wrap rs-header sticky top-0 z-50 min-h-16 border-b border-[#E8E8E8] bg-white/95 backdrop-blur-md"
+          role="banner"
+        >
           <ParisTicker />
 
           <div className="rs-header-body">
@@ -78,7 +81,8 @@ export default function RootLayout({
                   >
                     <span className="rs-ph-dot" aria-hidden />
                     <span className="rs-header-mobile-bar__title">
-                      RECRUTE STAGIAIRE
+                      <span className="lg:hidden">RS</span>
+                      <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>
                     </span>
                   </a>
                   <button
@@ -109,7 +113,8 @@ export default function RootLayout({
                       >
                         <span className="rs-ph-dot" aria-hidden />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
-                          RECRUTE STAGIAIRE
+                          <span className="lg:hidden">RS</span>
+                          <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>
                         </span>
                       </a>
                     </div>
@@ -119,13 +124,13 @@ export default function RootLayout({
                     <div className="rs-banner-top__actions d-inline-flex align-items-center">
                       <Link
                         href="/depot"
-                        className="rs-ph-cta no-underline hover:no-underline !bg-[#E11D48] !text-white transition-colors duration-150 hover:!bg-[#c41a3e]"
+                        className="rs-ph-cta no-underline hover:no-underline !bg-[#E11D48] !px-7 !py-3 !text-[15px] !font-bold !text-white transition-colors duration-150 hover:!bg-[#C41A3E]"
                       >
                         Déposer mon CV
                       </Link>
                       <a
                         href="https://recrutestagiaire.eu/cart"
-                        className="abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none"
+                        className="rs-nav-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#E11D48]"
                         aria-label="Mon dossier"
                       >
                         <svg
@@ -157,7 +162,7 @@ export default function RootLayout({
                         </span>
                       </a>
 
-                      <HeaderAccountLink />
+                      <HeaderAccountLink className="!border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#E11D48]" />
                     </div>
                   </div>
                 </div>
@@ -167,7 +172,7 @@ export default function RootLayout({
           <PortalHeaderDrawer />
         </div>
 
-        <main className="rs-portal-main mx-auto w-full flex-1">
+        <main className="rs-portal-main mx-auto w-full flex-1 pb-8">
           {children}
         </main>
 

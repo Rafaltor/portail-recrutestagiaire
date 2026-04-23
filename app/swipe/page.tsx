@@ -1040,9 +1040,6 @@ export default function SwipePage() {
     startXRef.current = null;
   }
 
-  const swipeChromeHeight =
-    "calc(100dvh - var(--rs-swipe-top-offset, 56px) - var(--rs-swipe-bottom-chrome, 140px))";
-
   const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
   const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
 
@@ -1063,12 +1060,7 @@ export default function SwipePage() {
     <div
       id="rs-swipe-page"
       ref={sheetMeasureRef}
-      className={`rs-swipe-page-root relative flex w-full min-w-0 max-w-full flex-col overscroll-y-contain overflow-x-hidden overflow-y-visible`}
-      style={
-        desktopSwipeLayout
-          ? { minHeight: swipeChromeHeight }
-          : { height: swipeChromeHeight }
-      }
+      className="rs-swipe-page-root relative flex h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
     >
       <SwipeWelcomeModal open={showOnboarding} onDismiss={dismissOnboarding} />
       <div className="pointer-events-none absolute right-2 top-2 z-[12000] flex justify-end sm:right-3">
@@ -1229,19 +1221,13 @@ export default function SwipePage() {
           )}
         </div>
       ) : (
-        <div
-          className={`flex min-w-0 max-w-full flex-col items-stretch justify-stretch px-0 pb-0 pt-0 ${
-            desktopSwipeLayout ? "shrink-0 py-3" : "min-h-0 flex-1"
-          }`}
-        >
+        <div className="flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-hidden px-0 pb-0 pt-0">
           <div
             dir="ltr"
-            className={`flex min-w-0 max-w-full items-center justify-center overflow-x-hidden py-2 max-md:px-0 md:px-4 md:py-4 ${
-              desktopSwipeLayout ? "min-h-0" : "min-h-0 flex-1"
-            }`}
+            className="flex min-h-0 min-w-0 max-w-full flex-1 items-center justify-center overflow-y-auto overflow-x-hidden py-2 max-md:px-4 md:px-4 md:py-3"
           >
             <div
-              className="relative max-w-full shrink-0 overflow-visible"
+              className="relative mx-auto max-h-[calc(100dvh-64px-180px)] max-w-full shrink-0 overflow-visible rounded-xl bg-white shadow-sm md:max-h-[calc(100vh-64px-160px)] md:max-w-[680px]"
               style={{
                 width: sheetSize.w,
                 height: sheetSize.h,
@@ -1455,9 +1441,9 @@ export default function SwipePage() {
             </div>
           </div>
           {!blockedByFreeLimit ? (
-            <div className="pointer-events-none z-[9000] flex w-full shrink-0 flex-col items-center gap-2 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-              <div className="pointer-events-auto flex flex-col items-center gap-1.5 py-2">
-                <div className="h-1.5 w-48 overflow-hidden rounded-full bg-[#2A2A2A]">
+            <div className="pointer-events-none sticky bottom-0 z-30 flex h-[180px] w-full shrink-0 flex-col items-center justify-between bg-[linear-gradient(to_top,#000_60%,transparent)] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 md:h-[160px]">
+              <div className="pointer-events-auto flex flex-col items-center gap-2 pt-2">
+                <div className="h-1 w-40 overflow-hidden rounded-full bg-[#2A2A2A]">
                   <div
                     className="h-full rounded-full transition-all duration-300 ease-out"
                     style={{
@@ -1474,7 +1460,7 @@ export default function SwipePage() {
                     }}
                   />
                 </div>
-                <span className="text-xs text-[#6B6B6B]">
+                <span className="max-w-xs px-2 text-center text-xs text-white/60">
                   {isConnected
                     ? likesLeft === 0
                       ? "Reviens demain pour continuer à liker ✦"
@@ -1488,9 +1474,10 @@ export default function SwipePage() {
                         : `${freeLeft} votes restants aujourd'hui`}
                 </span>
               </div>
-              <div className="sticky bottom-0 z-20 flex w-full items-center justify-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent px-4 pb-6 pt-10 pointer-events-auto">
+              <div className="pointer-events-auto flex flex-row items-center justify-center gap-4 pb-1 pt-3">
                 <button
                   data-stamp-source="declined"
+                  type="button"
                   onMouseDown={(e) => {
                     void handleStampMouseDown(e, "declined");
                   }}
@@ -1500,8 +1487,8 @@ export default function SwipePage() {
                   onClick={(e) => {
                     void handleStampClick(e, "declined");
                   }}
-                  className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
-                    activeStampKind === "declined" ? "opacity-45" : ""
+                  className={`flex h-[52px] w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-xl border-[1.5px] border-[#333333] bg-[#1A1A1A] text-xs font-bold text-white transition-opacity ${
+                    activeStampKind === "declined" ? "opacity-60" : ""
                   }`}
                   style={{
                     touchAction: "none",
@@ -1511,10 +1498,13 @@ export default function SwipePage() {
                         : "stampWobble 1800ms ease-in-out infinite",
                   }}
                 >
-                  <StampVisual kind="declined" muted={activeStampKind === "declined"} />
+                  <span className="flex origin-center scale-[0.38]">
+                    <StampVisual kind="declined" muted={activeStampKind === "declined"} />
+                  </span>
                 </button>
                 <button
                   data-stamp-source="approved"
+                  type="button"
                   onMouseDown={(e) => {
                     void handleStampMouseDown(e, "approved");
                   }}
@@ -1524,8 +1514,8 @@ export default function SwipePage() {
                   onClick={(e) => {
                     void handleStampClick(e, "approved");
                   }}
-                  className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
-                    activeStampKind === "approved" ? "opacity-45" : ""
+                  className={`flex h-[52px] w-[140px] shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#E11D48] text-xs font-bold text-white transition-opacity ${
+                    activeStampKind === "approved" ? "opacity-60" : ""
                   }`}
                   style={{
                     touchAction: "none",
@@ -1535,10 +1525,12 @@ export default function SwipePage() {
                         : "stampWobble 1800ms ease-in-out infinite",
                   }}
                 >
-                  <StampVisual kind="approved" muted={activeStampKind === "approved"} />
+                  <span className="flex origin-center scale-[0.38]">
+                    <StampVisual kind="approved" muted={activeStampKind === "approved"} />
+                  </span>
                 </button>
               </div>
-              <p className="pointer-events-auto max-w-md px-2 text-center text-[11px] font-normal text-[#888888]">
+              <p className="pointer-events-auto max-w-md px-2 pb-1 text-center text-[11px] font-normal text-white/45">
                 Glisse un tampon sur la carte ou swipe gauche/droite.
               </p>
             </div>
