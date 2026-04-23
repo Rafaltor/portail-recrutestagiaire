@@ -63,8 +63,7 @@ export function HomeTopProfile() {
             </h2>
           </div>
           <p className="max-w-md text-sm leading-snug text-[var(--gray-600)] sm:text-right">
-            La communauté vote en continu — les trois profils les plus soutenus sur la fenêtre
-            en cours.
+            La communauté vote en continu — les trois profils les plus soutenus.
           </p>
         </div>
         <div className="rs-home-profiles__grid">
@@ -85,7 +84,7 @@ export function HomeTopProfile() {
                     <p className="mt-1 text-sm text-[var(--gray-600)]">{profile.job_title}</p>
                     <p className="mt-2 text-sm text-[var(--black)]">
                       <span className="font-semibold text-[var(--accent)]">{profile.likes}</span>{" "}
-                      <span className="text-[var(--gray-600)]">likes (fenêtre en cours)</span>
+                      <span className="text-[var(--gray-600)]">likes</span>
                     </p>
                   </div>
                 </div>

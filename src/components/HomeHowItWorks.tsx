@@ -12,7 +12,7 @@ const prisBullets = [
   "CV sur le packaging",
 ];
 
-function TimelineStep({
+function ParcoursCard({
   step,
   title,
   bullets,
@@ -22,7 +22,7 @@ function TimelineStep({
   bullets?: string[];
 }) {
   return (
-    <article className="relative ml-6 rounded-[20px] border border-[#e8e8e4] bg-[#fafaf8] px-7 py-6">
+    <article className="min-w-0 rounded-[20px] border border-[#e8e8e4] bg-[#fafaf8] px-5 py-6 sm:px-7">
       <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.14em] text-[#f472b6]">
         {step}
       </p>
@@ -40,9 +40,9 @@ function TimelineStep({
   );
 }
 
-function TimelinePris() {
+function BlocPris() {
   return (
-    <article className="relative ml-6 rounded-[20px] bg-[#0a0a0a] px-7 py-6 text-white">
+    <article className="w-full rounded-[20px] bg-[#0a0a0a] px-7 py-6 text-white">
       <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
         Sortie du cycle
       </p>
@@ -110,17 +110,13 @@ export function HomeHowItWorks() {
       <div className={`${shell} space-y-4 md:space-y-5`}>
         <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
 
-        <div className="relative mx-auto w-full max-w-[600px]">
-          <div
-            className="pointer-events-none absolute bottom-0 left-[11px] top-0 w-[2px] bg-[#f472b6]"
-            aria-hidden
-          />
-          <div className="flex flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-[var(--rs-content-max)] flex-col gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {ordered.map((c) => (
-              <TimelineStep key={c.step} {...c} />
+              <ParcoursCard key={c.step} {...c} />
             ))}
-            <TimelinePris />
           </div>
+          <BlocPris />
         </div>
       </div>
 

@@ -30,45 +30,7 @@ html[data-rs-swipe="1"] main.rs-portal-main {
   box-shadow: none !important;
 }
 
-/* Swipe : chrome header = même bandeau Paris (ticker + sticky) ; on ne refond pas le corps de page. */
-html[data-rs-swipe="1"] .header-wrap {
-  background: transparent !important;
-  box-shadow: none !important;
-  border-bottom: none !important;
-}
-
-html[data-rs-swipe="1"] .header-wrap.rs-header--banner::before,
-html[data-rs-swipe="1"] .header-wrap::after {
-  display: none !important;
-}
-
-html[data-rs-swipe="1"] .rs-header-tabstrip {
-  display: none !important;
-}
-
-@media (min-width: 900px) {
-  html[data-rs-swipe="1"] .rs-header-mobile-bar {
-    display: none !important;
-  }
-}
-
-html[data-rs-swipe="1"] .rs-header-top-line {
-  border-bottom: none !important;
-}
-
-html[data-rs-swipe="1"] .rs-nav-brand__name.logo,
-html[data-rs-swipe="1"] .rs-nav-brand__name--headline,
-html[data-rs-swipe="1"] .rs-header-mobile-bar__title {
-  color: #0a0a0a !important;
-}
-
-html[data-rs-swipe="1"] .rs-banner-top.rs-header-pole-brand {
-  border-bottom: none !important;
-}
-
-html[data-rs-swipe="1"] .rs-header-body {
-  background: #ffffff !important;
-}
+/* Swipe : header identique au portail (rs-ds-paris) — pas d’override layout ici. */
 
 @media (min-width: 900px) {
   html[data-rs-swipe="1"] {

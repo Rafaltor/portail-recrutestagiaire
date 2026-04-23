@@ -302,67 +302,86 @@ function ConnexionPageInner() {
         </h1>
       </div>
 
-      <div className="mx-auto w-full max-w-[480px] rounded-[20px] border border-[#e8e8e4] bg-white p-10 shadow-none">
-        {userEmail ? (
-          <>
-            <div className="font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/90">
-              Connecté en tant que <span className="font-semibold">{userEmail}</span>
+      {userEmail ? (
+        <div className="mx-auto w-full max-w-[480px] rounded-[20px] border border-[#e8e8e4] bg-white p-8 shadow-none sm:p-10">
+          <div className="font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/90">
+            Connecté en tant que <span className="font-semibold">{userEmail}</span>
+          </div>
+          {linkToken ? (
+            <div className="mt-2 font-mono text-xs text-[#0a0a0a]/80">
+              Token détecté: {linkToken}
             </div>
-            {linkToken ? (
-              <div className="mt-2 font-mono text-xs text-[#0a0a0a]/80">
-                Token détecté: {linkToken}
-              </div>
-            ) : null}
+          ) : null}
 
-            <div className="mt-6 flex flex-col gap-3">
-              <button
-                type="button"
-                disabled={status === "linking"}
-                onClick={() => void linkShopify()}
-                className={connexionPrimaryBtn}
-              >
-                {status === "linking" ? "Liaison…" : "Lier Shopify"}
-              </button>
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              type="button"
+              disabled={status === "linking"}
+              onClick={() => void linkShopify()}
+              className={connexionPrimaryBtn}
+            >
+              {status === "linking" ? "Liaison…" : "Lier Shopify"}
+            </button>
 
-              <button type="button" onClick={() => void signOut()} className={connexionOutlineBtn}>
-                Déconnexion
-              </button>
-            </div>
-            {profileUrlParam ? (
-              <div className="mt-3">
-                <a href={profileUrlParam} className={`${connexionOutlineBtn} no-underline`}>
-                  Ouvrir mon profil privé
-                </a>
-              </div>
-            ) : null}
+            <button type="button" onClick={() => void signOut()} className={connexionOutlineBtn}>
+              Déconnexion
+            </button>
+          </div>
+          {profileUrlParam ? (
             <div className="mt-3">
-              <a href="/mon-espace" className={`${connexionOutlineBtn} no-underline`}>
-                Aller à mon espace
+              <a href={profileUrlParam} className={`${connexionOutlineBtn} no-underline`}>
+                Ouvrir mon profil privé
               </a>
             </div>
+          ) : null}
+          <div className="mt-3">
+            <a href="/mon-espace" className={`${connexionOutlineBtn} no-underline`}>
+              Aller à mon espace
+            </a>
+          </div>
 
-            {shopifyCustomerId ? (
-              <div className="mt-4 font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/85">
-                Shopify customer id:{" "}
-                <span className="font-mono font-semibold">{shopifyCustomerId}</span>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <div className="grid gap-0">
-            <section aria-labelledby="connexion-google-email">
+          {shopifyCustomerId ? (
+            <div className="mt-4 font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/85">
+              Shopify customer id:{" "}
+              <span className="font-mono font-semibold">{shopifyCustomerId}</span>
+            </div>
+          ) : null}
+
+          {message ? (
+            <p
+              className={`mt-4 font-[family-name:var(--font-dm)] text-sm ${
+                status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
+              }`}
+            >
+              {message}
+            </p>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          <div className="mx-auto grid w-full max-w-[960px] gap-8 lg:grid-cols-2 lg:gap-10">
+            <section
+              className="rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8"
+              aria-labelledby="connexion-col-title"
+            >
               <h2
-                id="connexion-google-email"
-                className="sr-only"
+                id="connexion-col-title"
+                className="font-[family-name:var(--font-syne)] text-[18px] font-extrabold tracking-tight text-[#0a0a0a]"
               >
-                Connexion avec Google ou email
+                Connexion
               </h2>
-              <GoogleAuthButton
-                disabled={loginPwdBusy || signupPwdBusy}
-                loading={oauthBusy}
-                onClick={() => void authWithGoogle()}
-                label="Continuer avec Google"
-              />
+              <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal text-[#555550]">
+                Google ou email et mot de passe.
+              </p>
+
+              <div className="mt-6">
+                <GoogleAuthButton
+                  disabled={loginPwdBusy || signupPwdBusy}
+                  loading={oauthBusy}
+                  onClick={() => void authWithGoogle()}
+                  label="Continuer avec Google"
+                />
+              </div>
 
               <div className="mt-8">
                 <p className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
@@ -404,9 +423,10 @@ function ConnexionPageInner() {
               </div>
             </section>
 
-            <div className="my-10 h-px w-full bg-[#e8e8e4]" aria-hidden />
-
-            <section aria-labelledby="connexion-inscription">
+            <section
+              className="rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8"
+              aria-labelledby="connexion-inscription"
+            >
               <h2
                 id="connexion-inscription"
                 className="font-[family-name:var(--font-syne)] text-[18px] font-extrabold tracking-tight text-[#0a0a0a]"
@@ -451,24 +471,24 @@ function ConnexionPageInner() {
               </button>
             </section>
           </div>
-        )}
 
-        {linkToken && !userEmail ? (
-          <p className="mt-6 font-[family-name:var(--font-dm)] text-xs text-[#555550]">
-            Après connexion, ton profil sera automatiquement rattaché via token.
-          </p>
-        ) : null}
+          {linkToken ? (
+            <p className="mx-auto mt-6 max-w-[960px] font-[family-name:var(--font-dm)] text-xs text-[#555550]">
+              Après connexion, ton profil sera automatiquement rattaché via token.
+            </p>
+          ) : null}
 
-        {message ? (
-          <p
-            className={`mt-4 font-[family-name:var(--font-dm)] text-sm ${
-              status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
-            }`}
-          >
-            {message}
-          </p>
-        ) : null}
-      </div>
+          {message ? (
+            <p
+              className={`mx-auto mt-4 max-w-[960px] font-[family-name:var(--font-dm)] text-sm ${
+                status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
+              }`}
+            >
+              {message}
+            </p>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
