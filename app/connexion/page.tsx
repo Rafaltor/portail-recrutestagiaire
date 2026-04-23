@@ -359,9 +359,9 @@ function ConnexionPageInner() {
         </div>
       ) : (
         <>
-          <div className="mx-auto grid w-full max-w-[960px] gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="mx-auto grid w-full max-w-[1000px] grid-cols-1 gap-8 md:grid-cols-2 md:items-stretch md:gap-10">
             <section
-              className="rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8"
+              className="order-1 rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8 md:min-h-full"
               aria-labelledby="connexion-col-title"
             >
               <h2
@@ -424,7 +424,7 @@ function ConnexionPageInner() {
             </section>
 
             <section
-              className="rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8"
+              className="order-2 rounded-[20px] border border-[#e8e8e4] bg-white p-6 sm:p-8 md:min-h-full"
               aria-labelledby="connexion-inscription"
             >
               <h2
@@ -473,14 +473,14 @@ function ConnexionPageInner() {
           </div>
 
           {linkToken ? (
-            <p className="mx-auto mt-6 max-w-[960px] font-[family-name:var(--font-dm)] text-xs text-[#555550]">
+            <p className="mx-auto mt-6 max-w-[1000px] font-[family-name:var(--font-dm)] text-xs text-[#555550]">
               Après connexion, ton profil sera automatiquement rattaché via token.
             </p>
           ) : null}
 
           {message ? (
             <p
-              className={`mx-auto mt-4 max-w-[960px] font-[family-name:var(--font-dm)] text-sm ${
+              className={`mx-auto mt-4 max-w-[1000px] font-[family-name:var(--font-dm)] text-sm ${
                 status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
               }`}
             >
