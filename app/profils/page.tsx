@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ProfilsListDesktopHeader } from "@/components/ProfilsListDesktopHeader";
+import { CvThumbnail } from "@/components/CvThumbnail";
 import "./profils-list.css";
 
 type Profile = {
@@ -161,31 +162,36 @@ export default function ProfilsPage() {
             return (
               <li key={p.id} className="min-w-0">
                 <article className="rs-profils-card flex h-full min-w-0 flex-col">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <p className="truncate text-base font-bold text-[#0A0A0A]">
-                      @{handle}
-                    </p>
-                    <span className="rs-pill max-w-[min(100%,220px)] truncate">
-                      {p.job_title}
-                    </span>
+                  <div className="flex justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <p className="truncate text-base font-bold text-[#0A0A0A]">
+                          @{handle}
+                        </p>
+                        <span className="rs-pill max-w-[min(100%,220px)] truncate">
+                          {p.job_title}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-[12px] font-normal text-[#6B6B6B]">
+                        {p.city ?? "—"}
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-[#0A0A0A]">
+                        Rang{" "}
+                        <span className="font-bold text-[#F472B6]">#{rank}</span>
+                      </p>
+                      {p.portfolio_url ? (
+                        <a
+                          href={p.portfolio_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-flex w-fit text-xs font-medium text-[#F472B6] no-underline hover:underline"
+                        >
+                          Portfolio
+                        </a>
+                      ) : null}
+                    </div>
+                    <CvThumbnail cvUrl={`/api/cv/${p.id}`} />
                   </div>
-                  <p className="mt-2 text-[12px] font-normal text-[#6B6B6B]">
-                    {p.city ?? "—"}
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-[#0A0A0A]">
-                    Rang{" "}
-                    <span className="font-bold text-[#F472B6]">#{rank}</span>
-                  </p>
-                  {p.portfolio_url ? (
-                    <a
-                      href={p.portfolio_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-2 inline-flex w-fit text-xs font-medium text-[#F472B6] no-underline hover:underline"
-                    >
-                      Portfolio
-                    </a>
-                  ) : null}
                   <div className="mt-4 flex flex-col items-stretch gap-1.5">
                     <button
                       type="button"

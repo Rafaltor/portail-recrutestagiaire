@@ -23,6 +23,7 @@ import {
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
 import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 
 function formatSwipeError(e: unknown): string {
   if (e instanceof Error && e.message.trim()) return e.message;
@@ -141,8 +142,13 @@ export default function SwipePage() {
   const [rhInsight, setRhInsight] = useState<string | null>(null);
   const [rhInsightFadedIn, setRhInsightFadedIn] = useState(false);
 
-  const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const xMv = useMotionValue(0);
+  const rotate = useTransform(xMv, [-150, 150], [-12, 12]);
+  const approvedOpacity = useTransform(xMv, [0, 100], [0, 0.6]);
+  const declinedOpacity = useTransform(xMv, [-100, 0], [0.6, 0]);
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // When a swipe is committed, we keep rendering the outgoing card on top
   // while we immediately reveal the next card underneath.
@@ -467,6 +473,19 @@ export default function SwipePage() {
   }, [authReady, isConnected, likesDayKey]);
 
   useEffect(() => {
+    try {
+      if (
+        typeof window !== "undefined" &&
+        !localStorage.getItem("rs_swipe_onboarding_v1")
+      ) {
+        setShowOnboarding(true);
+      }
+    } catch {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!rhInsight) {
       setRhInsightFadedIn(false);
       return;
@@ -534,7 +553,6 @@ export default function SwipePage() {
   }, [desktopSwipeLayout]);
 
   const threshold = 120;
-  const tilt = Math.max(-12, Math.min(12, dragX / 18));
 
   function clearStampTimers() {
     if (stampReturnTimerRef.current) {
@@ -631,7 +649,7 @@ export default function SwipePage() {
         exitDurationMs: STAMP_EXIT_MS,
         slideOut: false,
       });
-      setDragX(0);
+      xMv.set(0);
       startXRef.current = null;
 
       requestAnimationFrame(() => {
@@ -672,7 +690,7 @@ export default function SwipePage() {
       const item = current;
 
       setCardImprint(resolvedImprint);
-      setDragX(0);
+      xMv.set(0);
       startXRef.current = null;
       if (imprintHoldTimerRef.current) {
         window.clearTimeout(imprintHoldTimerRef.current);
@@ -732,7 +750,7 @@ export default function SwipePage() {
     setRhInsight(vr.rhMessage ?? null);
 
     setCardImprint(resolvedImprint);
-    setDragX(0);
+    xMv.set(0);
     startXRef.current = null;
     if (imprintHoldTimerRef.current) {
       window.clearTimeout(imprintHoldTimerRef.current);
@@ -999,13 +1017,13 @@ export default function SwipePage() {
 
   function onPointerMove(e: React.PointerEvent) {
     if (!dragging || startXRef.current == null) return;
-    setDragX(e.clientX - startXRef.current);
+    xMv.set(e.clientX - startXRef.current);
   }
 
   function onPointerUp() {
     if (!dragging) return;
     setDragging(false);
-    const dx = dragX;
+    const dx = xMv.get();
     const releaseTilt = Math.max(-12, Math.min(12, dx / 18));
     if (dx > threshold) {
       const fallbackImprint: StampImprint = { kind: "approved", x: 50, y: 52 };
@@ -1014,8 +1032,9 @@ export default function SwipePage() {
       const fallbackImprint: StampImprint = { kind: "declined", x: 50, y: 52 };
       void applyTransitionVote("declined", -1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
     } else {
-      requestAnimationFrame(() => {
-        setDragX(0);
+      void animate(xMv, 0, {
+        duration: SWIPE_SPRING_MS / 1000,
+        ease: [0.34, 1.56, 0.64, 1],
       });
     }
     startXRef.current = null;
@@ -1026,6 +1045,19 @@ export default function SwipePage() {
 
   const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
   const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
+
+  useEffect(() => {
+    xMv.set(0);
+  }, [current?.profile.id, xMv]);
+
+  function dismissOnboarding() {
+    try {
+      localStorage.setItem("rs_swipe_onboarding_v1", "1");
+    } catch {
+      /* ignore */
+    }
+    setShowOnboarding(false);
+  }
 
   return (
     <div
@@ -1038,7 +1070,17 @@ export default function SwipePage() {
           : { height: swipeChromeHeight }
       }
     >
-      <SwipeWelcomeModal />
+      <SwipeWelcomeModal open={showOnboarding} onDismiss={dismissOnboarding} />
+      <div className="pointer-events-none absolute right-2 top-2 z-[12000] flex justify-end sm:right-3">
+        <button
+          type="button"
+          onClick={() => setShowOnboarding(true)}
+          className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-[#2A2A2A] text-xs text-[#6B6B6B] transition-colors hover:border-[#E11D48] hover:text-[#E11D48]"
+          aria-label="Revoir les règles"
+        >
+          ?
+        </button>
+      </div>
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
@@ -1225,7 +1267,7 @@ export default function SwipePage() {
                 } else if (deckIdx === 1) {
                   transform = STACK_DECK_MID;
                 } else {
-                  transform = `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
+                  transform = "translate(0px, 0px) scale(1)";
                 }
 
                 const transformOrigin = "center center";
@@ -1261,52 +1303,78 @@ export default function SwipePage() {
                       pointerEvents: isTop && !outgoing ? "auto" : "none",
                     }}
                   >
-                    <div
-                      ref={isTop ? cardDropRef : undefined}
-                      onPointerDown={isTop && !outgoing ? onPointerDown : undefined}
-                      onPointerMove={isTop && !outgoing ? onPointerMove : undefined}
-                      onPointerUp={isTop && !outgoing ? onPointerUp : undefined}
-                      onPointerCancel={isTop && !outgoing ? onPointerUp : undefined}
-                      data-stamp-dropzone={isTop && !outgoing ? "1" : undefined}
-                      className={shellClass}
-                      style={{
-                        transform,
-                        transformOrigin,
-                        transitionProperty: "transform",
-                        transitionDuration,
-                        transitionTimingFunction: transitionEasing,
-                        filter: shellFilter,
-                        touchAction: isTop ? "none" : undefined,
-                      }}
-                    >
-                      <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                        <PdfPreview
-                          key={item.profile.id}
-                          url={item.cvUrl}
-                          mode={swipePdfMode}
-                          immersive
+                    {isTop ? (
+                      <motion.div
+                        ref={cardDropRef}
+                        onPointerDown={!outgoing ? onPointerDown : undefined}
+                        onPointerMove={!outgoing ? onPointerMove : undefined}
+                        onPointerUp={!outgoing ? onPointerUp : undefined}
+                        onPointerCancel={!outgoing ? onPointerUp : undefined}
+                        data-stamp-dropzone={!outgoing ? "1" : undefined}
+                        className={shellClass}
+                        style={{
+                          x: xMv,
+                          rotate,
+                          filter: shellFilter ?? "none",
+                          touchAction: "none",
+                        }}
+                      >
+                        <motion.div
+                          style={{ opacity: approvedOpacity }}
+                          className="pointer-events-none absolute inset-0 z-10 rounded-[8px] bg-[#22C55E]"
                         />
-                      </div>
-
-                      {isTop && cardImprint ? (
-                        <div
-                          className="pointer-events-none absolute z-30"
-                          style={{
-                            left: `${cardImprint.x}%`,
-                            top: `${cardImprint.y}%`,
-                            transform: "translate(-50%, -50%)",
-                          }}
-                        >
-                          <StampImprintVisual kind={cardImprint.kind} />
+                        <motion.div
+                          style={{ opacity: declinedOpacity }}
+                          className="pointer-events-none absolute inset-0 z-10 rounded-[8px] bg-[#EF4444]"
+                        />
+                        <div className="relative h-full min-h-0 w-full max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden rounded-none">
+                          <PdfPreview
+                            key={item.profile.id}
+                            url={item.cvUrl}
+                            mode={swipePdfMode}
+                            immersive
+                          />
                         </div>
-                      ) : null}
 
-                      {isTop ? (
-                        <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                        {cardImprint ? (
+                          <div
+                            className="pointer-events-none absolute z-30"
+                            style={{
+                              left: `${cardImprint.x}%`,
+                              top: `${cardImprint.y}%`,
+                              transform: "translate(-50%, -50%)",
+                            }}
+                          >
+                            <StampImprintVisual kind={cardImprint.kind} />
+                          </div>
+                        ) : null}
+
+                        <div className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
                           {normHandle(item.profile.handle)}
                         </div>
-                      ) : null}
-                    </div>
+                      </motion.div>
+                    ) : (
+                      <div
+                        className={shellClass}
+                        style={{
+                          transform,
+                          transformOrigin,
+                          transitionProperty: "transform",
+                          transitionDuration,
+                          transitionTimingFunction: transitionEasing,
+                          filter: shellFilter,
+                        }}
+                      >
+                        <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                          <PdfPreview
+                            key={item.profile.id}
+                            url={item.cvUrl}
+                            mode={swipePdfMode}
+                            immersive
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -1386,72 +1454,97 @@ export default function SwipePage() {
               ) : null}
             </div>
           </div>
+          {!blockedByFreeLimit ? (
+            <div className="pointer-events-none z-[9000] flex w-full shrink-0 flex-col items-center gap-2 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
+              <div className="pointer-events-auto flex flex-col items-center gap-1.5 py-2">
+                <div className="h-1.5 w-48 overflow-hidden rounded-full bg-[#2A2A2A]">
+                  <div
+                    className="h-full rounded-full transition-all duration-300 ease-out"
+                    style={{
+                      width: `${Math.max(
+                        0,
+                        ((isConnected ? likesLeft : freeLeft) /
+                          (isConnected ? AUTH_LIKES_PER_DAY : FREE_SWIPE_LIMIT)) *
+                          100,
+                      )}%`,
+                      backgroundColor:
+                        (isConnected ? likesLeft : freeLeft) <= 2
+                          ? "#F59E0B"
+                          : "#E11D48",
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-[#6B6B6B]">
+                  {isConnected
+                    ? likesLeft === 0
+                      ? "Reviens demain pour continuer à liker ✦"
+                      : likesLeft <= 2
+                        ? `Plus que ${likesLeft} like${likesLeft > 1 ? "s" : ""} aujourd'hui !`
+                        : `${likesLeft} likes restants aujourd'hui`
+                    : freeLeft === 0
+                      ? "Reviens demain pour continuer à voter ✦"
+                      : freeLeft <= 2
+                        ? `Plus que ${freeLeft} vote${freeLeft > 1 ? "s" : ""} aujourd'hui !`
+                        : `${freeLeft} votes restants aujourd'hui`}
+                </span>
+              </div>
+              <div className="sticky bottom-0 z-20 flex w-full items-center justify-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent px-4 pb-6 pt-10 pointer-events-auto">
+                <button
+                  data-stamp-source="declined"
+                  onMouseDown={(e) => {
+                    void handleStampMouseDown(e, "declined");
+                  }}
+                  onTouchStart={(e) => {
+                    void handleStampTouchStart(e, "declined");
+                  }}
+                  onClick={(e) => {
+                    void handleStampClick(e, "declined");
+                  }}
+                  className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
+                    activeStampKind === "declined" ? "opacity-45" : ""
+                  }`}
+                  style={{
+                    touchAction: "none",
+                    animation:
+                      stampDrag || stampDropping
+                        ? "none"
+                        : "stampWobble 1800ms ease-in-out infinite",
+                  }}
+                >
+                  <StampVisual kind="declined" muted={activeStampKind === "declined"} />
+                </button>
+                <button
+                  data-stamp-source="approved"
+                  onMouseDown={(e) => {
+                    void handleStampMouseDown(e, "approved");
+                  }}
+                  onTouchStart={(e) => {
+                    void handleStampTouchStart(e, "approved");
+                  }}
+                  onClick={(e) => {
+                    void handleStampClick(e, "approved");
+                  }}
+                  className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
+                    activeStampKind === "approved" ? "opacity-45" : ""
+                  }`}
+                  style={{
+                    touchAction: "none",
+                    animation:
+                      stampDrag || stampDropping
+                        ? "none"
+                        : "stampWobble 1800ms ease-in-out infinite",
+                  }}
+                >
+                  <StampVisual kind="approved" muted={activeStampKind === "approved"} />
+                </button>
+              </div>
+              <p className="pointer-events-auto max-w-md px-2 text-center text-[11px] font-normal text-[#888888]">
+                Glisse un tampon sur la carte ou swipe gauche/droite.
+              </p>
+            </div>
+          ) : null}
         </div>
       )}
-
-      {!blockedByFreeLimit ? (
-        <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[9000] flex flex-col items-center gap-2 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-2">
-          <p
-            className="text-center text-[12px] font-medium text-[#F472B6]"
-            style={{
-              fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
-            }}
-          >
-            {isConnected ? (
-              <>{likesLeft} likes restants aujourd&apos;hui</>
-            ) : (
-              <>{freeLeft} swipes gratuits restants</>
-            )}
-          </p>
-          <div className="mx-auto flex max-w-[980px] items-end justify-center gap-6 px-2 sm:gap-8 sm:px-3 pointer-events-auto">
-            <button
-              data-stamp-source="declined"
-              onMouseDown={(e) => {
-                void handleStampMouseDown(e, "declined");
-              }}
-              onTouchStart={(e) => {
-                void handleStampTouchStart(e, "declined");
-              }}
-              onClick={(e) => {
-                void handleStampClick(e, "declined");
-              }}
-              className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
-                activeStampKind === "declined" ? "opacity-45" : ""
-              }`}
-              style={{
-                touchAction: "none",
-                animation: stampDrag || stampDropping ? "none" : "stampWobble 1800ms ease-in-out infinite",
-              }}
-            >
-              <StampVisual kind="declined" muted={activeStampKind === "declined"} />
-            </button>
-            <button
-              data-stamp-source="approved"
-              onMouseDown={(e) => {
-                void handleStampMouseDown(e, "approved");
-              }}
-              onTouchStart={(e) => {
-                void handleStampTouchStart(e, "approved");
-              }}
-              onClick={(e) => {
-                void handleStampClick(e, "approved");
-              }}
-              className={`rounded-lg border-2 border-transparent bg-transparent p-0 shadow-none transition-transform ${
-                activeStampKind === "approved" ? "opacity-45" : ""
-              }`}
-              style={{
-                touchAction: "none",
-                animation: stampDrag || stampDropping ? "none" : "stampWobble 1800ms ease-in-out infinite",
-              }}
-            >
-              <StampVisual kind="approved" muted={activeStampKind === "approved"} />
-            </button>
-          </div>
-          <p className="max-w-md px-2 text-center text-[11px] font-normal text-[#888888]">
-            Glisse un tampon sur la carte ou swipe gauche/droite.
-          </p>
-        </div>
-      ) : null}
 
       {stampDrag ? (
         <div

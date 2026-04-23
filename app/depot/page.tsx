@@ -249,17 +249,19 @@ export default function DepotPage() {
       className="grid gap-6 bg-white pb-8"
       style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
     >
-      <PortalDesktopPageHeader
-        eyebrow="Candidature"
-        title="Dépose ta candidature"
-        description={
-          <>
-            Un seul fichier suffit.
-            <br />
-            La communauté fait le reste.
-          </>
-        }
-      />
+      <div className="hidden lg:block">
+        <PortalDesktopPageHeader
+          eyebrow="Candidature"
+          title="Dépose ta candidature"
+          description={
+            <>
+              Un seul fichier suffit.
+              <br />
+              La communauté fait le reste.
+            </>
+          }
+        />
+      </div>
 
       <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 lg:hidden">
         <h1 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
@@ -354,8 +356,13 @@ export default function DepotPage() {
                   setStepTwo(null);
                   resetStatusForInput();
                 }}
-                className="mt-4 block w-full max-w-full cursor-pointer text-xs text-[#6B6B6B] file:mr-3 file:cursor-pointer file:rounded-[6px] file:border file:border-[#F0F0F0] file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-[#0A0A0A]"
+                className="sr-only"
               />
+              {file ? (
+                <span className="mt-3 block text-sm font-semibold text-[#E11D48]">
+                  ✓ {file.name}
+                </span>
+              ) : null}
             </label>
           </div>
         </div>
@@ -364,9 +371,9 @@ export default function DepotPage() {
           type="button"
           disabled={!canAnalyze || parsing}
           onClick={onAnalyzeCv}
-          className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-medium transition-colors ${
+          className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-medium transition-colors duration-150 ${
             canAnalyze
-              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#f472b6]"
+              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#e05aa5]"
               : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
           }`}
         >

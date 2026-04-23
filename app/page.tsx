@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeHowItWorks } from "@/components/HomeHowItWorks";
+import { StatsBar } from "@/components/StatsBar";
 import { HomeHeroBackdrop } from "@/components/HomeHeroBackdrop";
 import { HomeHeroStats } from "@/components/HomeHeroStats";
 import { HomeTopProfile } from "@/components/HomeTopProfile";
@@ -52,6 +53,8 @@ export default function Home() {
           <HomeHeroStats />
         </div>
       </section>
+
+      <StatsBar />
 
       <div className="rs-home-how-wrap">
         <HomeHowItWorks />

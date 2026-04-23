@@ -119,7 +119,7 @@ export default function RootLayout({
                     <div className="rs-banner-top__actions d-inline-flex align-items-center">
                       <Link
                         href="/depot"
-                        className="rs-ph-cta no-underline hover:no-underline"
+                        className="rs-ph-cta no-underline hover:no-underline !bg-[#E11D48] !text-white transition-colors duration-150 hover:!bg-[#c41a3e]"
                       >
                         Déposer mon CV
                       </Link>

@@ -1,9 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const LS_KEY = "swipe_rules_seen";
-
 const RULES = [
   "Vote pour les CVs que tu aimes",
   "10 likes par jour maximum",
@@ -12,27 +8,13 @@ const RULES = [
   "Pas de photo · CV PDF uniquement",
 ];
 
-export function SwipeWelcomeModal() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      if (!window.localStorage.getItem(LS_KEY)) setOpen(true);
-    } catch {
-      setOpen(true);
-    }
-  }, []);
-
-  function dismiss() {
-    try {
-      window.localStorage.setItem(LS_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    setOpen(false);
-  }
-
+export function SwipeWelcomeModal({
+  open,
+  onDismiss,
+}: {
+  open: boolean;
+  onDismiss: () => void;
+}) {
   if (!open) return null;
 
   return (
@@ -44,7 +26,7 @@ export function SwipeWelcomeModal() {
       aria-labelledby="swipe-rules-title"
     >
       <div
-        className="w-full max-w-[320px] rounded-[12px] bg-white p-6 shadow-none font-[family-name:var(--font-dm)]"
+        className="w-full max-w-[320px] rounded-[12px] bg-white p-6 font-[family-name:var(--font-dm)] shadow-none"
       >
         <h2
           id="swipe-rules-title"
@@ -55,14 +37,17 @@ export function SwipeWelcomeModal() {
         <ul className="mt-4 list-none space-y-2.5 p-0 text-left text-[13px] font-normal leading-snug text-[#0A0A0A]">
           {RULES.map((line) => (
             <li key={line} className="flex gap-2">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#F472B6]" aria-hidden />
+              <span
+                className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#F472B6]"
+                aria-hidden
+              />
               <span>{line}</span>
             </li>
           ))}
         </ul>
         <button
           type="button"
-          onClick={dismiss}
+          onClick={onDismiss}
           className="mt-6 w-full rounded-full border-0 bg-[#f472b6] px-4 py-[14px] text-sm font-medium text-white hover:bg-[#f472b6]"
         >
           C&apos;est parti
