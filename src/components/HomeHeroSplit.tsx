@@ -35,77 +35,76 @@ export function HomeHeroSplit() {
   }, []);
 
   const primary =
-    "inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#f472b6] px-7 py-3 text-center font-bold text-white no-underline transition-colors hover:bg-[#db2777] hover:no-underline";
+    "inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
   const secondary =
-    "inline-flex min-h-[48px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-7 py-3 text-center font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline";
+    "inline-flex min-h-[44px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-5 py-2.5 text-center text-sm font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
 
   return (
-    <section className="rs-home-hero rs-home-hero--wide relative min-h-[min(100vh,720px)] w-full overflow-hidden md:min-h-[560px]">
+    <section className="rs-home-hero rs-home-hero--wide relative min-h-0 w-full overflow-hidden">
       <HomeHeroBackdrop />
-      <div className="rs-home-hero__grid--front rs-home-hero__grid relative z-[3] mx-auto grid max-w-[1200px] grid-cols-1 md:grid-cols-[1fr_420px]">
-        {/* Colonne gauche */}
-        <div className="flex flex-col justify-center bg-white/90 px-6 py-10 backdrop-blur-[6px] md:px-16 md:py-20 md:bg-white/85 lg:pl-16 lg:pr-12">
-          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
-            Collectif · Paris · 2026
-          </p>
-          <h1 className="mt-4 max-w-full break-words font-[family-name:var(--font-syne)] text-[44px] font-extrabold leading-[1.05] tracking-tight text-[#0A0A0A] md:text-[64px]">
-            On a commencé <span className="text-[#f472b6]">stagiaires.</span>
-            <br />
-            Pourquoi pas vous ?
-          </h1>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-[#6B6B6B]">
-            Dépose ton CV. La communauté vote.
-            <br />
-            Les meilleurs rejoignent le collectif.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/depot" className={primary}>
-              Poste ton CV
-            </Link>
-            <Link href="/profils" className={secondary}>
-              Voir les profils
-            </Link>
+      <div className="rs-home-hero__grid--front relative z-[3] flex w-full flex-col">
+        {/* Bandeau blanc pleine largeur (texte + CTA) */}
+        <div className="w-full border-b border-[#E8E8E8]/80 bg-white/95 px-4 py-8 backdrop-blur-[6px] sm:px-8 sm:py-12 md:px-12 md:py-14 lg:px-16">
+          <div className="mx-auto min-w-0 w-full max-w-[1200px]">
+            <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
+              Collectif · Paris · 2026
+            </p>
+            <h1 className="mt-3 max-w-full break-words font-[family-name:var(--font-syne)] text-[clamp(1.5rem,6.8vw,2.15rem)] font-extrabold leading-[1.08] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[40px] sm:leading-[1.05] md:text-[56px] lg:text-[64px]">
+              On a commencé <span className="text-[#f472b6]">stagiaires.</span>
+              <br />
+              Pourquoi pas vous ?
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B6B6B] sm:mt-5 sm:text-base md:text-lg">
+              Dépose ton CV. La communauté vote.
+              <br />
+              Les meilleurs rejoignent le collectif.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3">
+              <Link href="/depot" className={primary}>
+                Poste ton CV
+              </Link>
+              <Link href="/profils" className={secondary}>
+                Voir les profils
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Colonne droite */}
-        <div className="flex flex-col justify-between bg-[#0A0A0A] px-6 py-8 text-white md:px-10 md:py-12">
-          <div>
-            <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
-              En direct
-            </p>
-            {/* Mobile : stats en ligne */}
-            <div className="mt-4 flex flex-row items-stretch md:mt-6 md:flex-col">
-              <div className="min-w-0 flex-1 md:flex-none">
-                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#f472b6] md:text-[72px]">
-                  {fmt(profiles)}
-                </p>
-                <p className="mt-2 text-sm text-white/90">CVs dans la base</p>
-              </div>
-              <div
-                className="mx-4 w-px shrink-0 self-stretch bg-white/10 md:hidden"
-                aria-hidden
-              />
-              <div
-                className="my-6 hidden h-px w-full bg-white/10 md:block"
-                aria-hidden
-              />
-              <div className="min-w-0 flex-1 md:flex-none">
-                <p className="font-[family-name:var(--font-syne)] text-[56px] font-extrabold leading-none text-[#f472b6] md:text-[72px]">
-                  {fmt(votes)}
-                </p>
-                <p className="mt-2 text-sm text-white/90">Votes enregistrés</p>
+        {/* Bandeau noir pleine largeur (stats en ligne) */}
+        <div className="w-full bg-[#0A0A0A] px-4 py-6 text-white sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
+          <div className="mx-auto flex min-w-0 w-full max-w-[1200px] flex-col gap-6 sm:gap-8 md:flex-row md:items-end md:justify-between md:gap-10">
+            <div className="min-w-0">
+              <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 sm:text-[11px] sm:tracking-[0.14em]">
+                En direct
+              </p>
+              <div className="mt-4 flex min-w-0 flex-row flex-wrap items-end gap-6 sm:mt-5 sm:gap-12 md:gap-16 lg:gap-24">
+                <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
+                  <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
+                    {fmt(profiles)}
+                  </p>
+                  <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">CVs dans la base</p>
+                </div>
+                <div
+                  className="hidden h-[min(4.5rem,18vw)] w-px shrink-0 self-center bg-white/15 sm:block sm:h-[72px] md:h-[88px]"
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1 basis-0 sm:flex-none sm:basis-auto">
+                  <p className="font-[family-name:var(--font-syne)] text-[clamp(2.25rem,14vw,3.25rem)] font-extrabold tabular-nums leading-none tracking-tight text-[#f472b6] sm:text-[52px] md:text-[68px] lg:text-[72px]">
+                    {fmt(votes)}
+                  </p>
+                  <p className="mt-1.5 text-xs text-white/90 sm:mt-2 sm:text-sm">Votes enregistrés</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mt-10 flex justify-center pt-6 md:mt-auto md:justify-start md:pt-12">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white">
-              <span
-                className="inline-block h-2 w-2 shrink-0 rounded-full bg-[#22C55E] animate-pulse"
-                aria-hidden
-              />
-              Candidatures ouvertes
-            </span>
+            <div className="flex shrink-0 justify-start md:justify-end">
+              <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-medium leading-snug text-white sm:gap-2 sm:px-3.5 sm:text-xs">
+                <span
+                  className="inline-block h-2 w-2 shrink-0 rounded-full bg-[#22C55E] animate-pulse"
+                  aria-hidden
+                />
+                Candidatures ouvertes
+              </span>
+            </div>
           </div>
         </div>
       </div>
