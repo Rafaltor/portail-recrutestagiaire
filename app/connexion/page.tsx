@@ -3,11 +3,19 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
 type LinkRes = { ok: true; shopifyCustomerId: string };
 
-/** Bouton « Continuer avec Google » — charte portail (bordure #F0F0F0, sans ombre). */
+const connexionInputClass =
+  "w-full rounded-[12px] border-[1.5px] border-[#e8e8e4] bg-white px-4 py-3 font-[family-name:var(--font-dm)] text-[14px] font-normal text-[#0a0a0a] outline-none transition-[border-color] focus:border-[#f472b6]";
+
+const connexionPrimaryBtn =
+  "w-full rounded-full border-0 bg-[#0a0a0a] py-[14px] text-center font-[family-name:var(--font-dm)] text-[14px] font-medium text-white transition-colors hover:bg-[#f472b6] disabled:cursor-not-allowed disabled:opacity-50";
+
+const connexionOutlineBtn =
+  "inline-flex w-full items-center justify-center rounded-full border-[1.5px] border-[#e8e8e4] bg-white py-[14px] text-center font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a] transition-colors hover:border-[#0a0a0a]";
+
+/** Bouton « Continuer avec Google » — charte portail. */
 function GoogleAuthButton({
   disabled,
   loading,
@@ -24,7 +32,7 @@ function GoogleAuthButton({
       type="button"
       disabled={disabled || loading}
       onClick={onClick}
-      className="flex h-11 w-full max-w-full items-center justify-center gap-3 rounded-[6px] border border-[#F0F0F0] bg-white px-3 text-sm font-medium text-[#0A0A0A] transition-colors hover:bg-[#FAFAFA] disabled:cursor-not-allowed disabled:opacity-55"
+      className="flex w-full max-w-full items-center justify-center gap-3 rounded-full border-[1.5px] border-[#e8e8e4] bg-white px-4 py-[14px] font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a] transition-colors hover:border-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-55"
     >
       {loading ? (
         <span className="text-[13px]">Redirection…</span>
@@ -275,67 +283,66 @@ function ConnexionPageInner() {
   const signupPwdBusy = status === "authing-signup";
 
   return (
-    <div className="grid gap-6">
-      <PortalDesktopPageHeader
-        eyebrow="Compte"
-        title="Connexion"
-        description="Connecte-toi ou crée un compte : Google ou email et mot de passe."
-      />
-
-      <div className="rs-panel rounded-[8px] p-6 lg:hidden">
-        <h1 className="text-xl font-bold tracking-tight">Connexion</h1>
-        <p className="mt-2 text-sm font-normal text-[#6B6B6B]">
-          Google ou email — inscription sur la même page.
+    <div className="mx-auto grid w-full max-w-[var(--rs-content-max,1200px)] gap-8 pb-10">
+      <div className="hidden lg:block">
+        <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
+          Compte
         </p>
+        <h1 className="mt-1 font-[family-name:var(--font-syne)] text-[clamp(32px,4vw,48px)] font-extrabold leading-[1.1] tracking-tight text-[#0a0a0a]">
+          Connexion
+        </h1>
       </div>
 
-      <div
-        className={`mx-auto w-full rounded-[8px] border border-[#F0F0F0] bg-white p-8 shadow-none ${
-          userEmail ? "max-w-xl" : "max-w-[400px]"
-        }`}
-      >
+      <div className="lg:hidden">
+        <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
+          Compte
+        </p>
+        <h1 className="mt-1 font-[family-name:var(--font-syne)] text-[clamp(32px,4vw,48px)] font-extrabold leading-[1.1] tracking-tight text-[#0a0a0a]">
+          Connexion
+        </h1>
+      </div>
+
+      <div className="mx-auto w-full max-w-[480px] rounded-[20px] border border-[#e8e8e4] bg-white p-10 shadow-none">
         {userEmail ? (
           <>
-            <div className="text-sm text-[#0A0A0A]/85">
+            <div className="font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/90">
               Connecté en tant que <span className="font-semibold">{userEmail}</span>
             </div>
             {linkToken ? (
-              <div className="mt-2 text-xs text-[#0A0A0A]/85">
-                Token détecté: <span className="font-mono">{linkToken}</span>
+              <div className="mt-2 font-mono text-xs text-[#0a0a0a]/80">
+                Token détecté: {linkToken}
               </div>
             ) : null}
 
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-3">
               <button
+                type="button"
                 disabled={status === "linking"}
                 onClick={() => void linkShopify()}
-                className="rs-btn rs-btn--primary disabled:opacity-50"
+                className={connexionPrimaryBtn}
               >
-                {status === "linking" ? "Liaison..." : "Lier Shopify"}
+                {status === "linking" ? "Liaison…" : "Lier Shopify"}
               </button>
 
-              <button
-                onClick={() => void signOut()}
-                className="rs-btn rs-btn--ghost"
-              >
+              <button type="button" onClick={() => void signOut()} className={connexionOutlineBtn}>
                 Déconnexion
               </button>
             </div>
             {profileUrlParam ? (
-              <div className="mt-4">
-                <a href={profileUrlParam} className="rs-btn rs-btn--ghost">
+              <div className="mt-3">
+                <a href={profileUrlParam} className={`${connexionOutlineBtn} no-underline`}>
                   Ouvrir mon profil privé
                 </a>
               </div>
             ) : null}
-            <div className="mt-2">
-              <a href="/mon-espace" className="rs-btn rs-btn--ghost">
+            <div className="mt-3">
+              <a href="/mon-espace" className={`${connexionOutlineBtn} no-underline`}>
                 Aller à mon espace
               </a>
             </div>
 
             {shopifyCustomerId ? (
-              <div className="mt-4 text-sm text-[#0A0A0A]/85">
+              <div className="mt-4 font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/85">
                 Shopify customer id:{" "}
                 <span className="font-mono font-semibold">{shopifyCustomerId}</span>
               </div>
@@ -343,111 +350,119 @@ function ConnexionPageInner() {
           </>
         ) : (
           <div className="grid gap-0">
-            <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A]">
-              Connexion
-            </h2>
-            <p className="mt-1 text-sm font-normal text-[#6B6B6B]">
-              Déjà un compte ou nouveau — même bouton Google.
-            </p>
-
-            <div className="mt-6">
+            <section aria-labelledby="connexion-google-email">
+              <h2
+                id="connexion-google-email"
+                className="sr-only"
+              >
+                Connexion avec Google ou email
+              </h2>
               <GoogleAuthButton
                 disabled={loginPwdBusy || signupPwdBusy}
                 loading={oauthBusy}
                 onClick={() => void authWithGoogle()}
                 label="Continuer avec Google"
               />
-            </div>
 
-            <div className="my-6 flex items-center gap-3" aria-hidden="true">
-              <span className="h-px flex-1 bg-[#F0F0F0]" />
-              <span className="text-xs font-medium uppercase tracking-wide text-[#6B6B6B]">
-                ou
-              </span>
-              <span className="h-px flex-1 bg-[#F0F0F0]" />
-            </div>
+              <div className="mt-8">
+                <p className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
+                  Email et mot de passe
+                </p>
+                <label className="mt-3 grid gap-1.5">
+                  <span className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
+                    Email
+                  </span>
+                  <input
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    className={connexionInputClass}
+                    placeholder="toi@exemple.com"
+                    autoComplete="email"
+                  />
+                </label>
+                <label className="mt-4 grid gap-1.5">
+                  <span className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
+                    Mot de passe
+                  </span>
+                  <input
+                    type="password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className={connexionInputClass}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={loginPwdBusy || oauthBusy}
+                  onClick={() => void signInWithEmailPassword()}
+                  className={`${connexionPrimaryBtn} mt-5`}
+                >
+                  {loginPwdBusy ? "Connexion…" : "Se connecter"}
+                </button>
+              </div>
+            </section>
 
-            <div>
-              <p className="text-sm font-medium text-[#0A0A0A]">Connexion email</p>
-              <label className="mt-3 grid gap-1">
-                <span className="text-sm font-medium text-[#0A0A0A]">Email</span>
-                <input
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
-                  placeholder="toi@exemple.com"
-                  autoComplete="email"
-                />
-              </label>
-              <label className="mt-3 grid gap-1">
-                <span className="text-sm font-medium text-[#0A0A0A]">Mot de passe</span>
-                <input
-                  type="password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                />
-              </label>
-              <button
-                disabled={loginPwdBusy || oauthBusy}
-                onClick={() => void signInWithEmailPassword()}
-                className="rs-btn rs-btn--primary mt-4 w-full disabled:opacity-50"
+            <div className="my-10 h-px w-full bg-[#e8e8e4]" aria-hidden />
+
+            <section aria-labelledby="connexion-inscription">
+              <h2
+                id="connexion-inscription"
+                className="font-[family-name:var(--font-syne)] text-[18px] font-extrabold tracking-tight text-[#0a0a0a]"
               >
-                {loginPwdBusy ? "Connexion…" : "Se connecter"}
-              </button>
-            </div>
-
-            <div className="mt-10 border-t border-[#F0F0F0] pt-8">
-              <h3 className="text-lg font-bold tracking-tight text-[#0A0A0A]">
                 Inscription
-              </h3>
-              <p className="mt-1 text-sm font-normal text-[#6B6B6B]">
+              </h2>
+              <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal text-[#555550]">
                 Nouveau sur le portail ? Crée ton compte ci-dessous.
               </p>
-              <label className="mt-4 grid gap-1">
-                <span className="text-sm font-medium text-[#0A0A0A]">Email</span>
+              <label className="mt-6 grid gap-1.5">
+                <span className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
+                  Email
+                </span>
                 <input
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
+                  className={connexionInputClass}
                   placeholder="toi@exemple.com"
                   autoComplete="email"
                 />
               </label>
-              <label className="mt-3 grid gap-1">
-                <span className="text-sm font-medium text-[#0A0A0A]">Mot de passe</span>
+              <label className="mt-4 grid gap-1.5">
+                <span className="font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a]">
+                  Mot de passe
+                </span>
                 <input
                   type="password"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  className="rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2 text-sm"
+                  className={connexionInputClass}
                   placeholder="Minimum 6 caractères"
                   autoComplete="new-password"
                 />
               </label>
               <button
+                type="button"
                 disabled={signupPwdBusy || oauthBusy}
                 onClick={() => void signUpWithEmailPassword()}
-                className="rs-btn rs-btn--primary mt-4 w-full disabled:opacity-50"
+                className={`${connexionPrimaryBtn} mt-5`}
               >
                 {signupPwdBusy ? "Création…" : "Créer mon compte"}
               </button>
-            </div>
+            </section>
           </div>
         )}
 
         {linkToken && !userEmail ? (
-          <p className="mt-4 text-xs text-[#0A0A0A]/75">
+          <p className="mt-6 font-[family-name:var(--font-dm)] text-xs text-[#555550]">
             Après connexion, ton profil sera automatiquement rattaché via token.
           </p>
         ) : null}
 
         {message ? (
           <p
-            className={`mt-4 text-sm ${
-              status === "error" ? "text-red-700" : "text-[#0A0A0A]/85"
+            className={`mt-4 font-[family-name:var(--font-dm)] text-sm ${
+              status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
             }`}
           >
             {message}
@@ -462,16 +477,14 @@ export default function ConnexionPage() {
   return (
     <Suspense
       fallback={
-        <div className="grid gap-6">
-          <PortalDesktopPageHeader
-            eyebrow="Compte"
-            title="Connexion"
-            description="Chargement de la page…"
-          />
-          <div className="rs-panel rounded-lg p-6 lg:hidden">
-            <h1 className="text-xl font-black tracking-tight">Connexion</h1>
-            <p className="mt-2 text-sm text-[#0A0A0A]/85">Chargement…</p>
-          </div>
+        <div className="mx-auto grid w-full max-w-[var(--rs-content-max,1200px)] gap-6 pb-10">
+          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
+            Compte
+          </p>
+          <h1 className="font-[family-name:var(--font-syne)] text-[clamp(32px,4vw,48px)] font-extrabold text-[#0a0a0a]">
+            Connexion
+          </h1>
+          <p className="font-[family-name:var(--font-dm)] text-sm text-[#555550]">Chargement…</p>
         </div>
       }
     >

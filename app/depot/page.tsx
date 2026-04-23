@@ -361,9 +361,14 @@ export default function DepotPage() {
         </div>
 
         <button
+          type="button"
           disabled={!canAnalyze || parsing}
           onClick={onAnalyzeCv}
-          className="mt-5 w-full rounded-[6px] border-0 bg-[#F472B6] px-4 py-3 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+          className={`mt-5 w-full rounded-full border-0 px-4 py-[14px] text-sm font-medium transition-colors ${
+            canAnalyze
+              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#f472b6]"
+              : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
+          }`}
         >
           Analyser mon CV
         </button>

@@ -44,8 +44,7 @@ export function SwipeWelcomeModal() {
       aria-labelledby="swipe-rules-title"
     >
       <div
-        className="w-full max-w-[320px] rounded-[12px] bg-white p-6 shadow-none"
-        style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
+        className="w-full max-w-[320px] rounded-[12px] bg-white p-6 shadow-none font-[family-name:var(--font-dm)]"
       >
         <h2
           id="swipe-rules-title"
@@ -64,7 +63,7 @@ export function SwipeWelcomeModal() {
         <button
           type="button"
           onClick={dismiss}
-          className="mt-6 w-full rounded-[6px] border-0 bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white"
+          className="mt-6 w-full rounded-full border-0 bg-[#f472b6] px-4 py-[14px] text-sm font-medium text-white hover:bg-[#f472b6]"
         >
           C&apos;est parti
         </button>

@@ -866,26 +866,17 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
 .rs-home-stat-card__icon {
   width: 48px;
   height: 48px;
-  border-radius: var(--radius);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  line-height: 1;
   flex-shrink: 0;
+  background: #f4f4f2;
+  color: #555550;
 }
 
-.rs-home-stat-card__icon--accent {
-  background: var(--accent-light);
-}
-
-.rs-home-stat-card__icon--ink {
-  background: var(--black);
-  color: var(--white);
-}
-
-.rs-home-stat-card__icon--muted {
-  background: var(--gray-100);
+.rs-home-stat-card__icon svg {
+  display: block;
 }
 
 .rs-home-stat-card__num {
