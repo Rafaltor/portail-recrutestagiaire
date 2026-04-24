@@ -65,9 +65,12 @@ function ParcoursCard({
   );
 }
 
+const blocPrisCtaClass =
+  "rs-on-pink inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:w-auto sm:min-h-[48px] sm:shrink-0 sm:px-7 sm:py-3 sm:text-sm";
+
 function BlocPris() {
   return (
-    <article className="flex w-full flex-col gap-5 rounded-xl bg-[#0A0A0A] px-6 py-7 text-white sm:gap-6 sm:px-8 sm:py-8">
+    <article className="flex w-full flex-col gap-4 rounded-xl bg-[#0A0A0A] px-4 py-6 text-white sm:gap-6 sm:px-8 sm:py-8">
       <div className="flex flex-row items-start justify-between gap-4">
         <div className="min-w-0 pr-2">
           <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
@@ -77,10 +80,7 @@ function BlocPris() {
             Le meilleur CV
           </h3>
         </div>
-        <Link
-          href="/depot"
-          className="rs-on-pink inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-sm"
-        >
+        <Link href="/depot" className={`${blocPrisCtaClass} hidden sm:inline-flex`}>
           Déposer mon CV →
         </Link>
       </div>
@@ -96,10 +96,13 @@ function BlocPris() {
             {line}
           </span>
         ))}
-        <span className="shrink-0 text-[#f472b6]" aria-hidden>
+        <span className="hidden shrink-0 text-[#f472b6] sm:inline" aria-hidden>
           ✦
         </span>
       </div>
+      <Link href="/depot" className={`${blocPrisCtaClass} sm:hidden`}>
+        Déposer mon CV →
+      </Link>
     </article>
   );
 }
@@ -166,7 +169,7 @@ export function HomeHowItWorks() {
 
   return (
     <section
-      className="overflow-hidden rounded-xl border border-[#E8E8E8] bg-white px-4 py-6 sm:px-6 sm:py-8"
+      className="overflow-hidden rounded-xl border border-[#E8E8E8] bg-white px-2 py-5 sm:px-6 sm:py-8"
       aria-labelledby="rs-home-how-parcours"
     >
       <div className={`${shell} space-y-6`}>

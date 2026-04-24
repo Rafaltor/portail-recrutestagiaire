@@ -17,7 +17,7 @@ export default function Home() {
     <div className="rs-home-page">
       <HomeHeroSplit />
 
-      <div className="rs-home-how-wrap px-4 py-8 sm:px-6 sm:py-10">
+      <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
         <HomeHowItWorks />
       </div>
 
