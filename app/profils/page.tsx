@@ -23,16 +23,6 @@ type Profile = {
   likes: number | null;
 };
 
-function handleStripeColor(handle: string): string {
-  const s = handle.replace(/^@/, "");
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  }
-  const hue = Math.abs(h) % 360;
-  return `hsl(${hue} 70% 42%)`;
-}
-
 async function openCvPdf(profileId: string) {
   const r = await fetch(
     `/api/cv/${encodeURIComponent(profileId)}?intent=preview`,
@@ -171,7 +161,6 @@ export default function ProfilsPage() {
           {ranked.map((p) => {
             const handle = p.handle.replace(/^@/, "");
             const rank = rankById.get(p.id) ?? 0;
-            const stripe = handleStripeColor(p.handle);
             return (
               <li key={p.id} className="min-w-0">
                 <article className="relative flex min-h-[140px] overflow-hidden rounded-xl border border-[#E8E8E8] bg-white p-5 pr-7 shadow-sm transition-shadow hover:shadow-md">
@@ -216,8 +205,7 @@ export default function ProfilsPage() {
                     </div>
                   </div>
                   <div
-                    className="pointer-events-none absolute right-0 top-0 h-full w-2 rounded-r-xl"
-                    style={{ background: stripe }}
+                    className="pointer-events-none absolute right-0 top-0 h-full w-2 rounded-r-xl bg-[#f472b6]"
                     aria-hidden
                   />
                 </article>
