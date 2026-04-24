@@ -44,7 +44,7 @@ export function HomeHeroSplit() {
       <HomeHeroBackdrop />
       <div className="rs-home-hero__grid--front relative z-[3] flex w-full flex-col">
         {/* Bandeau blanc pleine largeur (texte + CTA) */}
-        <div className="w-full border-b border-[#E8E8E8]/40 bg-transparent px-4 py-8 sm:px-8 sm:py-12 md:px-12 md:py-14 lg:px-16">
+        <div className="w-full border-b border-[#E8E8E8]/40 bg-transparent px-4 pb-7 pt-4 sm:px-8 sm:pb-10 sm:pt-5 md:px-12 md:pb-12 md:pt-6 lg:px-16 lg:pb-14 lg:pt-8">
           <div className="mx-auto min-w-0 w-full max-w-[1200px]">
             <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
               Collectif · Paris · 2026
@@ -54,12 +54,7 @@ export function HomeHeroSplit() {
               <br />
               Pourquoi pas vous ?
             </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#6B6B6B] sm:mt-5 sm:text-base md:text-lg">
-              Dépose ton CV. La communauté vote.
-              <br />
-              Les meilleurs rejoignent le collectif.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-8 sm:gap-3">
+            <div className="mt-5 flex flex-wrap gap-2.5 sm:mt-7 sm:gap-3">
               <Link href="/depot" className={primary}>
                 Poste ton CV
               </Link>
@@ -71,7 +66,7 @@ export function HomeHeroSplit() {
         </div>
 
         {/* Bandeau noir pleine largeur (stats en ligne) */}
-        <div className="w-full bg-transparent px-4 py-6 text-white sm:px-8 sm:py-8 md:px-12 md:py-10 lg:px-16">
+        <div className="w-full bg-transparent px-4 pb-6 pt-4 text-white sm:px-8 sm:pb-7 sm:pt-5 md:px-12 md:pb-9 md:pt-6 lg:px-16">
           <div className="mx-auto min-w-0 w-full max-w-[1200px]">
             <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 sm:text-[11px] sm:tracking-[0.14em]">
               En direct
