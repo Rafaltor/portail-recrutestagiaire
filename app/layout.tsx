@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans } from "next/font/google";
+import { Syne, Manrope } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
@@ -25,9 +25,9 @@ const syne = Syne({
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-dm",
   display: "swap",
 });
@@ -60,7 +60,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const fontVars = `${syne.variable} ${dmSans.variable}`;
+  const fontVars = `${syne.variable} ${manrope.variable}`;
 
   return (
     <html lang="fr" data-rs-header-tab="offres" className={fontVars}>
