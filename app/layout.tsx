@@ -140,39 +140,6 @@ export default function RootLayout({
                       >
                         Déposer mon CV
                       </Link>
-                      <a
-                        href="https://recrutestagiaire.eu/cart"
-                        className="rs-header-ghost-link abt-btn rs-caf-btn-dossier rs-banner-top__cart d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]"
-                        aria-label="Mon dossier"
-                      >
-                        <svg
-                          className="rs-icon-dossier"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          aria-hidden="true"
-                          focusable="false"
-                          stroke="currentColor"
-                          strokeWidth="1.85"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.17 4.24a2 2 0 0 0-1.7-.9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16Z" />
-                        </svg>
-                        <span className="rs-caf-btn-dossier__label">
-                          <span className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--full">
-                            Mon dossier
-                          </span>
-                          <span
-                            className="rs-caf-btn-dossier__text rs-caf-btn-dossier__text--short"
-                            aria-hidden="true"
-                          >
-                            Dossier
-                          </span>
-                        </span>
-                      </a>
 
                       <HeaderAccountLink className="rs-header-ghost-link !border-0 !bg-transparent !text-[#6B6B6B] shadow-none hover:!text-[#f472b6]" />
                     </div>

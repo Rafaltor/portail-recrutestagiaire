@@ -180,21 +180,6 @@ body.rs-portal-header .header-wrap .container {
     padding: 0 !important;
   }
 
-  body.rs-portal-header .header-wrap .rs-header-top-line {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 16px !important;
-    min-height: 56px !important;
-    height: 56px !important;
-    max-width: none !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    border-bottom: none !important;
-    padding: 0 !important;
-  }
-
   body.rs-portal-header .header-wrap .rs-banner-top.rs-header-pole-brand {
     display: flex !important;
     align-items: center !important;
@@ -203,7 +188,7 @@ body.rs-portal-header .header-wrap .container {
 
 @media (min-width: 900px) {
   body.rs-portal-header .header-wrap .rs-header-top-line {
-    min-height: 64px !important;
+    min-height: 58px !important;
     height: auto !important;
     display: grid !important;
     grid-template-columns: 1fr auto 1fr !important;
@@ -290,15 +275,21 @@ body.rs-portal-header .rs-ph-brandlink-title {
   text-overflow: ellipsis;
 }
 
-body.rs-portal-header .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
-body.rs-portal-header .rs-header-mobile-bar__title {
+body.rs-portal-header .rs-nav-brand__name.logo.rs-nav-brand__name--headline {
   font-family: var(--font-display) !important;
   font-weight: 800 !important;
   font-size: 14px !important;
   letter-spacing: -0.02em !important;
   text-transform: uppercase !important;
-  color: var(--black) !important;
+  color: var(--accent, #f472b6) !important;
+  -webkit-text-fill-color: var(--accent, #f472b6) !important;
   text-shadow: none !important;
+}
+
+/* Titre mobile : typo = rs-shopify-header-mobile.css (clamp) ; couleur charte */
+body.rs-portal-header .rs-header-mobile-bar__title {
+  color: var(--accent, #f472b6) !important;
+  -webkit-text-fill-color: var(--accent, #f472b6) !important;
 }
 
 body.rs-portal-header .rs-ph-navdesk {
@@ -395,11 +386,11 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
 
 @media (max-width: 899.98px) {
   body.rs-portal-header .rs-header-mobile-bar {
-    min-height: 56px !important;
+    min-height: 80px !important;
     height: auto !important;
     max-height: none !important;
-    padding: 0 max(10px, var(--rs-pad-x, 16px)) !important;
-    background: transparent !important;
+    padding: 8px max(10px, var(--rs-pad-x, 16px)) !important;
+    background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%) !important;
     border-bottom: none !important;
     align-items: center !important;
     /* Plus d’air entre le bloc marque (logo + texte) et le menu */
@@ -414,69 +405,46 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
   }
 
   body.rs-portal-header .header-wrap .rs-header-mobile-bar__logo {
-    max-height: 36px !important;
-    max-width: 36px !important;
+    max-height: 64px !important;
+    max-width: 64px !important;
   }
 
-  /* Titre marque lisible en entier : plus petit + retour à la ligne (plus de …) */
-  body.rs-portal-header .rs-header-mobile-bar .rs-header-mobile-bar__title {
-    font-size: clamp(10px, 2.85vw, 11px) !important;
-    letter-spacing: 0.02em !important;
-    line-height: 1.2 !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    word-break: break-word !important;
-    hyphens: auto;
-    max-width: 100% !important;
+  /* Typo titre : laisser rs-shopify-header-mobile.css (comme la boutique) */
+
+  /* Bouton menu : même gabarit que la boutique */
+  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #f472b6 !important;
   }
 
-  /* Bouton menu : pastille moderne + icône 2 traits */
-  body.rs-portal-header .rs-header-burger-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    width: 42px !important;
-    height: 42px !important;
-    padding: 0 !important;
-    border: none !important;
-    border-radius: 14px !important;
-    background: rgba(10, 10, 10, 0.06) !important;
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.55) inset,
-      0 1px 2px rgba(0, 0, 0, 0.06) !important;
-    transition:
-      background 0.2s ease,
-      box-shadow 0.2s ease,
-      transform 0.2s ease !important;
+  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn:hover {
+    background: rgba(244, 114, 182, 0.08) !important;
   }
 
-  body.rs-portal-header .rs-header-burger-btn:hover {
-    background: rgba(10, 10, 10, 0.1) !important;
+  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn:active {
+    transform: scale(0.98);
   }
 
-  body.rs-portal-header .rs-header-burger-btn:active {
-    transform: scale(0.96);
-  }
-
-  body.rs-portal-header .rs-header-burger {
-    position: relative;
-    width: 22px;
-    height: 14px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 6px;
+  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger {
+    width: 24px !important;
+    height: 24px !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
     pointer-events: none;
   }
 
-  body.rs-portal-header .rs-header-burger__line {
+  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger__line {
     display: block;
-    width: 22px;
-    height: 2.5px;
-    border-radius: 999px;
-    background: var(--black);
+    width: 24px !important;
+    height: 2px !important;
+    border-radius: 0 !important;
+    background: #f472b6 !important;
     transform-origin: center;
     transition:
       transform 0.25s ease,
@@ -484,16 +452,17 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
       background 0.2s ease;
   }
 
-  html.rs-header-drawer-open body.rs-portal-header .rs-header-burger {
-    gap: 0;
+  html.rs-header-drawer-open body.rs-portal-header .rs-header-mobile-bar .rs-header-burger {
+    justify-content: center !important;
+    gap: 0 !important;
   }
 
-  html.rs-header-drawer-open body.rs-portal-header .rs-header-burger__line:first-child {
-    transform: translateY(1.25px) rotate(45deg);
+  html.rs-header-drawer-open body.rs-portal-header .rs-header-mobile-bar .rs-header-burger__line:first-child {
+    transform: translateY(11px) rotate(45deg);
   }
 
-  html.rs-header-drawer-open body.rs-portal-header .rs-header-burger__line:last-child {
-    transform: translateY(-1.25px) rotate(-45deg);
+  html.rs-header-drawer-open body.rs-portal-header .rs-header-mobile-bar .rs-header-burger__line:last-child {
+    transform: translateY(-11px) rotate(-45deg);
   }
 }
 
@@ -685,7 +654,7 @@ body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-heade
   color: #fff !important;
 }
 
-/* Marque « Recrute Stagiaire » : blanc sur hero (header transparent), rose après scroll */
+/* Marque « Recrute Stagiaire » : rose charte (hero transparent + barre scrollée) */
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header.rs-header--scroll-solid .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header.rs-header--scroll-solid .rs-header-mobile-bar__title {
   color: var(--accent) !important;
@@ -695,11 +664,12 @@ body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header.rs-header--sc
 
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-header-mobile-bar__title {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+  color: var(--accent, #f472b6) !important;
+  -webkit-text-fill-color: var(--accent, #f472b6) !important;
   text-shadow:
-    0 0 14px rgba(0, 0, 0, 0.5),
-    0 1px 3px rgba(0, 0, 0, 0.45) !important;
+    0 0 10px rgba(255, 255, 255, 0.55),
+    0 0 18px rgba(0, 0, 0, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.35) !important;
 }
 
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-ph-brandlink-logo,
@@ -738,15 +708,19 @@ body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-heade
 }
 
 @media (max-width: 899.98px) {
-  body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-header-burger__line {
-    background: #fafaf8 !important;
+  body.rs-portal-header[data-rs-page='index']
+    .header-wrap.rs-header:not(.rs-header--scroll-solid)
+    .rs-header-mobile-bar
+    .rs-header-burger__line {
+    background: #f472b6 !important;
   }
 
-  body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-header-burger-btn {
-    background: rgba(255, 255, 255, 0.14) !important;
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.2) inset,
-      0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  body.rs-portal-header[data-rs-page='index']
+    .header-wrap.rs-header:not(.rs-header--scroll-solid)
+    .rs-header-mobile-bar
+    .rs-header-burger-btn {
+    background: transparent !important;
+    box-shadow: none !important;
   }
 }
 
