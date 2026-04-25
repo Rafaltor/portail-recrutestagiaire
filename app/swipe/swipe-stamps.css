@@ -123,6 +123,66 @@ html[data-rs-swipe="1"] main.rs-portal-main {
   filter: saturate(1.06) contrast(1.04) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.32));
 }
 
+/* Tampons : teinte charte (#F472B6 / #0A0A0A) sur les PNG */
+#rs-swipe-page .rs-stamp-art--tint-approved .rs-stamp-art__img {
+  filter: sepia(0.4) saturate(2.4) hue-rotate(300deg) brightness(1.06) contrast(1.08);
+}
+
+#rs-swipe-page .rs-stamp-art--tint-declined .rs-stamp-art__img {
+  filter: grayscale(1) brightness(0.32) contrast(1.12);
+}
+
+#rs-swipe-page .rs-imprint-art--tone-approved .rs-imprint-art__img {
+  filter: sepia(0.4) saturate(2.4) hue-rotate(300deg) brightness(1.06) contrast(1.08)
+    drop-shadow(0 4px 14px rgba(0, 0, 0, 0.22));
+}
+
+#rs-swipe-page .rs-imprint-art--tone-declined .rs-imprint-art__img {
+  filter: grayscale(1) brightness(0.32) contrast(1.12) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.22));
+}
+
+/* Sortie vote APPROUVÉ : flip 3D + lueur rose vers 90° */
+.rs-swipe-flip-stage {
+  perspective: 1200px;
+  perspective-origin: 50% 45%;
+}
+
+.rs-swipe-flip-inner {
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  animation: rsSwipeFlipApprove 350ms cubic-bezier(0.42, 0, 0.22, 1) forwards;
+}
+
+@keyframes rsSwipeFlipApprove {
+  0% {
+    transform: perspective(1100px) rotateY(0deg) translate3d(0, 0, 0);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(244, 114, 182, 0));
+  }
+  48% {
+    transform: perspective(1100px) rotateY(90deg) translate3d(0, 0, 0);
+    filter: brightness(1.08) drop-shadow(0 0 34px rgba(244, 114, 182, 0.95));
+  }
+  100% {
+    transform: perspective(1100px) rotateY(178deg) translate3d(calc(min(42vw, 300px)), 0, 28px);
+    filter: brightness(1.02) drop-shadow(0 0 12px rgba(244, 114, 182, 0.45));
+  }
+}
+
+/* CV suivant : entrée depuis la droite après la sortie */
+.rs-swipe-top-enter {
+  will-change: transform;
+}
+
+.rs-swipe-top-enter--from {
+  transform: translate3d(108%, 0, 0);
+  transition: none;
+}
+
+.rs-swipe-top-enter--to {
+  transform: translate3d(0, 0, 0);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.32, 1);
+}
+
 #rs-swipe-page .rs-imprint-art {
   display: inline-flex;
   pointer-events: none;
@@ -189,15 +249,15 @@ html[data-rs-swipe="1"] main.rs-portal-main {
 }
 
 .rs-stamp-impact-wrap--approved {
-  --rs-ring: rgba(16, 185, 129, 0.75);
-  --rs-ring-soft: rgba(52, 211, 153, 0.45);
-  --rs-flash: rgba(167, 243, 208, 0.95);
+  --rs-ring: rgba(244, 114, 182, 0.85);
+  --rs-ring-soft: rgba(251, 182, 206, 0.55);
+  --rs-flash: rgba(253, 224, 236, 0.95);
 }
 
 .rs-stamp-impact-wrap--declined {
-  --rs-ring: rgba(244, 63, 94, 0.78);
-  --rs-ring-soft: rgba(251, 113, 133, 0.5);
-  --rs-flash: rgba(254, 205, 211, 0.95);
+  --rs-ring: rgba(10, 10, 10, 0.55);
+  --rs-ring-soft: rgba(64, 64, 64, 0.45);
+  --rs-flash: rgba(230, 230, 230, 0.92);
 }
 
 .rs-stamp-impact-flash {

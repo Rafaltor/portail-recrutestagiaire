@@ -23,6 +23,8 @@ import {
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
 import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
+import { SwipeExitFragments, SWIPE_DECLINE_ANIM_MS } from "./SwipeExitFragments";
+import { SwipeExitFlipApprove, SWIPE_APPROVE_ANIM_MS } from "./SwipeExitFlipApprove";
 
 function formatSwipeError(e: unknown): string {
   if (e instanceof Error && e.message.trim()) return e.message;
@@ -44,7 +46,6 @@ type SwipeItem = {
 type ApiBatch = { done: boolean; items: SwipeItem[] };
 type StampKind = "approved" | "declined";
 type StampImprint = { kind: StampKind; x: number; y: number };
-type SwipeRelease = { x: number; tilt: number };
 
 type StampDragState = {
   kind: StampKind;
@@ -76,15 +77,20 @@ function StampVisual({
   kind,
   floating = false,
   muted = false,
+  tint = true,
 }: {
   kind: StampKind;
   floating?: boolean;
   muted?: boolean;
+  /** Teinte charte (#F472B6 / #0A0A0A) sur le PNG */
+  tint?: boolean;
 }) {
   const { src, alt } = STAMP_IMAGE[kind];
+  const tintClass =
+    !tint ? "" : kind === "approved" ? "rs-stamp-art--tint-approved" : "rs-stamp-art--tint-declined";
   return (
     <span
-      className={`rs-stamp-art inline-flex items-center justify-center ${floating ? "rs-stamp-art--floating" : ""} ${muted ? "opacity-45" : ""}`}
+      className={`rs-stamp-art inline-flex items-center justify-center ${tintClass} ${floating ? "rs-stamp-art--floating" : ""} ${muted ? "opacity-45" : ""}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- assets statiques locaux */}
       <img
@@ -102,8 +108,10 @@ function StampVisual({
 function StampImprintVisual({ kind }: { kind: StampKind }) {
   const { src } = STAMP_IMAGE[kind];
   const animClass = kind === "approved" ? "rs-imprint-art--land-approved" : "rs-imprint-art--land-declined";
+  const toneClass =
+    kind === "approved" ? "rs-imprint-art--tone-approved" : "rs-imprint-art--tone-declined";
   return (
-    <div className={`rs-imprint-art ${animClass}`}>
+    <div className={`rs-imprint-art ${animClass} ${toneClass}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
@@ -141,27 +149,18 @@ export default function SwipePage() {
   const [rhInsight, setRhInsight] = useState<string | null>(null);
   const [rhInsightFadedIn, setRhInsightFadedIn] = useState(false);
 
-  const [dragging, setDragging] = useState(false);
-  const [dragX, setDragX] = useState(0);
-  const dragXRef = useRef(0);
-  const tilt = Math.max(-12, Math.min(12, dragX / 18));
-
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // When a swipe is committed, we keep rendering the outgoing card on top
-  // while we immediately reveal the next card underneath.
+  /** Entrée du CV suivant depuis la droite après la sortie animée. */
+  type CardEnterPhase = "idle" | "from" | "to";
+  const [cardEnter, setCardEnter] = useState<CardEnterPhase>("idle");
+
+  /** Carte sortante : fragments (refus) ou flip 3D (approbation), tampon inclus. */
   const [outgoing, setOutgoing] = useState<{
     item: SwipeItem;
-    dir: 1 | -1;
+    voteValue: 1 | -1;
     imprint: StampImprint | null;
-    /** Tampon = chute verticale ; swipe doigt = même chute + trajectoire latérale (swipe-fall). */
-    exitAxis: "down" | "swipe-fall";
-    /** Pixel offset / tilt when committing a drag (avoids snap-to-center before exit). */
-    exitStartX: number;
-    exitStartTilt: number;
-    exitDurationMs: number;
-    /** After mount, set true on next frames so transform transitions from center (correct left/right slide). */
-    slideOut: boolean;
+    mode: "fragments" | "flip";
   } | null>(null);
   const [stampDrag, setStampDrag] = useState<StampDragState | null>(null);
   const [stampImpact, setStampImpact] = useState<{
@@ -173,13 +172,13 @@ export default function SwipePage() {
   const [activeStampKind, setActiveStampKind] = useState<StampKind | null>(null);
   const [stampDropping, setStampDropping] = useState(false);
 
-  const startXRef = useRef<number | null>(null);
   const cardDropRef = useRef<HTMLDivElement | null>(null);
   const stampDragRef = useRef<StampDragState | null>(null);
   const stampReturnTimerRef = useRef<number | null>(null);
   const stampImpactTimerRef = useRef<number | null>(null);
   const stampCommitTimerRef = useRef<number | null>(null);
   const imprintHoldTimerRef = useRef<number | null>(null);
+  const exitAnimTimerRef = useRef<number | null>(null);
   const suppressClickUntilRef = useRef(0);
   const refillInFlightRef = useRef(false);
   const transitionInFlightRef = useRef(false);
@@ -210,19 +209,7 @@ export default function SwipePage() {
   const STAMP_IMPACT_MS = 220;
   /** Court délai après le posé avant la sortie (sans attendre le réseau — le vote part en parallèle). */
   const STAMP_IMPRINT_HOLD_MS = 28;
-  /** Sortie vers le bas — durée commune tampon + swipe-fall. */
-  const STAMP_EXIT_MS = 1180;
   const CARD_TRANSITION_MS = 300;
-  /** Retour au centre si swipe insuffisant (ressort). */
-  const SWIPE_SPRING_MS = 280;
-  /**
-   * Chute verticale : proche d’une chute libre (y ∝ t²) — démarrage lent, accélération croissante.
-   * easeInQuad, voisin de la courbe position avec accélération g constante.
-   */
-  const STAMP_FALL_Y_EASE = "cubic-bezier(0.55, 0.085, 0.68, 0.53)";
-  /** Dérive latérale pendant la chute : vitesse horizontale ~uniforme (pas d’accélération latérale). */
-  const STAMP_FALL_X_EASE = "linear";
-  const SWIPE_SPRING_EASE = "cubic-bezier(0.34, 1.56, 0.64, 1)";
   const STAMP_RETURN_MS = 180;
   const RH_INSIGHT_DISPLAY_MS = 3000;
   const RH_INSIGHT_FADE_MS = 280;
@@ -550,8 +537,6 @@ export default function SwipePage() {
     return () => ro.disconnect();
   }, [desktopSwipeLayout]);
 
-  const threshold = 120;
-
   function clearStampTimers() {
     if (stampReturnTimerRef.current) {
       window.clearTimeout(stampReturnTimerRef.current);
@@ -564,6 +549,14 @@ export default function SwipePage() {
     if (stampCommitTimerRef.current) {
       window.clearTimeout(stampCommitTimerRef.current);
       stampCommitTimerRef.current = null;
+    }
+    if (imprintHoldTimerRef.current) {
+      window.clearTimeout(imprintHoldTimerRef.current);
+      imprintHoldTimerRef.current = null;
+    }
+    if (exitAnimTimerRef.current) {
+      window.clearTimeout(exitAnimTimerRef.current);
+      exitAnimTimerRef.current = null;
     }
   }
 
@@ -605,18 +598,17 @@ export default function SwipePage() {
     transitionInFlightRef.current = false;
   }
 
-  async function applyTransitionVote(
+  function applyTransitionVote(
     kind: StampKind,
     value: 1 | -1,
     imprint: StampImprint | null,
     holdImprintMs: number,
-    swipeRelease: SwipeRelease | null = null,
   ) {
     if (!current || outgoing || transitionInFlightRef.current) return;
 
     setRhInsight(null);
 
-    const baseImprint =
+    const resolvedImprint =
       imprint ??
       ({
         kind,
@@ -624,48 +616,40 @@ export default function SwipePage() {
         y: 52,
       } as StampImprint);
 
-    const swipeFast = holdImprintMs === 0 && swipeRelease !== null;
+    const holdMs = Math.max(0, holdImprintMs);
+    transitionInFlightRef.current = true;
+    const profileId = current.profile.id;
+    const item = current;
 
-    /** Swipe doigt : tampon visuel centré sur le document. */
-    const resolvedImprint = swipeFast
-      ? ({ kind: baseImprint.kind, x: 50, y: 52 } as StampImprint)
-      : baseImprint;
+    setCardImprint(resolvedImprint);
+    if (imprintHoldTimerRef.current) {
+      window.clearTimeout(imprintHoldTimerRef.current);
+      imprintHoldTimerRef.current = null;
+    }
+    if (exitAnimTimerRef.current) {
+      window.clearTimeout(exitAnimTimerRef.current);
+      exitAnimTimerRef.current = null;
+    }
 
-    if (swipeFast) {
-      transitionInFlightRef.current = true;
-      const profileId = current.profile.id;
-      const item = current;
+    const mode: "fragments" | "flip" = value === -1 ? "fragments" : "flip";
+    const animMs = mode === "fragments" ? SWIPE_DECLINE_ANIM_MS : SWIPE_APPROVE_ANIM_MS;
 
-      setCardImprint(resolvedImprint);
+    imprintHoldTimerRef.current = window.setTimeout(() => {
+      imprintHoldTimerRef.current = null;
       setOutgoing({
         item,
-        dir: value,
+        voteValue: value,
         imprint: resolvedImprint,
-        exitAxis: "swipe-fall",
-        exitStartX: swipeRelease.x,
-        exitStartTilt: swipeRelease.tilt,
-        exitDurationMs: STAMP_EXIT_MS,
-        slideOut: false,
+        mode,
       });
-      setDragX(0);
-      dragXRef.current = 0;
-      startXRef.current = null;
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setOutgoing((o) =>
-            o && o.item.profile.id === profileId
-              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-              : o,
-          );
-        });
-      });
-
       consumeTopAndRefill();
 
-      void (async () => {
-        const vr = await sendVote(profileId, value);
+      void sendVote(profileId, value).then((vr) => {
         if (!vr.ok) {
+          if (exitAnimTimerRef.current != null) {
+            window.clearTimeout(exitAnimTimerRef.current);
+            exitAnimTimerRef.current = null;
+          }
           setDeck((prev) => {
             if (prev[0]?.profile.id === item.profile.id) return prev;
             return [item, ...prev];
@@ -673,119 +657,23 @@ export default function SwipePage() {
           setOutgoing(null);
           setCardImprint(null);
           transitionInFlightRef.current = false;
+          setCardEnter("idle");
           return;
         }
         setRhInsight(vr.rhMessage ?? null);
-        window.setTimeout(() => {
-          completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 72);
-      })();
-      return;
-    }
+      });
 
-    if (holdImprintMs > 0) {
-      transitionInFlightRef.current = true;
-      const profileId = current.profile.id;
-      const item = current;
-
-      setCardImprint(resolvedImprint);
-      setDragX(0);
-      dragXRef.current = 0;
-      startXRef.current = null;
-      if (imprintHoldTimerRef.current) {
-        window.clearTimeout(imprintHoldTimerRef.current);
-        imprintHoldTimerRef.current = null;
-      }
-
-      imprintHoldTimerRef.current = window.setTimeout(() => {
-        setOutgoing({
-          item,
-          dir: value,
-          imprint: resolvedImprint,
-          exitAxis: "down",
-          exitStartX: 0,
-          exitStartTilt: 0,
-          exitDurationMs: STAMP_EXIT_MS,
-          slideOut: false,
-        });
-        consumeTopAndRefill();
+      exitAnimTimerRef.current = window.setTimeout(() => {
+        exitAnimTimerRef.current = null;
+        completeOutgoingCleanup();
+        setCardEnter("from");
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            setOutgoing((o) =>
-              o && o.item.profile.id === profileId
-                ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-                : o,
-            );
+            setCardEnter("to");
           });
         });
-        void sendVote(profileId, value).then((vr) => {
-          if (!vr.ok) {
-            setDeck((prev) => {
-              if (prev[0]?.profile.id === item.profile.id) return prev;
-              return [item, ...prev];
-            });
-            setOutgoing(null);
-            setCardImprint(null);
-            transitionInFlightRef.current = false;
-          } else {
-            setRhInsight(vr.rhMessage ?? null);
-          }
-        });
-        window.setTimeout(() => {
-          completeOutgoingCleanup();
-        }, STAMP_EXIT_MS + 72);
-      }, holdImprintMs);
-      return;
-    }
-
-    transitionInFlightRef.current = true;
-    const itemAfterVote = current;
-    const vr = await sendVote(itemAfterVote.profile.id, value);
-    if (!vr.ok) {
-      setCardImprint(null);
-      setStampDropping(false);
-      transitionInFlightRef.current = false;
-      return;
-    }
-    setRhInsight(vr.rhMessage ?? null);
-
-    setCardImprint(resolvedImprint);
-    setDragX(0);
-    dragXRef.current = 0;
-    startXRef.current = null;
-    if (imprintHoldTimerRef.current) {
-      window.clearTimeout(imprintHoldTimerRef.current);
-      imprintHoldTimerRef.current = null;
-    }
-
-    const votedProfileId = itemAfterVote.profile.id;
-    imprintHoldTimerRef.current = window.setTimeout(() => {
-      const exitStartX = swipeRelease?.x ?? 0;
-      const exitStartTilt = swipeRelease?.tilt ?? 0;
-      setOutgoing({
-        item: itemAfterVote,
-        dir: value,
-        imprint: resolvedImprint,
-        exitAxis: "swipe-fall",
-        exitStartX,
-        exitStartTilt,
-        exitDurationMs: STAMP_EXIT_MS,
-        slideOut: false,
-      });
-      consumeTopAndRefill();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setOutgoing((o) =>
-            o && o.item.profile.id === votedProfileId
-              ? { ...o, slideOut: true, exitDurationMs: STAMP_EXIT_MS }
-              : o,
-          );
-        });
-      });
-      window.setTimeout(() => {
-        completeOutgoingCleanup();
-      }, STAMP_EXIT_MS + 72);
-    }, 0);
+      }, animMs + 10);
+    }, holdMs);
   }
 
   function returnStampClone() {
@@ -896,27 +784,6 @@ export default function SwipePage() {
       beginStampDrop(cur.kind, clientX, clientY);
       return;
     }
-    // On touch, a quick tap acts as an alternative to drag.
-    if (source === "touch" && !cur.moved) {
-      const rect = cardDropRef.current?.getBoundingClientRect();
-      if (!rect) {
-        const fallbackImprint: StampImprint = {
-          kind: cur.kind,
-          x: 50,
-          y: 52,
-        };
-        const vote = cur.kind === "approved" ? 1 : -1;
-        void applyTransitionVote(cur.kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
-        resetStampDragState();
-        return;
-      }
-      beginStampDrop(
-        cur.kind,
-        rect.left + rect.width / 2,
-        rect.top + rect.height * 0.56,
-      );
-      return;
-    }
     returnStampClone();
   }
 
@@ -1010,46 +877,34 @@ export default function SwipePage() {
     );
   }
 
-  function onPointerDown(e: React.PointerEvent) {
-    if (!current || outgoing) return;
-    startXRef.current = e.clientX;
-    setDragging(true);
-  }
-
-  function onPointerMove(e: React.PointerEvent) {
-    if (!dragging || startXRef.current == null) return;
-    const next = e.clientX - startXRef.current;
-    dragXRef.current = next;
-    setDragX(next);
-  }
-
-  function onPointerUp() {
-    if (!dragging) return;
-    setDragging(false);
-    const dx = dragXRef.current;
-    const releaseTilt = Math.max(-12, Math.min(12, dx / 18));
-    if (dx > threshold) {
-      const fallbackImprint: StampImprint = { kind: "approved", x: 50, y: 52 };
-      void applyTransitionVote("approved", 1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
-    } else if (dx < -threshold) {
-      const fallbackImprint: StampImprint = { kind: "declined", x: 50, y: 52 };
-      void applyTransitionVote("declined", -1, fallbackImprint, 0, { x: dx, tilt: releaseTilt });
-    } else {
-      requestAnimationFrame(() => {
-        setDragX(0);
-        dragXRef.current = 0;
-      });
-    }
-    startXRef.current = null;
-  }
-
   const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
   const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
 
   useEffect(() => {
-    setDragX(0);
-    dragXRef.current = 0;
+    setCardEnter("idle");
   }, [current?.profile.id]);
+
+  useEffect(() => {
+    const url = deck[1]?.cvUrl;
+    if (!url || typeof document === "undefined") return;
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.href = url;
+    document.head.appendChild(link);
+    return () => {
+      try {
+        document.head.removeChild(link);
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [deck[1]?.cvUrl]);
+
+  function onTopCardEnterTransitionEnd(e: React.TransitionEvent<HTMLDivElement>) {
+    if (e.target !== e.currentTarget) return;
+    if (e.propertyName !== "transform") return;
+    if (cardEnter === "to") setCardEnter("idle");
+  }
 
   function dismissOnboarding() {
     try {
@@ -1263,22 +1118,12 @@ export default function SwipePage() {
                 } else if (deckIdx === 1) {
                   transform = STACK_DECK_MID;
                 } else {
-                  transform = `translateX(${dragX}px) rotate(${tilt}deg) scale(1)`;
+                  transform = "translate(0px, 0px) scale(1)";
                 }
 
                 const transformOrigin = "center center";
-
-                const transitionDuration = isTop
-                  ? dragging
-                    ? "0ms"
-                    : `${SWIPE_SPRING_MS}ms`
-                  : `${CARD_TRANSITION_MS}ms`;
-
-                const transitionEasing = isTop
-                  ? dragging
-                    ? "linear"
-                    : SWIPE_SPRING_EASE
-                  : "ease-out";
+                const transitionDuration = `${CARD_TRANSITION_MS}ms`;
+                const transitionEasing = "ease-out";
 
                 const shellClass =
                   deckIdx === 2
@@ -1290,6 +1135,50 @@ export default function SwipePage() {
                 const shellFilter =
                   deckIdx === 2 ? "brightness(0.96)" : deckIdx === 1 ? "brightness(0.98)" : undefined;
 
+                const shell = (
+                  <div
+                    ref={isTop ? cardDropRef : undefined}
+                    data-stamp-dropzone={isTop && !outgoing ? "1" : undefined}
+                    className={shellClass}
+                    style={{
+                      transform,
+                      transformOrigin,
+                      transitionProperty: "transform",
+                      transitionDuration,
+                      transitionTimingFunction: transitionEasing,
+                      filter: shellFilter,
+                    }}
+                  >
+                    <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                      <PdfPreview
+                        key={item.profile.id}
+                        url={item.cvUrl}
+                        mode={swipePdfMode}
+                        immersive
+                      />
+                    </div>
+
+                    {isTop && cardImprint ? (
+                      <div
+                        className="pointer-events-none absolute z-30"
+                        style={{
+                          left: `${cardImprint.x}%`,
+                          top: `${cardImprint.y}%`,
+                          transform: "translate(-50%, -50%)",
+                        }}
+                      >
+                        <StampImprintVisual kind={cardImprint.kind} />
+                      </div>
+                    ) : null}
+
+                    {isTop ? (
+                      <div className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                        {normHandle(item.profile.handle)}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+
                 return (
                   <div
                     key={item.profile.id}
@@ -1299,127 +1188,48 @@ export default function SwipePage() {
                       pointerEvents: isTop && !outgoing ? "auto" : "none",
                     }}
                   >
-                    <div
-                      ref={isTop ? cardDropRef : undefined}
-                      onPointerDown={isTop && !outgoing ? onPointerDown : undefined}
-                      onPointerMove={isTop && !outgoing ? onPointerMove : undefined}
-                      onPointerUp={isTop && !outgoing ? onPointerUp : undefined}
-                      onPointerCancel={isTop && !outgoing ? onPointerUp : undefined}
-                      data-stamp-dropzone={isTop && !outgoing ? "1" : undefined}
-                      className={shellClass}
-                      style={{
-                        transform,
-                        transformOrigin,
-                        transitionProperty: "transform",
-                        transitionDuration,
-                        transitionTimingFunction: transitionEasing,
-                        filter: shellFilter,
-                        touchAction: isTop ? "none" : undefined,
-                      }}
-                    >
-                      <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                        <PdfPreview
-                          key={item.profile.id}
-                          url={item.cvUrl}
-                          mode={swipePdfMode}
-                          immersive
-                        />
+                    {isTop ? (
+                      <div
+                        className={`absolute inset-0 ${
+                          cardEnter === "from"
+                            ? "rs-swipe-top-enter rs-swipe-top-enter--from"
+                            : cardEnter === "to"
+                              ? "rs-swipe-top-enter rs-swipe-top-enter--to"
+                              : ""
+                        }`}
+                        onTransitionEnd={onTopCardEnterTransitionEnd}
+                      >
+                        {shell}
                       </div>
-
-                      {isTop && cardImprint ? (
-                        <div
-                          className="pointer-events-none absolute z-30"
-                          style={{
-                            left: `${cardImprint.x}%`,
-                            top: `${cardImprint.y}%`,
-                            transform: "translate(-50%, -50%)",
-                          }}
-                        >
-                          <StampImprintVisual kind={cardImprint.kind} />
-                        </div>
-                      ) : null}
-
-                      {isTop ? (
-                        <div className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
-                          {normHandle(item.profile.handle)}
-                        </div>
-                      ) : null}
-                    </div>
+                    ) : (
+                      shell
+                    )}
                   </div>
                 );
               })}
 
               {outgoing ? (
-                <div
-                  className="pointer-events-none absolute inset-0 z-[26] overflow-visible"
-                  style={{
-                    transform:
-                      outgoing.slideOut &&
-                      (outgoing.exitAxis === "down" || outgoing.exitAxis === "swipe-fall")
-                        ? "translateY(calc(100vh + 100% + 40px))"
-                        : "translateY(0px)",
-                    transitionProperty: "transform",
-                    transitionDuration: outgoing.slideOut
-                      ? `${outgoing.exitDurationMs}ms`
-                      : "0ms",
-                    transitionTimingFunction: outgoing.slideOut ? STAMP_FALL_Y_EASE : "linear",
-                    willChange: "transform",
-                  }}
-                >
-                  <div
-                    className="absolute inset-0 select-none overflow-visible rounded-none border border-zinc-300/90 bg-[#fdfdfb] shadow-[0_1px_0_rgba(0,0,0,0.06),0_22px_48px_-14px_rgba(0,0,0,0.26)]"
-                    style={{
-                      transform: (() => {
-                        if (outgoing.exitAxis === "down") {
-                          return outgoing.slideOut ? "rotate(2.5deg)" : "rotate(0deg)";
-                        }
-                        if (outgoing.exitAxis === "swipe-fall") {
-                          if (!outgoing.slideOut) {
-                            return `translateX(${outgoing.exitStartX}px) rotate(${outgoing.exitStartTilt}deg)`;
-                          }
-                          const dir = outgoing.dir;
-                          const extra = Math.min(Math.abs(outgoing.exitStartX) * 0.38, 160);
-                          const xFinal =
-                            dir > 0
-                              ? `calc(26vw + 12% + ${48 + extra}px)`
-                              : `calc(-26vw - 12% - ${48 + extra}px)`;
-                          const rot = 2.2 * dir + outgoing.exitStartTilt * 0.35;
-                          return `translateX(${xFinal}) rotate(${rot}deg)`;
-                        }
-                        return "none";
-                      })(),
-                      transitionProperty: "transform",
-                      transitionDuration: outgoing.slideOut
-                        ? `${outgoing.exitDurationMs}ms`
-                        : "0ms",
-                      transitionTimingFunction: outgoing.slideOut ? STAMP_FALL_X_EASE : "linear",
-                      willChange: "transform",
-                    }}
-                  >
-                    <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
-                      <PdfPreview
-                        key={outgoing.item.profile.id}
-                        url={outgoing.item.cvUrl}
-                        mode={swipePdfMode}
-                        immersive
-                      />
-                    </div>
-                    <div className="pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
-                      {normHandle(outgoing.item.profile.handle)}
-                    </div>
-                    {outgoing.imprint ? (
-                      <div
-                        className="pointer-events-none absolute z-30"
-                        style={{
-                          left: `${outgoing.imprint.x}%`,
-                          top: `${outgoing.imprint.y}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      >
-                        <StampImprintVisual kind={outgoing.imprint.kind} />
-                      </div>
-                    ) : null}
+                <div className="pointer-events-none absolute inset-0 z-[45] overflow-hidden rounded-none">
+                  {outgoing.mode === "fragments" ? (
+                    <SwipeExitFragments width={sheetSize.w} height={sheetSize.h} />
+                  ) : (
+                    <SwipeExitFlipApprove url={outgoing.item.cvUrl} pdfMode={swipePdfMode} />
+                  )}
+                  <div className="pointer-events-none absolute left-1/2 top-2 z-[48] -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                    {normHandle(outgoing.item.profile.handle)}
                   </div>
+                  {outgoing.imprint ? (
+                    <div
+                      className="pointer-events-none absolute z-[50]"
+                      style={{
+                        left: `${outgoing.imprint.x}%`,
+                        top: `${outgoing.imprint.y}%`,
+                        transform: "translate(-50%, -50%)",
+                      }}
+                    >
+                      <StampImprintVisual kind={outgoing.imprint.kind} />
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -1510,7 +1320,7 @@ export default function SwipePage() {
                   </button>
                 </div>
                 <p className="pointer-events-auto max-w-md text-center text-[11px] font-semibold text-[#6B6B6B]">
-                  Glisse un tampon sur la carte ou swipe gauche/droite.
+                  Glisse le tampon Approuvé ou Refusé sur le CV pour voter.
                 </p>
                 {isConnected ? (
                   <p className="pointer-events-auto text-center text-xs text-[#0A0A0A]/80">
