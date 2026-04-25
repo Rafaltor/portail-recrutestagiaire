@@ -44,19 +44,21 @@ export function HomeHeroSplit() {
       <HomeHeroBackdrop />
       <div className="rs-home-hero__grid--front relative z-[3] flex w-full flex-col">
         {/* Bandeau blanc pleine largeur (texte + CTA) */}
-        <div className="w-full border-b border-[#E8E8E8]/40 bg-transparent px-2 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-5 md:px-12 md:pb-12 md:pt-6 lg:px-16 lg:pb-14 lg:pt-8">
-          <div className="mx-auto min-w-0 w-full max-w-[1200px]">
-            <p className="font-[family-name:var(--font-syne)] text-[9px] font-bold uppercase tracking-[0.08em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
-              Collectif · Paris · 2026
-            </p>
-            <h1
-              className="mt-2 max-w-full break-keep font-[family-name:var(--font-syne)] text-[clamp(2rem,8vw,4rem)] font-extrabold leading-[1.14] tracking-tight text-[#0A0A0A] sm:mt-4 sm:leading-[1.05]"
-              style={{ hyphens: "none", wordBreak: "keep-all" }}
-            >
-              On a commencé <span className="text-[#f472b6]">stagiaires.</span>
-              <br />
-              Pourquoi pas vous ?
-            </h1>
+        <div className="w-full max-w-[100vw] border-b border-[#E8E8E8]/40 bg-transparent px-2 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-5 md:px-12 md:pb-12 md:pt-6 lg:px-16 lg:pb-14 lg:pt-8">
+          <div className="mx-auto min-w-0 w-full max-w-[min(1200px,100%)]">
+            <div className="min-w-0 w-full max-w-full overflow-x-hidden">
+              <p className="font-[family-name:var(--font-syne)] text-[9px] font-bold uppercase tracking-[0.08em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
+                Collectif · Paris · 2026
+              </p>
+              <h1
+                className="mt-2 max-w-full min-w-0 break-keep font-[family-name:var(--font-syne)] text-[clamp(2rem,9vw,4rem)] font-extrabold leading-[1.14] tracking-tight text-[#0A0A0A] sm:mt-4 sm:leading-[1.05]"
+                style={{ hyphens: "none", wordBreak: "keep-all" }}
+              >
+                On a commencé <span className="text-[#f472b6]">stagiaires.</span>
+                <br />
+                Pourquoi pas vous ?
+              </h1>
+            </div>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-3">
               <Link href="/depot" className={primary}>
                 Poste ton CV
