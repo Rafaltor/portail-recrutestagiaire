@@ -31,31 +31,31 @@ function ParcoursCard({
 }: CardDef) {
   return (
     <article className={`${cardClass} min-w-0 w-full`}>
-      <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase leading-normal tracking-[0.1em] text-[#f472b6]">
+      <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase leading-normal tracking-[0.1em] text-[#f472b6] sm:text-[11px]">
         {step}
       </p>
-      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[18px] font-extrabold leading-snug tracking-tight text-[#0A0A0A]">
+      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[15px] font-extrabold leading-snug tracking-tight text-[#0A0A0A] sm:text-[16px]">
         {title}
       </h3>
       {subtitle ? (
-        <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
+        <p className="mt-2 font-[family-name:var(--font-dm)] text-[12px] font-normal leading-snug text-[#6B6B6B] sm:text-[13px]">
           {subtitle}
         </p>
       ) : null}
       {sublines?.length ? (
-        <div className="mt-2 space-y-1 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
+        <div className="mt-2 space-y-1 font-[family-name:var(--font-dm)] text-[12px] font-normal leading-snug text-[#6B6B6B] sm:text-[13px]">
           {sublines.map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>
       ) : null}
       {body ? (
-        <p className="mt-2 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-snug text-[#6B6B6B]">
+        <p className="mt-2 font-[family-name:var(--font-dm)] text-[12px] font-normal leading-snug text-[#6B6B6B] sm:text-[13px]">
           {body}
         </p>
       ) : null}
       {bullets?.length ? (
-        <ul className="mt-2 list-disc space-y-1 pl-4 font-[family-name:var(--font-dm)] text-[14px] font-normal leading-relaxed text-[#6B6B6B]">
+        <ul className="mt-2 list-disc space-y-1 pl-4 font-[family-name:var(--font-dm)] text-[12px] font-normal leading-relaxed text-[#6B6B6B] sm:text-[13px]">
           {bullets.map((b) => (
             <li key={b}>{b}</li>
           ))}
@@ -124,7 +124,7 @@ function ColumnTitle({
       ) : null}
       <h2
         id={id}
-        className={`rs-ds-h2 max-w-full break-words text-left ${hasKicker ? "mt-3" : ""}`}
+        className={`max-w-full break-words text-left font-[family-name:var(--font-syne)] text-[clamp(1.25rem,3.2vw,1.75rem)] font-extrabold leading-tight tracking-tight text-[#0A0A0A] sm:text-[clamp(1.35rem,2.5vw,1.85rem)] ${hasKicker ? "mt-3" : ""}`}
       >
         {title}
       </h2>
@@ -169,7 +169,7 @@ export function HomeHowItWorks() {
 
   return (
     <section
-      className="overflow-hidden rounded-xl border border-[#E8E8E8] bg-white px-2 py-5 sm:px-6 sm:py-8"
+      className="rs-home-how overflow-hidden rounded-xl border border-[#E8E8E8] bg-white px-2 py-5 sm:px-6 sm:py-8"
       aria-labelledby="rs-home-how-parcours"
     >
       <div className={`${shell} space-y-6`}>

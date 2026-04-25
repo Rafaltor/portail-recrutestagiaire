@@ -178,6 +178,31 @@
     flex-shrink: 0;
   }
 
+  /* Même markup que la boutique (layout.tsx) : .rs-header-burger + .rs-header-burger__line */
+  .rs-header-mobile-bar .rs-header-burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .rs-header-mobile-bar .rs-header-burger__line {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #f472b6;
+    border-radius: 0;
+    flex-shrink: 0;
+    transform-origin: center;
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease,
+      background 0.15s ease;
+  }
+
   .rs-header-drawer[hidden] {
     display: none !important;
   }

@@ -46,7 +46,7 @@ export function HomeHeroSplit() {
         {/* Bandeau blanc pleine largeur (texte + CTA) */}
         <div className="w-full max-w-[100vw] border-b border-[#E8E8E8]/40 bg-transparent px-2 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-5 md:px-12 md:pb-12 md:pt-6 lg:px-16 lg:pb-14 lg:pt-8">
           <div className="mx-auto min-w-0 w-full max-w-[min(1200px,100%)]">
-            <div className="min-w-0 w-full max-w-full overflow-x-hidden">
+            <div className="min-w-0 w-full max-w-full overflow-x-clip overflow-y-visible [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:h-0 [&::-webkit-scrollbar]:w-0">
               <p className="font-[family-name:var(--font-syne)] text-[9px] font-bold uppercase tracking-[0.08em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
                 Collectif · Paris · 2026
               </p>
