@@ -72,7 +72,12 @@ export function HomeTopProfile() {
           {list.map((profile, idx) => {
             const h = profile.handle.replace(/^@/, "");
             const rankLabel = profile.rank_label || `N°${idx + 1} cette semaine`;
-            const badgeIsPink = idx === 0;
+            const badgeTone =
+              idx === 0
+                ? { bg: "bg-[#f472b6]", text: "text-white" }
+                : idx === 1
+                  ? { bg: "bg-[#e8e8e8]", text: "text-[#0a0a0a]" }
+                  : { bg: "bg-[#f5f5f5]", text: "text-[#6b6b6b]" };
             return (
               <article
                 key={profile.id}
@@ -80,9 +85,7 @@ export function HomeTopProfile() {
               >
                 <div>
                   <span
-                    className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold text-white ${
-                      badgeIsPink ? "bg-[#f472b6]" : "bg-[#0A0A0A]"
-                    }`}
+                    className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold ${badgeTone.bg} ${badgeTone.text}`}
                   >
                     {rankLabel}
                   </span>

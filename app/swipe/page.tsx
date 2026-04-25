@@ -461,9 +461,11 @@ export default function SwipePage() {
     try {
       if (
         typeof window !== "undefined" &&
-        !localStorage.getItem("rs_swipe_onboarding_v1")
+        localStorage.getItem("rs_swipe_onboarding_seen") !== "1"
       ) {
         setShowOnboarding(true);
+      } else {
+        setShowOnboarding(false);
       }
     } catch {
       setShowOnboarding(true);
@@ -908,7 +910,7 @@ export default function SwipePage() {
 
   function dismissOnboarding() {
     try {
-      localStorage.setItem("rs_swipe_onboarding_v1", "1");
+      localStorage.setItem("rs_swipe_onboarding_seen", "1");
     } catch {
       /* ignore */
     }

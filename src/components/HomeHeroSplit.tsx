@@ -49,7 +49,10 @@ export function HomeHeroSplit() {
             <p className="font-[family-name:var(--font-syne)] text-[9px] font-bold uppercase tracking-[0.08em] text-[#f472b6] sm:text-[11px] sm:tracking-[0.14em]">
               Collectif · Paris · 2026
             </p>
-            <h1 className="mt-2 max-w-full break-words font-[family-name:var(--font-syne)] text-[clamp(0.95rem,4.4vw,1.35rem)] font-extrabold leading-[1.14] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[40px] sm:leading-[1.05] md:text-[56px] lg:text-[64px]">
+            <h1
+              className="mt-2 max-w-full break-keep font-[family-name:var(--font-syne)] text-[clamp(2rem,8vw,4rem)] font-extrabold leading-[1.14] tracking-tight text-[#0A0A0A] sm:mt-4 sm:leading-[1.05]"
+              style={{ hyphens: "none", wordBreak: "keep-all" }}
+            >
               On a commencé <span className="text-[#f472b6]">stagiaires.</span>
               <br />
               Pourquoi pas vous ?
