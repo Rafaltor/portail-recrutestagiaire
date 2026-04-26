@@ -129,7 +129,7 @@ export default function ProfilsPage() {
             Les meilleurs profils de ta région.
           </p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="grid w-full min-w-0 gap-3">
           <label className="sr-only" htmlFor="rs-profils-filter">
             Filtrer les profils
           </label>
@@ -138,18 +138,18 @@ export default function ProfilsPage() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Métier, ville…"
-            className={searchInputClass}
+            className={`${searchInputClass} min-w-0 max-w-full`}
           />
-          <a
-            href="/depot"
-            className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#f472b6] px-6 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777]"
-          >
-            Déposer un CV
-          </a>
         </div>
         {message ? (
           <p className="text-sm text-red-700">{message}</p>
         ) : null}
+        <a
+          href="/depot"
+          className="inline-flex w-full min-w-0 max-w-full items-center justify-center rounded-full bg-[#f472b6] px-5 py-3 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777]"
+        >
+          Déposer un CV
+        </a>
       </div>
 
       {loading ? (

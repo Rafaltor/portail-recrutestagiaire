@@ -158,6 +158,27 @@ main.rs-portal-main .rs-panel {
   border: 1px solid transparent;
 }
 
+/* Page dépôt : évite le débordement horizontal (Safari / encoche) */
+.rs-depot-page {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 639.98px) {
+  .rs-depot-page {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 640px) {
+  .rs-depot-page {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 /* Zone upload dépôt */
 .rs-depot-dropzone {
   border: 2px dashed #f0f0f0;

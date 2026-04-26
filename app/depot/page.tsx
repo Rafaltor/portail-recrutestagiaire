@@ -246,7 +246,7 @@ export default function DepotPage() {
 
   return (
     <div
-      className="rs-depot-page mx-auto box-border grid w-full min-w-0 max-w-[100vw] gap-3 overflow-x-hidden bg-white px-3 pb-4 pt-1 sm:max-w-full sm:gap-6 sm:px-0 sm:pb-8 sm:pt-0"
+      className="rs-depot-page mx-auto box-border grid w-full min-w-0 max-w-full gap-3 overflow-x-hidden bg-white pb-4 pt-1 sm:gap-6 sm:pb-8 sm:pt-0"
       style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
     >
       <PortalDesktopPageHeader
@@ -261,7 +261,7 @@ export default function DepotPage() {
         }
       />
 
-      <div className="rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-3 sm:p-6 lg:hidden">
+      <div className="min-w-0 max-w-full rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-3 sm:p-6 lg:hidden">
         <h1 className="text-lg font-bold leading-tight tracking-tight text-[#0A0A0A]">
           Dépose ta candidature
         </h1>
@@ -282,7 +282,7 @@ export default function DepotPage() {
             <div className="mt-6 grid gap-3">
               <a
                 href={ownerProfileUrl}
-                className="inline-flex w-full max-w-md items-center justify-center rounded-[6px] border border-[#F0F0F0] bg-white px-4 py-2.5 text-sm font-medium text-[#0A0A0A] no-underline hover:bg-[#FAFAFA]"
+                className="inline-flex w-full min-w-0 max-w-full items-center justify-center break-all rounded-[6px] border border-[#F0F0F0] bg-white px-3 py-2.5 text-center text-xs font-medium text-[#0A0A0A] no-underline hover:bg-[#FAFAFA] sm:max-w-md sm:px-4 sm:text-sm"
               >
                 {`/mon-profil/${ownerToken || "[token]"}`}
               </a>
@@ -293,7 +293,7 @@ export default function DepotPage() {
                   )}&profileUrl=${encodeURIComponent(
                     ownerProfileAbsoluteUrl || ownerProfileUrl,
                   )}`}
-                  className="inline-flex w-full max-w-md items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-95"
+                  className="inline-flex w-full min-w-0 max-w-full items-center justify-center rounded-[6px] bg-[#F472B6] px-3 py-2.5 text-center text-xs font-medium text-white no-underline hover:opacity-95 sm:max-w-md sm:px-4 sm:text-sm"
                 >
                   Créer un compte / se connecter
                 </a>
@@ -337,7 +337,7 @@ export default function DepotPage() {
             <span className="text-xs font-medium text-[#0A0A0A] sm:text-sm">
               CV en PDF (obligatoire)
             </span>
-            <label className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-[#E8E8E8] bg-white p-4 text-center transition-colors hover:border-[#f472b6] hover:bg-[#FFF5F7] sm:p-8">
+            <label className="block w-full min-w-0 max-w-full cursor-pointer rounded-xl border-2 border-dashed border-[#E8E8E8] bg-white p-4 text-center transition-colors hover:border-[#f472b6] hover:bg-[#FFF5F7] sm:p-8">
               <svg
                 className="mx-auto mb-2 h-6 w-6 text-[#6B6B6B] sm:mb-3 sm:h-8 sm:w-8"
                 viewBox="0 0 24 24"

@@ -35,9 +35,9 @@ export function HomeHeroSplit() {
   }, []);
 
   const primary =
-    "inline-flex min-h-[44px] items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-[#db2777] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
+    "inline-flex min-h-[40px] items-center justify-center rounded-full bg-[#f472b6] px-4 py-2 text-center text-[13px] font-bold leading-tight text-white no-underline transition-colors hover:bg-[#db2777] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
   const secondary =
-    "inline-flex min-h-[44px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-5 py-2.5 text-center text-sm font-bold text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
+    "inline-flex min-h-[40px] items-center justify-center rounded-full border-[1.5px] border-[#0A0A0A] bg-transparent px-4 py-2 text-center text-[13px] font-bold leading-tight text-[#0A0A0A] no-underline transition-colors hover:border-[#f472b6] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
 
   return (
     <section className="rs-home-hero rs-home-hero--wide relative min-h-0 w-full overflow-hidden">
@@ -51,8 +51,12 @@ export function HomeHeroSplit() {
                 Collectif · Paris · 2026
               </p>
               <h1
-                className="mt-2 max-w-full min-w-0 break-keep font-[family-name:var(--font-syne)] text-[clamp(1.12rem,4.9vw,1.72rem)] font-extrabold leading-[1.18] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[clamp(2rem,9vw,4rem)] sm:leading-[1.05]"
-                style={{ hyphens: "none", wordBreak: "keep-all" }}
+                className="rs-home-hero__headline mt-2 max-w-full min-w-0 break-keep font-[family-name:var(--font-syne)] font-extrabold leading-[1.12] tracking-tight text-[#0A0A0A] sm:mt-4 sm:leading-[1.05]"
+                style={{
+                  hyphens: "none",
+                  wordBreak: "keep-all",
+                  fontSize: "clamp(17px, 4.5vw, 58px)",
+                }}
               >
                 On a commencé <span className="text-[#f472b6]">stagiaires.</span>
                 <br />

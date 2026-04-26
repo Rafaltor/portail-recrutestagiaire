@@ -80,7 +80,7 @@ function BlocPris() {
             Le meilleur CV
           </h3>
         </div>
-        <Link href="/depot" className={`${blocPrisCtaClass} hidden sm:inline-flex`}>
+        <Link href="/depot" className={`${blocPrisCtaClass} hidden lg:inline-flex`}>
           Déposer mon CV →
         </Link>
       </div>
@@ -100,6 +100,9 @@ function BlocPris() {
           ✦
         </span>
       </div>
+      <Link href="/depot" className={`${blocPrisCtaClass} mt-2 lg:hidden`}>
+        Déposer mon CV →
+      </Link>
     </article>
   );
 }

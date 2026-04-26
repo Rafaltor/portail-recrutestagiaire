@@ -151,7 +151,7 @@ export default function RootLayout({
           <PortalHeaderDrawer />
         </div>
 
-        <main className="rs-portal-main mx-auto w-full min-w-0 max-w-[100vw] flex-1 overflow-x-clip pb-8">
+        <main className="rs-portal-main mx-auto w-full min-w-0 max-w-full flex-1 overflow-x-clip pb-8">
           {children}
         </main>
 
