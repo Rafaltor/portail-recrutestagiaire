@@ -73,33 +73,24 @@ export default function RootLayout({
           <div className="rs-header-body">
             <div className="container">
               <header className="rs-header-two-tier" aria-label="En-tête du site">
-                <div
-                  className="rs-header-mobile-bar rs-ph-mobile-bar-3col"
-                  data-rs-header-mobile-bar
-                >
-                  <span
-                    className="rs-ph-mobile-bar__pole"
-                    aria-hidden="true"
-                    title="Référence visuelle type offre d’emploi"
+                <div className="rs-header-mobile-bar" data-rs-header-mobile-bar>
+                  <Link
+                    className="rs-header-mobile-bar__brand rs-ph-mbrand no-underline hover:no-underline"
+                    href="https://recrutestagiaire.eu"
                   >
                     <img
-                      src="/pe-mark.svg"
+                      className="rs-header-mobile-bar__logo"
+                      src="/rs-logo-eu.png"
                       alt=""
-                      width={40}
-                      height={40}
-                      className="rs-ph-mobile-bar__pole-img"
+                      width={72}
+                      height={72}
                       loading="eager"
                       decoding="async"
                     />
+                  </Link>
+                  <span className="rs-header-mobile-bar__title">
+                    RECRUTE STAGIAIRE
                   </span>
-                  <a
-                    className="rs-ph-mobile-bar__center rs-ph-mbrand"
-                    href="https://recrutestagiaire.eu"
-                  >
-                    <span className="rs-header-mobile-bar__title rs-ph-mobile-bar__title-full">
-                      RECRUTE STAGIAIRE
-                    </span>
-                  </a>
                   <button
                     type="button"
                     className="rs-header-mobile-bar__menu-btn rs-header-burger-btn"
@@ -110,6 +101,7 @@ export default function RootLayout({
                   >
                     <span className="sr-only">Ouvrir le menu</span>
                     <span className="rs-header-burger" aria-hidden="true">
+                      <span className="rs-header-burger__line" />
                       <span className="rs-header-burger__line" />
                       <span className="rs-header-burger__line" />
                     </span>
