@@ -193,8 +193,7 @@ body.rs-ds-paris .rs-ds-section-label {
   text-overflow: ellipsis;
 }
 
-.rs-nav-brand__name.logo.rs-nav-brand__name--headline,
-.rs-header-mobile-bar__title {
+.rs-nav-brand__name.logo.rs-nav-brand__name--headline {
   font-family: var(--font-syne), system-ui !important;
   font-weight: 800 !important;
   font-size: 14px !important;
@@ -202,6 +201,24 @@ body.rs-ds-paris .rs-ds-section-label {
   text-transform: uppercase !important;
   color: var(--black) !important;
   text-shadow: none !important;
+}
+
+/* Titre mobile : ne pas forcer 14px + nowrap (ça casse la barre sur iPhone) */
+@media (max-width: 899.98px) {
+  .rs-header-mobile-bar__title {
+    font-family: var(--font-syne), system-ui !important;
+    font-weight: 800 !important;
+    font-size: clamp(0.62rem, 3.6vw, 0.95rem) !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    text-shadow: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.12 !important;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
 }
 
 /* Barre nav (sous ticker) — floue, collée au bloc parent sticky */

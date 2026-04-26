@@ -259,7 +259,7 @@ export function PortalHeaderDrawer() {
             >
               Déposer mon CV
             </Link>
-            <HeaderAccountLink className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none text-nowrap" />
+            <HeaderAccountLink className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none" />
           </div>
         </div>
       </div>

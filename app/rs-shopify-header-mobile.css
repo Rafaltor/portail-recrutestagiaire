@@ -76,8 +76,8 @@
   }
 
   .header-wrap .container {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .rs-header-mobile-bar {

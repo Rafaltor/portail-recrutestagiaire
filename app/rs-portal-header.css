@@ -389,7 +389,7 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
     min-height: 80px !important;
     height: auto !important;
     max-height: none !important;
-    padding: 8px max(10px, var(--rs-pad-x, 16px)) !important;
+    padding: 8px 0 !important;
     background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%) !important;
     border-bottom: none !important;
     align-items: center !important;

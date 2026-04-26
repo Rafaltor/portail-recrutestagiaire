@@ -163,7 +163,7 @@
 .header-wrap .container {
   max-width: 980px;
   margin: 0 auto;
-  padding: 0 12px;
+  padding: 0;
   position: relative;
   z-index: 1;
   overflow: visible;

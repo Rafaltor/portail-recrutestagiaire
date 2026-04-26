@@ -31,7 +31,7 @@ export function HeaderAccountLink({ className }: HeaderAccountLinkProps = {}) {
 
   const href = connected ? "/mon-espace" : "/connexion";
   const base =
-    "abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-nowrap text-decoration-none";
+    "abt-btn rs-caf-btn-dossier rs-banner-top__account d-inline-flex align-items-center gap-2 text-decoration-none";
   return (
     <Link
       href={href}
