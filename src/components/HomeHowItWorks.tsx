@@ -34,7 +34,7 @@ function ParcoursCard({
       <p className="font-[family-name:var(--font-syne)] text-[10px] font-bold uppercase leading-normal tracking-[0.1em] text-[#f472b6] sm:text-[11px]">
         {step}
       </p>
-      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[15px] font-extrabold leading-snug tracking-tight text-[#0A0A0A] sm:text-[16px]">
+      <h3 className="mt-2 font-[family-name:var(--font-syne)] text-[13px] font-extrabold leading-snug tracking-tight text-[#0A0A0A] sm:text-[16px]">
         {title}
       </h3>
       {subtitle ? (
@@ -100,9 +100,6 @@ function BlocPris() {
           ✦
         </span>
       </div>
-      <Link href="/depot" className={`${blocPrisCtaClass} sm:hidden`}>
-        Déposer mon CV →
-      </Link>
     </article>
   );
 }
@@ -124,7 +121,7 @@ function ColumnTitle({
       ) : null}
       <h2
         id={id}
-        className={`max-w-full break-words text-left font-[family-name:var(--font-syne)] text-[clamp(1.25rem,3.2vw,1.75rem)] font-extrabold leading-tight tracking-tight text-[#0A0A0A] sm:text-[clamp(1.35rem,2.5vw,1.85rem)] ${hasKicker ? "mt-3" : ""}`}
+        className={`max-w-full break-words text-left font-[family-name:var(--font-syne)] text-[clamp(1.05rem,4vw,1.35rem)] font-extrabold leading-tight tracking-tight text-[#0A0A0A] sm:text-[clamp(1.35rem,2.5vw,1.85rem)] ${hasKicker ? "mt-3" : ""}`}
       >
         {title}
       </h2>

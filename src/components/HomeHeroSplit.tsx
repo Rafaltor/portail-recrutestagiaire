@@ -51,7 +51,7 @@ export function HomeHeroSplit() {
                 Collectif · Paris · 2026
               </p>
               <h1
-                className="mt-2 max-w-full min-w-0 break-keep font-[family-name:var(--font-syne)] text-[clamp(2rem,9vw,4rem)] font-extrabold leading-[1.14] tracking-tight text-[#0A0A0A] sm:mt-4 sm:leading-[1.05]"
+                className="mt-2 max-w-full min-w-0 break-keep font-[family-name:var(--font-syne)] text-[clamp(1.12rem,4.9vw,1.72rem)] font-extrabold leading-[1.18] tracking-tight text-[#0A0A0A] sm:mt-4 sm:text-[clamp(2rem,9vw,4rem)] sm:leading-[1.05]"
                 style={{ hyphens: "none", wordBreak: "keep-all" }}
               >
                 On a commencé <span className="text-[#f472b6]">stagiaires.</span>

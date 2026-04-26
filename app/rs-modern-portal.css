@@ -217,6 +217,37 @@ main.rs-portal-main .rs-panel {
   color: #bcbcbc;
 }
 
+@media (max-width: 639.98px) {
+  .rs-depot-stepper {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .rs-depot-step {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .rs-depot-step__num {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+}
+
+/* Champs : évite le débordement hors viewport sur mobile */
+.rs-depot-page input:not([type='checkbox']):not([type='file']):not([type='hidden']) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 /* Métriques mon-espace */
 .rs-metric-card {
   background: #fafafa;

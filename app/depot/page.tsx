@@ -246,7 +246,7 @@ export default function DepotPage() {
 
   return (
     <div
-      className="mx-auto grid max-w-full gap-3 bg-white px-2 pb-4 pt-1 sm:gap-6 sm:px-0 sm:pb-8 sm:pt-0"
+      className="rs-depot-page mx-auto box-border grid w-full min-w-0 max-w-[100vw] gap-3 overflow-x-hidden bg-white px-3 pb-4 pt-1 sm:max-w-full sm:gap-6 sm:px-0 sm:pb-8 sm:pt-0"
       style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
     >
       <PortalDesktopPageHeader
@@ -271,7 +271,7 @@ export default function DepotPage() {
       </div>
 
       {status === "done" ? (
-        <div className="rounded-xl border border-[#E8E8E8] bg-white p-4 sm:p-8">
+        <div className="min-w-0 max-w-full rounded-xl border border-[#E8E8E8] bg-white p-4 sm:p-8">
           <span className="rs-pill inline-flex rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wide">
             EN ATTENTE
           </span>
@@ -302,8 +302,8 @@ export default function DepotPage() {
           ) : null}
         </div>
       ) : (
-      <div className="rounded-xl border border-[#E8E8E8] bg-white p-4 sm:p-8">
-        <div className="rs-depot-stepper text-[13px] sm:text-base" aria-label="Progression">
+      <div className="min-w-0 max-w-full rounded-xl border border-[#E8E8E8] bg-white p-4 sm:p-8">
+        <div className="rs-depot-stepper min-w-0 text-[12px] sm:text-base" aria-label="Progression">
           <div
             className={`rs-depot-step ${!stepTwo ? "rs-depot-step--active" : ""}`}
           >
@@ -405,7 +405,7 @@ export default function DepotPage() {
             <p className="text-xs font-bold text-[#0A0A0A] sm:text-sm">
               Étape 2 — Vérifier et compléter
             </p>
-            <div className="mt-3 grid gap-3 sm:mt-4 sm:grid-cols-2 sm:gap-4">
+            <div className="mt-3 grid min-w-0 gap-3 sm:mt-4 sm:grid-cols-2 sm:gap-4">
               <label className="grid gap-1 sm:col-span-2">
                 <span className="text-xs font-medium text-[#0A0A0A] sm:text-sm">Nom complet</span>
                 <input

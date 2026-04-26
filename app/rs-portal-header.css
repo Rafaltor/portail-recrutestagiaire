@@ -286,8 +286,8 @@ body.rs-portal-header .rs-nav-brand__name.logo.rs-nav-brand__name--headline {
   text-shadow: none !important;
 }
 
-/* Titre mobile : typo = rs-shopify-header-mobile.css (clamp) ; couleur charte */
-body.rs-portal-header .rs-header-mobile-bar__title {
+/* Titre mobile (ancien bloc logo+titre) ; barre 3 col : .rs-ph-mobile-bar__title-full */
+body.rs-portal-header .rs-header-mobile-bar__title:not(.rs-ph-mobile-bar__title-full) {
   color: var(--accent, #f472b6) !important;
   -webkit-text-fill-color: var(--accent, #f472b6) !important;
 }
@@ -393,9 +393,57 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
     background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%) !important;
     border-bottom: none !important;
     align-items: center !important;
-    /* Plus d’air entre le bloc marque (logo + texte) et le menu */
-    gap: clamp(14px, 4.5vw, 22px) !important;
-    justify-content: space-between !important;
+    gap: 0 !important;
+    justify-content: unset !important;
+  }
+
+  body.rs-portal-header .rs-header-mobile-bar.rs-ph-mobile-bar-3col {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+  }
+
+  body.rs-portal-header .rs-ph-mobile-bar__pole {
+    display: flex !important;
+    align-items: center !important;
+    justify-self: start !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.rs-portal-header .rs-ph-mobile-bar__pole-img {
+    display: block !important;
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    object-fit: contain !important;
+  }
+
+  body.rs-portal-header .rs-ph-mobile-bar__center {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    text-decoration: none !important;
+    padding: 0 2px !important;
+  }
+
+  body.rs-portal-header .rs-ph-mobile-bar__title-full {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    font-size: clamp(0.62rem, 2.9vw, 0.82rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    color: #0a2a6e !important;
+    -webkit-text-fill-color: #0a2a6e !important;
+    text-transform: uppercase !important;
   }
 
   body.rs-portal-header .rs-header-mobile-bar__brand.rs-ph-mbrand {
@@ -656,14 +704,18 @@ body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-heade
 
 /* Marque « Recrute Stagiaire » : rose charte (hero transparent + barre scrollée) */
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header.rs-header--scroll-solid .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
-body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header.rs-header--scroll-solid .rs-header-mobile-bar__title {
+body.rs-portal-header[data-rs-page='index']
+  .header-wrap.rs-header.rs-header--scroll-solid
+  .rs-header-mobile-bar__title:not(.rs-ph-mobile-bar__title-full) {
   color: var(--accent) !important;
   -webkit-text-fill-color: var(--accent) !important;
   text-shadow: none !important;
 }
 
 body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
-body.rs-portal-header[data-rs-page='index'] .header-wrap.rs-header:not(.rs-header--scroll-solid) .rs-header-mobile-bar__title {
+body.rs-portal-header[data-rs-page='index']
+  .header-wrap.rs-header:not(.rs-header--scroll-solid)
+  .rs-header-mobile-bar__title:not(.rs-ph-mobile-bar__title-full) {
   color: var(--accent, #f472b6) !important;
   -webkit-text-fill-color: var(--accent, #f472b6) !important;
   text-shadow:

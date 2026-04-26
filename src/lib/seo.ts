@@ -7,9 +7,9 @@ export const siteUrl =
 
 /** Image par défaut pour Open Graph / Twitter (fichier dans /public) */
 export const defaultOgImage = {
-  url: `${siteUrl}/rs-logo-eu.png`,
-  width: 3508,
-  height: 2480,
+  url: `${siteUrl}/favicon.svg`,
+  width: 512,
+  height: 512,
   alt: "Recrute Stagiaire",
 } as const;
 

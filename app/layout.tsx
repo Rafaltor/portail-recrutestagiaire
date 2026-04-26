@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
   applicationName: "Recrute Stagiaire",
   icons: {
-    icon: [{ url: "/rs-logo-eu.png", type: "image/png" }],
-    apple: [{ url: "/rs-logo-eu.png" }],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
     siteName: "Recrute Stagiaire",
@@ -73,23 +73,31 @@ export default function RootLayout({
           <div className="rs-header-body">
             <div className="container">
               <header className="rs-header-two-tier" aria-label="En-tête du site">
-                <div className="rs-header-mobile-bar" data-rs-header-mobile-bar>
-                  <a
-                    className="rs-header-mobile-bar__brand rs-ph-mbrand"
-                    href="https://recrutestagiaire.eu"
+                <div
+                  className="rs-header-mobile-bar rs-ph-mobile-bar-3col"
+                  data-rs-header-mobile-bar
+                >
+                  <span
+                    className="rs-ph-mobile-bar__pole"
+                    aria-hidden="true"
+                    title="Référence visuelle type offre d’emploi"
                   >
                     <img
-                      src="/rs-logo-eu.png"
+                      src="/pe-mark.svg"
                       alt=""
-                      width={72}
-                      height={72}
-                      className="rs-header-mobile-bar__logo"
+                      width={40}
+                      height={40}
+                      className="rs-ph-mobile-bar__pole-img"
                       loading="eager"
                       decoding="async"
                     />
-                    <span className="rs-header-mobile-bar__title">
-                      <span className="lg:hidden">RS</span>
-                      <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>
+                  </span>
+                  <a
+                    className="rs-ph-mobile-bar__center rs-ph-mbrand"
+                    href="https://recrutestagiaire.eu"
+                  >
+                    <span className="rs-header-mobile-bar__title rs-ph-mobile-bar__title-full">
+                      RECRUTE STAGIAIRE
                     </span>
                   </a>
                   <button
@@ -151,7 +159,7 @@ export default function RootLayout({
           <PortalHeaderDrawer />
         </div>
 
-        <main className="rs-portal-main mx-auto w-full flex-1 pb-8">
+        <main className="rs-portal-main mx-auto w-full min-w-0 max-w-[100vw] flex-1 overflow-x-clip pb-8">
           {children}
         </main>
 

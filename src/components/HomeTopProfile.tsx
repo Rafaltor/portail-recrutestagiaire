@@ -58,7 +58,7 @@ export function HomeTopProfile() {
             </p>
             <h2
               id="rs-home-top-profile"
-              className="mt-2 max-w-full break-words font-[family-name:var(--font-syne)] text-2xl font-extrabold tracking-tight text-[#0A0A0A] sm:text-3xl"
+              className="mt-2 max-w-full break-words font-[family-name:var(--font-syne)] text-lg font-extrabold tracking-tight text-[#0A0A0A] sm:text-3xl"
             >
               Meilleurs profils
             </h2>
