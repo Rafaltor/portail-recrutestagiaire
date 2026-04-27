@@ -140,8 +140,8 @@ main.rs-portal-main {
 /* Panneaux portail : pas d’ombre décorative */
 .rs-panel,
 main.rs-portal-main .rs-panel {
-  box-shadow: none !important;
-  border-color: #f0f0f0 !important;
+  box-shadow: none;
+  border-color: #f0f0f0;
   border-radius: 8px;
 }
 

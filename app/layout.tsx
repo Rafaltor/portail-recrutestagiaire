@@ -8,15 +8,7 @@ import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
 import { PortalHeaderNav } from "@/components/PortalHeaderNav";
 import { RouteHtmlDataset } from "@/components/RouteHtmlDataset";
 import { ParisTicker } from "./ParisTicker";
-import "./globals.css";
-import "./rs-shopify-header.css";
-import "./rs-shopify-header-mobile.css";
-import "./rs-shopify-ui.css";
-import "./portal-theme.css";
-import "./rs-modern-portal.css";
-import "./rs-ds-paris.css";
-import "./rs-portal-header.css";
-import "./rs-portal-header-next.css";
+import "./styles/index.css";
 
 const syne = Syne({
   subsets: ["latin"],

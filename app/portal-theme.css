@@ -93,7 +93,7 @@ main.rs-portal-main h1 {
 
 .footer.skin-dark-footer .footerText p,
 .footer.skin-dark-footer p {
-  color: rgba(10, 10, 10, 0.72) !important;
+  color: rgba(10, 10, 10, 0.72);
 }
 
 /* Même ressort horizontal que `main.rs-portal-main` — texte du footer moins collé au bord */

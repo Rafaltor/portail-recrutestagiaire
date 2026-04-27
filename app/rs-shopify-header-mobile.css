@@ -1,4 +1,5 @@
-/* Aligné sur recrutestagiaire/assets/rs-shopify-header.css — barre mobile + drawer (<900px). */
+/* Mobile header layer (<900px): top bar, drawer and footer actions.
+ * Keep this file focused on mobile-only behavior and spacing. */
 
 @media (min-width: 900px) {
   .rs-header-mobile-bar,
@@ -157,25 +158,6 @@
   .rs-header-mobile-bar__menu-btn:focus-visible {
     outline: 2px solid var(--rs-brand-pink, #f472b6);
     outline-offset: 2px;
-  }
-
-  .rs-header-mobile-bar__burger {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .rs-header-mobile-bar__burger-line {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: #f472b6;
-    border-radius: 0;
-    flex-shrink: 0;
   }
 
   /* Même markup que la boutique (layout.tsx) : .rs-header-burger + .rs-header-burger__line */
@@ -481,3 +463,4 @@ html.rs-header-drawer-open body {
 .header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-caf-btn-dossier__label {
   text-shadow: none !important;
 }
+

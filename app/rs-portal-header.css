@@ -1,6 +1,12 @@
 /**
- * En-tête aligné sur portail-recrutestagiaire (ParisTicker + rs-ph-navdesk + drawer).
- * Activé avec la classe body.rs-portal-header (voir layout/theme.liquid).
+ * Header portal-specific overrides (scope: body.rs-portal-header).
+ *
+ * Sections:
+ * 1) ticker and fixed shell
+ * 2) desktop layout (>=900px)
+ * 3) mobile layout (<900px)
+ * 4) drawer surface
+ * 5) homepage transparent/solid variants
  */
 
 @keyframes rsTickerMarquee {
@@ -158,15 +164,6 @@ body.rs-portal-header .header-wrap .container {
   padding-right: max(0px, env(safe-area-inset-right, 0px)) !important;
 }
 
-@media (min-width: 900px) {
-  body.rs-portal-header .header-wrap .container {
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding-left: max(0px, env(safe-area-inset-left, 0px)) !important;
-    padding-right: max(0px, env(safe-area-inset-right, 0px)) !important;
-  }
-}
 
 /*
  * Rangée « bureau » : uniquement ≥900px. Sinon on écrase le display:none mobile
@@ -749,3 +746,4 @@ body.rs-paris-startup.rs-portal-header .header-wrap.rs-header .rs-header-body > 
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+

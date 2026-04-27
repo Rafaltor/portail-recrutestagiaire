@@ -1,0 +1,8 @@
+/* Single CSS entrypoint for the portal app.
+ * Keep import order stable to preserve cascade behavior.
+ */
+
+@import "./base.css";
+@import "./header.css";
+@import "./theme.css";
+@import "./overrides.css";

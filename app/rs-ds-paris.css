@@ -416,20 +416,6 @@ body.rs-ds-paris .rs-ds-section-label {
     border-radius: 0 !important;
   }
 
-  .rs-header-mobile-bar__burger {
-    width: 20px !important;
-    height: 16px !important;
-    gap: 5px !important;
-    justify-content: space-between !important;
-  }
-
-  .rs-header-mobile-bar__burger-line {
-    width: 20px !important;
-    height: 2px !important;
-    border-radius: 0 !important;
-    background: var(--black) !important;
-    opacity: 1 !important;
-  }
 }
 
 /* --- Drawer : plein largeur, depuis le haut --- */

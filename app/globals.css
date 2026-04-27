@@ -51,3 +51,13 @@ body {
 :root {
   --font-inter: var(--font-dm);
 }
+
+/* CSS conventions (portail)
+ * 1) Base tokens and global resets: globals.css / portal-theme.css
+ * 2) Header core: rs-shopify-header.css
+ * 3) Header mobile + drawer (<900): rs-shopify-header-mobile.css
+ * 4) Design system flavor: rs-ds-paris.css
+ * 5) Page-level overrides: rs-modern-portal.css + rs-portal-header.css
+ * 6) Keep selectors scoped (.rs-*) and prefer min-width:0 on flex/grid children.
+ */
+
