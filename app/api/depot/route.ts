@@ -134,8 +134,14 @@ export async function POST(req: Request) {
   if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
 
   const origin = req.headers.get("origin") || "";
-  const absoluteProfileUrl = origin
-    ? `${origin}/mon-profil/${ownerToken}`
+  const ALLOWED_ORIGINS = [
+    "https://recrutestagiaire.eu",
+    "https://www.recrutestagiaire.eu",
+    "http://localhost:3000",
+  ];
+  const safeOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : "";
+  const absoluteProfileUrl = safeOrigin
+    ? `${safeOrigin}/mon-profil/${ownerToken}`
     : `/mon-profil/${ownerToken}`;
 
   return NextResponse.json(

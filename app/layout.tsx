@@ -151,7 +151,7 @@ export default function RootLayout({
           <div className="container mx-auto max-w-[var(--rs-content-max,1200px)] px-4 py-10">
             <div className="flex flex-col gap-6 border-b border-[var(--gray-200)] pb-8">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-                <span className="text-sm font-bold tracking-wide text-[var(--black)]">
+                <span className="text-sm font-bold tracking-wide text-[var(--color-ink)]">
                   RECRUTE STAGIAIRE
                 </span>
                 <p className="m-0 max-w-xl text-sm font-normal leading-snug text-[var(--gray-600)] sm:text-right">
@@ -164,7 +164,7 @@ export default function RootLayout({
                   href="https://www.instagram.com/recrutestagiaire.eu/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                  className="text-sm font-medium text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
                 >
                   Instagram
                 </a>
@@ -172,7 +172,7 @@ export default function RootLayout({
                   href="https://www.tiktok.com/@recrutestagiaire"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                  className="text-sm font-medium text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
                 >
                   TikTok
                 </a>
@@ -184,25 +184,25 @@ export default function RootLayout({
             >
               <Link
                 href="/profils"
-                className="text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
               >
                 Profils
               </Link>
               <Link
                 href="/depot"
-                className="text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
               >
                 Déposer
               </Link>
               <a
                 href="https://recrutestagiaire.eu/pages/about"
-                className="text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
               >
                 À propos
               </a>
               <a
                 href="https://recrutestagiaire.eu/pages/contact"
-                className="text-[var(--black)] no-underline hover:text-[var(--accent)]"
+                className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
               >
                 Contact
               </a>

@@ -247,7 +247,7 @@ export default function DepotPage() {
   return (
     <div
       className="rs-depot-page mx-auto box-border grid w-full min-w-0 max-w-full gap-3 overflow-x-hidden bg-white pb-4 pt-1 sm:gap-6 sm:pb-8 sm:pt-0"
-      style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
+      style={{ fontFamily: "var(--font-body), ui-sans-serif, system-ui, sans-serif" }}
     >
       <PortalDesktopPageHeader
         eyebrow="Candidature"

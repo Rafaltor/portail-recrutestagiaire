@@ -1,0 +1,321 @@
+/* Composants partagés (boutons, cartes, dossier/cart, footer-grid).
+ * Variables canoniques : voir tokens.css.
+ */
+
+/* ===== Bouton "abt-btn" (boutique Shopify) — neutre par défaut ===== */
+.abt-btn {
+  border-radius: var(--radius-md);
+  clip-path: none;
+}
+
+.rs-caf-btn-dossier.abt-btn {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  text-shadow: none;
+  box-shadow: none;
+}
+
+.rs-caf-btn-dossier__label {
+  color: var(--color-ink);
+  text-shadow: none;
+}
+
+.rs-banner-top__cart,
+.rs-banner-top__cart:visited {
+  color: var(--color-ink);
+}
+
+.rs-banner-top__actions .rs-caf-btn-dossier {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rs-icon-dossier,
+.rs-icon-account {
+  display: inline-block;
+  vertical-align: -2px;
+  flex-shrink: 0;
+}
+
+.rs-caf-btn-dossier.abt-btn:hover,
+.rs-caf-btn-dossier.abt-btn:focus-visible {
+  background: var(--color-subtle);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+  text-decoration: none;
+  color: var(--color-ink);
+  text-shadow: none;
+  transform: none;
+}
+
+/* ===== Boutons portail (rs-btn) ===== */
+.rs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.25;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.rs-btn:active {
+  transform: translateY(0.5px);
+}
+
+.rs-btn--primary {
+  background: var(--color-brand);
+  color: #fff;
+  border-color: var(--color-brand);
+}
+
+.rs-btn--primary:hover,
+.rs-btn--primary:focus-visible {
+  background: var(--color-brand-hover);
+  color: #fff;
+  text-decoration: none;
+  border-color: var(--color-brand-hover);
+  transform: translateY(-1px);
+}
+
+a.rs-btn--primary:visited {
+  color: #fff;
+}
+
+.rs-btn--ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+}
+
+.rs-btn--ghost:hover {
+  background: transparent;
+  color: var(--color-ink);
+  border-color: var(--color-brand);
+  transform: translateY(-1px);
+}
+
+.rs-btn--danger {
+  background: #fff5f5;
+  color: #6b0f1a;
+  border-color: rgba(107, 15, 26, 0.22);
+}
+
+.rs-btn--danger:hover {
+  background: #ffeef0;
+}
+
+/* ===== Bouton CTA primaire (variante page — rose plein) ===== */
+.rs-btn.rs-btn--primary,
+a.rs-btn.rs-btn--primary {
+  background: var(--color-brand);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: none;
+  clip-path: none;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.rs-btn.rs-btn--primary:hover,
+a.rs-btn.rs-btn--primary:hover {
+  background: var(--color-brand-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.rs-btn.rs-btn--primary:focus-visible,
+a.rs-btn.rs-btn--primary:focus-visible,
+.rs-btn.rs-btn--primary:visited,
+a.rs-btn.rs-btn--primary:visited {
+  color: #fff;
+}
+
+/* Libellé blanc sur tout fond rose (surcharge abt-btn / héritages Tailwind) */
+.rs-on-pink,
+a.rs-on-pink,
+a.rs-on-pink:hover,
+a.rs-on-pink:focus-visible,
+a.rs-on-pink:visited,
+main.rs-portal-main a.rs-btn.rs-btn--primary,
+main.rs-portal-main a.rs-btn.rs-btn--primary:hover,
+main.rs-portal-main a.rs-btn.rs-btn--primary:focus-visible,
+main.rs-portal-main a.rs-btn.rs-btn--primary:visited,
+main.rs-portal-main button.rs-btn.rs-btn--primary,
+main.rs-portal-main button.rs-btn.rs-btn--primary:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+a[class~="bg-[#f472b6]"],
+a[class~="!bg-[#f472b6]"],
+button[class~="bg-[#f472b6]"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+.rs-btn.rs-btn--ghost,
+a.rs-btn.rs-btn--ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: none;
+  clip-path: none;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.rs-btn.rs-btn--ghost:hover,
+a.rs-btn.rs-btn--ghost:hover {
+  border-color: var(--color-brand);
+  transform: translateY(-1px);
+}
+
+/* ===== Cartes / panneaux (.rs-panel) ===== */
+.rs-panel,
+main.rs-portal-main .rs-panel {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.rs-panel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--color-brand);
+  transition: width 0.2s ease;
+  pointer-events: none;
+}
+
+.rs-panel:hover {
+  border-color: #999990;
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.rs-panel:hover::before {
+  width: 4px;
+}
+
+/* ===== Pills ===== */
+.rs-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  background: var(--color-subtle);
+  color: var(--color-muted);
+  border: 1px solid transparent;
+}
+
+.rs-pill--accent {
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand-border);
+}
+
+/* ===== Hero stagger ===== */
+.rs-hero-stagger > * {
+  opacity: 0;
+  animation: rsHeroIn 0.6s ease forwards;
+  animation-delay: var(--rs-hero-d, 0s);
+}
+
+.rs-hero-stagger > *:nth-child(1) { --rs-hero-d: 0s; }
+.rs-hero-stagger > *:nth-child(2) { --rs-hero-d: 0.1s; }
+.rs-hero-stagger > *:nth-child(3) { --rs-hero-d: 0.2s; }
+.rs-hero-stagger > *:nth-child(4) { --rs-hero-d: 0.3s; }
+.rs-hero-stagger > *:nth-child(5) { --rs-hero-d: 0.4s; }
+.rs-hero-stagger > *:nth-child(6) { --rs-hero-d: 0.5s; }
+.rs-hero-stagger > *:nth-child(7) { --rs-hero-d: 0.6s; }
+
+@keyframes rsHeroIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Métriques ===== */
+.rs-metric-card {
+  background: var(--color-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.rs-metric-card__value {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-brand);
+}
+
+.rs-metric-card__label {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+/* ===== DS labels ===== */
+body.rs-ds-paris .rs-ds-section-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-brand);
+  margin-bottom: 16px;
+}
+
+/* ===== Ticker (rangée bandeau haute ; animation portée par header.css) ===== */
+.rs-ticker__sep {
+  padding: 0 0.45rem;
+  opacity: 0.75;
+}

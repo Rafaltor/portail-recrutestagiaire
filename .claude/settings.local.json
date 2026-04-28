@@ -15,7 +15,14 @@
       "Bash(where python *)",
       "Bash(where python3 *)",
       "Bash(py --version)",
-      "Bash(py *)"
+      "Bash(py *)",
+      "Bash(git -C \"C:\\\\Users\\\\Paul-Maxence Baraton\\\\Downloads\\\\portail-recrutestagiaire\" log --all --full-history --diff-filter=D -- \".env*\")",
+      "Bash(xargs ls *)",
+      "Bash(awk '{print $9, $5}')",
+      "Bash(xargs wc *)",
+      "Bash(grep -E \"\\\\.\\(css|js\\)$\")",
+      "Bash(xargs grep *)",
+      "Bash(sed \"s/.*'\\\\\\\\\\([^']*\\\\\\\\\\)'.*/\\\\\\\\1/\")"
     ]
   }
 }

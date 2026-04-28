@@ -1,8 +1,6 @@
-/* Single CSS entrypoint for the portal app.
- * Keep import order stable to preserve cascade behavior.
- */
-
+@import "tailwindcss";
+@import "./tokens.css";
 @import "./base.css";
 @import "./header.css";
-@import "./theme.css";
-@import "./overrides.css";
+@import "./components.css";
+@import "./pages.css";

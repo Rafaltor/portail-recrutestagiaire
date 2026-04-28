@@ -1,26 +1,49 @@
-# Portal CSS Layers
+# Portal CSS Architecture
 
-This folder defines a single global CSS entrypoint for the portal app: `index.css`.
+Single global entrypoint loaded by `app/layout.tsx`: `index.css`.
 
-## Layer Order (must stay stable)
+```
+index.css
+ ├── @import "tailwindcss"
+ ├── tokens.css       # design tokens (--color-*, --font-*, --radius-*, --space-*)
+ ├── base.css         # html/body/main reset + global typography + footer
+ ├── header.css       # header + drawer (Shopify-derived) + portail overrides
+ ├── components.css   # reusable: rs-btn, rs-panel, rs-pill, rs-metric-card, etc.
+ └── pages.css        # page-scoped styles (home hero, depot, swipe overrides)
+```
 
-1. `base.css`  
-   Global tokens/resets (`globals.css`).
-2. `header.css`  
-   Header foundation + mobile header/drawer shell.
-3. `theme.css`  
-   UI components, theme tokens, and broad visual overrides.
-4. `overrides.css`  
-   Portal-specific header overrides and final cascade adjustments.
+## Token naming
 
-## Rule of Thumb
+All theme tokens live in `tokens.css`. Use the canonical names:
 
-- Keep styles scoped with `.rs-*` selectors.
-- Prefer `min-width: 0` on flex/grid children to avoid overflow issues.
-- Add new global rules in the narrowest layer possible.
-- If a new rule depends on cascade priority, place it in `overrides.css`.
+| Concept       | Token                  |
+| ------------- | ---------------------- |
+| Brand pink    | `--color-brand`        |
+| Brand hover   | `--color-brand-hover`  |
+| Light pink    | `--color-brand-light`  |
+| Pink border   | `--color-brand-border` |
+| Pale pink     | `--color-brand-pale`   |
+| Ink (text)    | `--color-ink`          |
+| Page bg       | `--color-bg`           |
+| Surface       | `--color-surface`      |
+| Border        | `--color-border`       |
+| Muted text    | `--color-muted`        |
+| Subtle bg     | `--color-subtle`       |
+| Display font  | `--font-display`       |
+| Body font     | `--font-body`          |
+| Page padding  | `--space-x`            |
+| Content width | `--content-max`        |
 
-## Operational Docs
+Older variables (`--rs-brand-pink`, `--accent`, `--gray-200`, `--rs-page-bg`, …)
+have been retired. Don't reintroduce them.
 
-- `IMPORTANT_AUDIT.md`: baseline and strategy to reduce `!important` safely.
-- `REGRESSION_CHECKLIST.md`: manual verification checklist after style changes.
+## Conventions
+
+- One source of truth per concept (token / component / page).
+- Mobile/desktop breakpoint: **900px**.
+- `!important` is reserved for cascade-fights against Tailwind utility classes
+  with the `!` prefix or for active-state precedence over hover. Today there
+  are < 40 occurrences across all layers — keep that budget.
+- Files outside `app/styles/` that stay separate:
+  - `app/profils/profils-list.css` (imported by `app/profils/page.tsx`)
+  - `app/swipe/swipe-stamps.css` (imported by `app/swipe/page.tsx`)

@@ -1035,7 +1035,7 @@ export default function SwipePage() {
             <div
               className="w-full max-w-md rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 text-center"
               style={{
-                fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+                fontFamily: "var(--font-body), ui-sans-serif, system-ui, sans-serif",
               }}
             >
               <p className="text-base font-semibold text-[#0A0A0A]">
@@ -1055,7 +1055,7 @@ export default function SwipePage() {
             <div
               className="w-full max-w-md rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-6 text-center"
               style={{
-                fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+                fontFamily: "var(--font-body), ui-sans-serif, system-ui, sans-serif",
               }}
             >
               <p className="text-base font-semibold text-[#0A0A0A]">

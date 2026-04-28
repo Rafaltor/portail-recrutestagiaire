@@ -1,0 +1,472 @@
+/* Styles spécifiques aux pages (accueil, dépôt, mon-espace, page hero) +
+ * surcharges fond/main globales du portail (héritées de portal-theme.css /
+ * rs-modern-portal.css / rs-ds-paris.css). Variables canoniques : voir tokens.css.
+ */
+
+/* ===== Surcharges fond / main (portail) =================================== */
+body.rs-portal-body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+body.rs-ds-paris,
+body.rs-ds-paris.rs-portal-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--color-ink);
+  background: var(--color-bg);
+}
+
+main.rs-portal-main {
+  max-width: var(--content-max);
+  width: 100%;
+  padding-left: var(--space-x);
+  padding-right: var(--space-x);
+  border-left: none;
+  border-right: none;
+  box-shadow: none;
+  background: var(--color-bg);
+}
+
+/* Page d'accueil : laisser voir le hero (pas de fond opaque sur main) */
+body.rs-ds-paris main.rs-portal-main:has(.rs-home-page) {
+  background: transparent;
+  border-left: none;
+  border-right: none;
+}
+
+/* Swipe : main transparent et plein écran */
+html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
+  background: transparent !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media (min-width: 768px) {
+  html:has(#rs-swipe-page) main.rs-portal-main.mx-auto {
+    padding-bottom: calc(var(--rs-swipe-bottom-chrome, 128px) + 12px);
+  }
+}
+
+/* Footer ressort horizontal cohérent avec main */
+.footer.skin-dark-footer,
+.footer.rs-footer-portal-simple {
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-ink);
+}
+
+.footer.skin-dark-footer .footerText p,
+.footer.skin-dark-footer p {
+  color: rgba(10, 10, 10, 0.72);
+}
+
+body.rs-portal-body .footer.skin-dark-footer > .container {
+  padding-left: clamp(12px, 2vw, 18px);
+  padding-right: clamp(12px, 2vw, 18px);
+}
+
+.footer.rs-footer-portal-simple .container,
+.footer.rs-footer-portal-simple > div {
+  max-width: var(--content-max);
+  padding-left: var(--space-x);
+  padding-right: var(--space-x);
+}
+
+main.rs-portal-main h1,
+.rs-portal-page-hero__title {
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
+
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier) {
+  color: var(--color-brand);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover {
+  color: var(--color-brand-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ===== Page : Dépôt CV ==================================================== */
+.rs-depot-page {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 639.98px) {
+  .rs-depot-page {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 640px) {
+  .rs-depot-page {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.rs-depot-dropzone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-subtle);
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.rs-depot-stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rs-depot-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.rs-depot-step__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--color-border);
+  color: var(--color-muted);
+}
+
+.rs-depot-step--active .rs-depot-step__num {
+  background: var(--color-brand);
+  color: #ffffff;
+}
+
+.rs-depot-step--active {
+  color: var(--color-ink);
+}
+
+.rs-depot-step:not(.rs-depot-step--active) {
+  color: #bcbcbc;
+}
+
+.rs-depot-step:not(.rs-depot-step--active) .rs-depot-step__num {
+  background: var(--color-border);
+  color: #bcbcbc;
+}
+
+@media (max-width: 639.98px) {
+  .rs-depot-stepper {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .rs-depot-step {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .rs-depot-step__num {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+}
+
+.rs-depot-page input:not([type='checkbox']):not([type='file']):not([type='hidden']) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* ===== Page : Accueil (hero + stats + profils + parcours) ================= */
+.rs-home-page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.5vw, 32px);
+}
+
+.rs-home-hero {
+  position: relative;
+  overflow: hidden;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  width: 100%;
+  min-height: min(52vh, 560px);
+  padding: clamp(10px, 2vw, 28px) var(--space-x) clamp(28px, 4vw, 56px);
+  background-color: var(--color-subtle);
+}
+
+.rs-home-hero.rs-home-hero--wide {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.rs-home-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--color-subtle);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.rs-home-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(250, 250, 248, 0.14) 0%,
+    rgba(250, 250, 248, 0.34) 50%,
+    rgba(250, 250, 248, 0.52) 100%
+  );
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.rs-home-hero__grid--front {
+  position: relative;
+  z-index: 3;
+}
+
+.rs-home-hero__grid {
+  display: grid;
+  gap: clamp(20px, 3.5vw, 48px);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .rs-home-hero__grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+}
+
+.rs-home-hero__copy {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .rs-home-hero__copy {
+    text-align: left;
+  }
+}
+
+.rs-home-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: clamp(18px, 3vw, 28px);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-brand-border);
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.rs-home-hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  flex-shrink: 0;
+}
+
+.rs-home-hero__lede {
+  margin: clamp(18px, 2.5vw, 24px) auto 0;
+  max-width: 28rem;
+  font-size: clamp(16px, 1.15vw, 17px);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--color-muted);
+}
+
+@media (min-width: 1024px) {
+  .rs-home-hero__lede {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.rs-home-hero__actions {
+  margin-top: clamp(28px, 4vw, 40px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .rs-home-hero__actions {
+    justify-content: flex-start;
+  }
+}
+
+.rs-home-stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rs-home-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 28px) clamp(22px, 3vw, 32px);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.rs-home-stat-card:hover {
+  border-color: #999990;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.rs-home-stat-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-subtle);
+  color: var(--color-muted);
+}
+
+.rs-home-stat-card__icon svg {
+  display: block;
+}
+
+.rs-home-stat-card__num {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-brand);
+}
+
+.rs-home-stat-card__label {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.rs-home-how-wrap {
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.rs-home-profiles {
+  margin-top: clamp(8px, 2vw, 16px);
+  padding: clamp(48px, 7vw, 80px) var(--space-x);
+  background: var(--color-subtle);
+  border-top: 1px solid var(--color-border);
+}
+
+.rs-home-profiles__inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.rs-home-profiles__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: clamp(24px, 4vw, 40px);
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .rs-home-profiles__head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+.rs-home-profiles__grid {
+  display: grid;
+  gap: clamp(16px, 3vw, 24px);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .rs-home-profiles__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .rs-home-profiles__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.rs-home-profiles__card {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 28rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  padding: clamp(18px, 2.5vw, 24px);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.rs-home-profiles__grid .rs-home-profiles__card {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: none;
+}
+
+.rs-home-profiles__card:hover {
+  border-color: #999990;
+  box-shadow: var(--shadow-card-hover);
+}
