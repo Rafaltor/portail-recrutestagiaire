@@ -907,50 +907,66 @@ body.rs-nav-open {
   }
 
   .header-wrap .container {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .header-wrap .rs-header-body > .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
   }
 
   .rs-header-mobile-bar {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    min-height: 80px;
+    gap: 8px;
+    min-height: 64px;
     height: auto;
     max-height: none;
     box-sizing: border-box;
     width: 100%;
     margin: 0;
-    padding: 8px 0;
+    padding: 0;
     border: none;
-    border-bottom: 1px solid var(--color-border);
-    background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%);
+    background: transparent;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .header-wrap.rs-header--scroll-solid .rs-header-mobile-bar,
+  .header-wrap.rs-header-mobile-fixed--scrolled .rs-header-mobile-bar {
+    background: #ffffff;
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.08);
   }
 
   .rs-header-mobile-bar__brand {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     min-width: 0;
     text-decoration: none;
     color: inherit;
+    flex-shrink: 0;
   }
 
   .rs-header-mobile-bar__logo {
     display: block;
-    width: 64px;
-    height: 64px;
-    max-width: 64px;
-    max-height: 64px;
+    width: 60px;
+    height: 60px;
+    max-width: 60px;
+    max-height: 60px;
     object-fit: contain;
     flex-shrink: 0;
   }
 
   .rs-header-mobile-bar__title {
-    font-size: clamp(1.35rem, 4.2vw, 1.85rem);
+    font-family: var(--font-display);
+    font-size: clamp(10px, 3.3vw, 17px);
     font-weight: 800 !important;
     letter-spacing: 0.045em;
     line-height: 1.15;
@@ -959,6 +975,8 @@ body.rs-nav-open {
     text-overflow: ellipsis;
     color: var(--color-brand);
     text-transform: uppercase;
+    text-align: center;
+    justify-self: center;
   }
 
   .rs-header-mobile-bar__menu-btn {
@@ -995,8 +1013,9 @@ body.rs-nav-open {
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 5px;
     width: 24px;
-    height: 24px;
+    height: 20px;
     flex-shrink: 0;
   }
 
@@ -1005,7 +1024,7 @@ body.rs-nav-open {
     width: 24px;
     height: 2px;
     background: var(--color-brand);
-    border-radius: 0;
+    border-radius: 2px;
     flex-shrink: 0;
     transform-origin: center;
     transition:
@@ -1434,76 +1453,8 @@ body.rs-portal-header .header-wrap .rs-header-tabstrip {
 }
 
 @media (max-width: 899.98px) {
-  body.rs-portal-header .rs-header-mobile-bar {
-    min-height: 80px;
-    height: auto;
-    max-height: none;
-    padding: 8px 0;
-    background: linear-gradient(180deg, #e8e8f0 0%, #ffffff 100%);
-    border-bottom: none;
-    align-items: center;
-    gap: 10px;
-    justify-content: space-between;
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar__brand.rs-ph-mbrand {
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar__title {
-    flex: 1 1 auto;
-    min-width: 0;
-    text-align: center;
-  }
-
-  body.rs-portal-header .header-wrap .rs-header-mobile-bar__logo {
-    display: block;
-    width: 64px;
-    height: 64px;
-    max-height: 64px;
-    max-width: 64px;
-    object-fit: contain;
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    background: transparent;
-    box-shadow: none;
-    color: var(--color-brand);
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn:hover {
-    background: rgba(244, 114, 182, 0.08);
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger-btn:active {
-    transform: scale(0.98);
-  }
-
   body.rs-portal-header .rs-header-mobile-bar .rs-header-burger {
-    width: 24px;
-    height: 24px;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0;
     pointer-events: none;
-  }
-
-  body.rs-portal-header .rs-header-mobile-bar .rs-header-burger__line {
-    display: block;
-    width: 24px;
-    height: 2px;
-    border-radius: 0;
-    background: var(--color-brand);
-    transform-origin: center;
-    transition:
-      transform 0.25s ease,
-      opacity 0.2s ease,
-      background 0.2s ease;
   }
 
   html.rs-header-drawer-open body.rs-portal-header .rs-header-mobile-bar .rs-header-burger {
