@@ -43,7 +43,9 @@ export function HomeTopProfile() {
       ? [data.profile]
       : [];
 
-  if (!data || list.length === 0) return null;
+  if (!data) return null;
+
+  const slots: (ProfileItem | null)[] = [0, 1, 2].map((i) => list[i] ?? null);
 
   return (
     <section
@@ -69,15 +71,48 @@ export function HomeTopProfile() {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((profile, idx) => {
-            const h = profile.handle.replace(/^@/, "");
-            const rankLabel = profile.rank_label || `N°${idx + 1} cette semaine`;
+          {slots.map((profile, idx) => {
+            const rankLabel =
+              profile?.rank_label || `N°${idx + 1} cette semaine`;
             const badgeTone =
               idx === 0
                 ? { bg: "bg-[#f472b6]", text: "text-white" }
                 : idx === 1
                   ? { bg: "bg-[#e8e8e8]", text: "text-[#0a0a0a]" }
                   : { bg: "bg-[#f5f5f5]", text: "text-[#6b6b6b]" };
+
+            if (!profile) {
+              return (
+                <article
+                  key={`placeholder-${idx}`}
+                  className="flex min-h-[220px] flex-col justify-between rounded-xl border border-dashed border-[#E0E0E0] bg-white/60 p-5"
+                >
+                  <div>
+                    <span
+                      className={`inline-block rounded-md px-2 py-0.5 text-[11px] font-bold ${badgeTone.bg} ${badgeTone.text}`}
+                    >
+                      {rankLabel}
+                    </span>
+                    <p className="mt-3 text-[15px] font-bold text-[#9A9A9A]">
+                      Place à prendre
+                    </p>
+                    <p className="mt-1 text-xs text-[#9A9A9A]">
+                      Dépose ton CV pour entrer dans le classement
+                    </p>
+                  </div>
+                  <div className="mt-4 border-t border-dashed border-[#E0E0E0] pt-4">
+                    <Link
+                      href="/depot"
+                      className={`${ghost} inline-flex items-center gap-1 no-underline`}
+                    >
+                      Déposer mon CV →
+                    </Link>
+                  </div>
+                </article>
+              );
+            }
+
+            const h = profile.handle.replace(/^@/, "");
             return (
               <article
                 key={profile.id}
