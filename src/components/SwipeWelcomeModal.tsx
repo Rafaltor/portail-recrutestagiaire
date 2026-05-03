@@ -30,7 +30,7 @@ export function SwipeWelcomeModal({
       >
         <h2
           id="swipe-rules-title"
-          className="whitespace-nowrap text-center text-[16px] font-bold leading-snug text-[#0A0A0A] sm:text-[14px]"
+          className="whitespace-nowrap text-center font-bold leading-snug text-[#0A0A0A]"
         >
           Comment ça marche
         </h2>
