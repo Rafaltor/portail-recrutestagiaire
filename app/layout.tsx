@@ -74,14 +74,19 @@ export default function RootLayout({
                       className="rs-header-mobile-bar__logo"
                       src="/rs-logo-eu.png"
                       alt=""
-                      width={72}
-                      height={72}
+                      width={48}
+                      height={48}
                       loading="eager"
                       decoding="async"
                     />
                   </Link>
                   <span className="rs-header-mobile-bar__title">
-                    RECRUTE STAGIAIRE
+                    <span className="rs-header-mobile-bar__title-line">
+                      RECRUTE
+                    </span>
+                    <span className="rs-header-mobile-bar__title-line">
+                      STAGIAIRE
+                    </span>
                   </span>
                   <button
                     type="button"

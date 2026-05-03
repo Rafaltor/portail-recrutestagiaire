@@ -790,18 +790,13 @@ body.rs-nav-open {
   100% { transform: translate3d(-50%, 0, 0); }
 }
 
-/* ===== Bouton "Mon dossier" / "Mon espace" (header desktop charte DA) ======= */
+/* ===== Bouton "Mon dossier" / "Mon espace" (header desktop) ================ */
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn {
   clip-path: none;
   padding: 7px 16px;
-  font-size: 12px;
-  background: linear-gradient(
-    180deg,
-    var(--color-brand-pale) 0%,
-    var(--color-brand) 100%
-  ) !important;
-  border: 1px solid var(--color-brand-hover) !important;
-  border-radius: var(--radius-sm);
+  background: var(--color-ink) !important;
+  border: 1px solid var(--color-ink) !important;
+  border-radius: var(--radius-pill);
   color: #fff !important;
   box-shadow: none;
   font-weight: 700;
@@ -811,16 +806,20 @@ body.rs-nav-open {
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:hover,
 .header-wrap .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:focus-visible {
   clip-path: none;
-  background: var(--color-brand-hover) !important;
-  border: 1px solid var(--color-brand-hover) !important;
-  border-radius: var(--radius-sm);
+  background: #1a1a1a !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: var(--radius-pill);
   color: #fff !important;
   box-shadow: none;
   text-decoration: none;
   text-shadow: none;
 }
 
-.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier__label,
+.header-wrap .rs-banner-top__actions .rs-caf-btn-dossier__label {
+  color: #fff !important;
+  text-shadow: none;
+}
+
 .header-wrap .rs-banner-top__cart {
   color: var(--color-ink) !important;
   text-shadow: none;
@@ -956,27 +955,38 @@ body.rs-nav-open {
 
   .rs-header-mobile-bar__logo {
     display: block;
-    width: 60px;
-    height: 60px;
-    max-width: 60px;
-    max-height: 60px;
+    width: 48px;
+    height: 48px;
+    max-width: 48px;
+    max-height: 48px;
     object-fit: contain;
     flex-shrink: 0;
   }
 
   .rs-header-mobile-bar__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-display);
-    font-size: clamp(10px, 3.3vw, 17px);
+    font-size: clamp(13px, 4vw, 18px);
     font-weight: 800 !important;
-    letter-spacing: 0.045em;
-    line-height: 1.15;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    letter-spacing: 0.04em;
+    line-height: 1;
     color: var(--color-brand);
     text-transform: uppercase;
     text-align: center;
     justify-self: center;
+    min-width: 0;
+  }
+
+  .rs-header-mobile-bar__title-line {
+    display: block;
+    line-height: 1;
+  }
+
+  .rs-header-mobile-bar__title-line + .rs-header-mobile-bar__title-line {
+    margin-top: 2px;
   }
 
   .rs-header-mobile-bar__menu-btn {

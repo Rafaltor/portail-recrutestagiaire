@@ -46,8 +46,8 @@ export async function OPTIONS() {
 }
 
 /**
- * Meilleurs profils publiés (score = somme des votes) sur la fenêtre glissante 7 jours,
- * avec repli sur tout l’historique si aucun vote récent.
+ * Meilleurs profils publiés. Calcul du score sur la fenêtre 7j (avec repli historique),
+ * puis complétion par les profils publiés les plus récents pour toujours retourner TOP_N.
  */
 export async function GET() {
   const supabase = tryGetSupabaseServer();
@@ -58,6 +58,7 @@ export async function GET() {
     );
   }
 
+  // 1. Votes (7j → repli historique si vide).
   let rows: VoteRow[] = [];
   const weekRes = await supabase
     .from("votes")
@@ -84,7 +85,60 @@ export async function GET() {
 
   const scores = aggregateScores(rows);
   const winners = topN(scores, TOP_N);
-  if (winners.length === 0) {
+
+  type ProfileRow = {
+    id: string;
+    handle: string;
+    job_title: string;
+    status: string;
+    cv_path: string | null;
+    created_at?: string;
+  };
+
+  // 2. Profils gagnants publiés.
+  const ordered: { p: ProfileRow; score: number }[] = [];
+  if (winners.length > 0) {
+    const ids = winners.map((w) => w.id);
+    const profRes = await supabase
+      .from("profiles")
+      .select("id,handle,job_title,status,cv_path")
+      .in("id", ids)
+      .eq("status", "published");
+
+    if (!profRes.error && profRes.data?.length) {
+      const byId = new Map(
+        (profRes.data as ProfileRow[]).map((p) => [p.id, p] as const),
+      );
+      for (const w of winners) {
+        const p = byId.get(w.id);
+        if (p) ordered.push({ p, score: w.score });
+      }
+    }
+  }
+
+  // 3. Complétion : si moins de TOP_N profils votés publiés, remplir avec les
+  //    derniers profils publiés (hors doublons) pour toujours afficher 3 cartes.
+  if (ordered.length < TOP_N) {
+    const excludeIds = ordered.map(({ p }) => p.id);
+    const recentRes = await supabase
+      .from("profiles")
+      .select("id,handle,job_title,status,cv_path,created_at")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(TOP_N + excludeIds.length);
+
+    if (!recentRes.error && recentRes.data?.length) {
+      const recents = (recentRes.data as ProfileRow[]).filter(
+        (p) => !excludeIds.includes(p.id),
+      );
+      for (const p of recents) {
+        if (ordered.length >= TOP_N) break;
+        ordered.push({ p, score: scores.get(p.id) ?? 0 });
+      }
+    }
+  }
+
+  if (ordered.length === 0) {
     return NextResponse.json(
       {
         ok: true,
@@ -95,44 +149,6 @@ export async function GET() {
       },
       { status: 200, headers: CORS },
     );
-  }
-
-  const ids = winners.map((w) => w.id);
-  const profRes = await supabase
-    .from("profiles")
-    .select("id,handle,job_title,status,cv_path")
-    .in("id", ids)
-    .eq("status", "published");
-
-  if (profRes.error || !profRes.data?.length) {
-    return NextResponse.json(
-      {
-        ok: true,
-        profiles: [],
-        profile: null,
-        likes: winners[0]?.score ?? 0,
-        rank_label: "Profil N°1 cette semaine",
-      },
-      { status: 200, headers: CORS },
-    );
-  }
-
-  type ProfileRow = {
-    id: string;
-    handle: string;
-    job_title: string;
-    status: string;
-    cv_path: string | null;
-  };
-
-  const byId = new Map(
-    (profRes.data as ProfileRow[]).map((p) => [p.id, p] as const),
-  );
-
-  const ordered: { p: ProfileRow; score: number }[] = [];
-  for (const w of winners) {
-    const p = byId.get(w.id);
-    if (p) ordered.push({ p, score: w.score });
   }
 
   const profilesPayload: {
