@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -23,8 +24,9 @@ import {
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
 import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
-import { SwipeExitFragments, SWIPE_DECLINE_ANIM_MS } from "./SwipeExitFragments";
-import { SwipeExitFlipApprove, SWIPE_APPROVE_ANIM_MS } from "./SwipeExitFlipApprove";
+
+/** Sortie carte : chute (pas fragments / pas flip 3D). */
+const FALL_EXIT_MS = 420;
 
 function formatSwipeError(e: unknown): string {
   if (e instanceof Error && e.message.trim()) return e.message;
@@ -155,12 +157,25 @@ export default function SwipePage() {
   type CardEnterPhase = "idle" | "from" | "to";
   const [cardEnter, setCardEnter] = useState<CardEnterPhase>("idle");
 
-  /** Carte sortante : fragments (refus) ou flip 3D (approbation), tampon inclus. */
-  const [outgoing, setOutgoing] = useState<{
+  /** Carte en cours de sortie : même visuel PDF, animée vers le bas (phase enter → fall). */
+  const [flyoff, setFlyoff] = useState<{
     item: SwipeItem;
     voteValue: 1 | -1;
-    imprint: StampImprint | null;
-    mode: "fragments" | "flip";
+    fromX: number;
+    fromY: number;
+    phase: "enter" | "fall";
+  } | null>(null);
+
+  /** Glisser la carte horizontalement (like / dislike). */
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const panRef = useRef({ x: 0, y: 0 });
+  const [cardPanning, setCardPanning] = useState(false);
+  const cardPanPointerRef = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    pan0x: number;
+    pan0y: number;
   } | null>(null);
   const [stampDrag, setStampDrag] = useState<StampDragState | null>(null);
   const [stampImpact, setStampImpact] = useState<{
@@ -593,37 +608,46 @@ export default function SwipePage() {
     });
   }
 
-  function completeOutgoingCleanup() {
-    setOutgoing(null);
+  const completeFlyoffCleanup = useCallback(() => {
+    setFlyoff(null);
     setCardImprint(null);
     setStampDropping(false);
     transitionInFlightRef.current = false;
-  }
+  }, []);
 
-  function applyTransitionVote(
-    kind: StampKind,
-    value: 1 | -1,
-    imprint: StampImprint | null,
-    holdImprintMs: number,
-  ) {
-    if (!current || outgoing || transitionInFlightRef.current) return;
+  type ApplyVoteArgs = {
+    value: 1 | -1;
+    kind: StampKind;
+    imprint: StampImprint | null;
+    holdMs: number;
+    /** Si défini : vote déclenché par glisser la carte (pas de tampon centré). */
+    fromPan?: { x: number; y: number } | null;
+  };
+
+  function applyTransitionVote(args: ApplyVoteArgs) {
+    const { value, kind, imprint, holdMs: holdImprintMs, fromPan } = args;
+    if (!current || flyoff || transitionInFlightRef.current) return;
 
     setRhInsight(null);
 
-    const resolvedImprint =
-      imprint ??
-      ({
-        kind,
-        x: 50,
-        y: 52,
-      } as StampImprint);
+    const centerImprint: StampImprint = { kind, x: 50, y: 52 };
+    const resolvedImprint = imprint ?? (fromPan != null ? null : centerImprint);
 
     const holdMs = Math.max(0, holdImprintMs);
     transitionInFlightRef.current = true;
     const profileId = current.profile.id;
     const item = current;
+    const fp = fromPan ?? { x: 0, y: 0 };
 
-    setCardImprint(resolvedImprint);
+    if (resolvedImprint) {
+      setCardImprint(resolvedImprint);
+    } else {
+      setCardImprint(null);
+    }
+
+    setPan({ x: 0, y: 0 });
+    panRef.current = { x: 0, y: 0 };
+
     if (imprintHoldTimerRef.current) {
       window.clearTimeout(imprintHoldTimerRef.current);
       imprintHoldTimerRef.current = null;
@@ -633,16 +657,14 @@ export default function SwipePage() {
       exitAnimTimerRef.current = null;
     }
 
-    const mode: "fragments" | "flip" = value === -1 ? "fragments" : "flip";
-    const animMs = mode === "fragments" ? SWIPE_DECLINE_ANIM_MS : SWIPE_APPROVE_ANIM_MS;
-
     imprintHoldTimerRef.current = window.setTimeout(() => {
       imprintHoldTimerRef.current = null;
-      setOutgoing({
+      setFlyoff({
         item,
         voteValue: value,
-        imprint: resolvedImprint,
-        mode,
+        fromX: fp.x,
+        fromY: fp.y,
+        phase: "enter",
       });
       consumeTopAndRefill();
 
@@ -656,7 +678,7 @@ export default function SwipePage() {
             if (prev[0]?.profile.id === item.profile.id) return prev;
             return [item, ...prev];
           });
-          setOutgoing(null);
+          setFlyoff(null);
           setCardImprint(null);
           transitionInFlightRef.current = false;
           setCardEnter("idle");
@@ -664,19 +686,46 @@ export default function SwipePage() {
         }
         setRhInsight(vr.rhMessage ?? null);
       });
-
-      exitAnimTimerRef.current = window.setTimeout(() => {
-        exitAnimTimerRef.current = null;
-        completeOutgoingCleanup();
-        setCardEnter("from");
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setCardEnter("to");
-          });
-        });
-      }, animMs + 10);
     }, holdMs);
   }
+
+  useLayoutEffect(() => {
+    if (!flyoff || flyoff.phase !== "enter") return;
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        setFlyoff((f) => (f && f.phase === "enter" ? { ...f, phase: "fall" } : f));
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [flyoff]);
+
+  useEffect(() => {
+    if (!flyoff || flyoff.phase !== "fall") return;
+    if (exitAnimTimerRef.current) {
+      window.clearTimeout(exitAnimTimerRef.current);
+      exitAnimTimerRef.current = null;
+    }
+    exitAnimTimerRef.current = window.setTimeout(() => {
+      exitAnimTimerRef.current = null;
+      completeFlyoffCleanup();
+      setCardEnter("from");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setCardEnter("to");
+        });
+      });
+    }, FALL_EXIT_MS + 30);
+    return () => {
+      if (exitAnimTimerRef.current) {
+        window.clearTimeout(exitAnimTimerRef.current);
+        exitAnimTimerRef.current = null;
+      }
+    };
+  }, [flyoff?.item.profile.id, flyoff?.phase, completeFlyoffCleanup]);
 
   function returnStampClone() {
     const cur = stampDragRef.current;
@@ -696,7 +745,7 @@ export default function SwipePage() {
   }
 
   function beginStampDrop(kind: StampKind, clientX: number, clientY: number) {
-    if (!current || outgoing || stampDropping) {
+    if (!current || flyoff || stampDropping) {
       resetStampDragState();
       return;
     }
@@ -711,7 +760,12 @@ export default function SwipePage() {
         y: 52,
       };
       const vote = kind === "approved" ? 1 : -1;
-      void applyTransitionVote(kind, vote, fallbackImprint, STAMP_IMPRINT_HOLD_MS);
+      void applyTransitionVote({
+        value: vote,
+        kind,
+        imprint: fallbackImprint,
+        holdMs: STAMP_IMPRINT_HOLD_MS,
+      });
       return;
     }
     setCardImprint(imprint);
@@ -725,7 +779,12 @@ export default function SwipePage() {
     }, STAMP_IMPACT_MS);
     stampCommitTimerRef.current = window.setTimeout(() => {
       const vote = kind === "approved" ? 1 : -1;
-      void applyTransitionVote(kind, vote, imprint, STAMP_IMPRINT_HOLD_MS);
+      void applyTransitionVote({
+        value: vote,
+        kind,
+        imprint,
+        holdMs: STAMP_IMPRINT_HOLD_MS,
+      });
     }, STAMP_DROP_DELAY_MS);
   }
 
@@ -736,7 +795,7 @@ export default function SwipePage() {
     clientY: number,
     rect: DOMRect,
   ) {
-    if (!current || outgoing || stampDropping) return;
+    if (!current || flyoff || stampDropping) return;
     clearStampTimers();
     const next: StampDragState = {
       kind,
@@ -793,7 +852,7 @@ export default function SwipePage() {
     e: React.MouseEvent<HTMLButtonElement>,
     kind: StampKind,
   ) {
-    if (!current || outgoing || stampDropping) return;
+    if (!current || flyoff || stampDropping) return;
     e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
     startStampDrag(kind, "mouse", e.clientX, e.clientY, rect);
@@ -803,7 +862,7 @@ export default function SwipePage() {
     e: React.TouchEvent<HTMLButtonElement>,
     kind: StampKind,
   ) {
-    if (!current || outgoing || stampDropping) return;
+    if (!current || flyoff || stampDropping) return;
     const t = e.touches[0];
     if (!t) return;
     e.preventDefault();
@@ -865,11 +924,16 @@ export default function SwipePage() {
 
   function clickStamp(kind: StampKind) {
     if (Date.now() < suppressClickUntilRef.current) return;
-    if (stampDragRef.current || stampDropping || !current || outgoing) return;
+    if (stampDragRef.current || stampDropping || !current || flyoff) return;
     const rect = cardDropRef.current?.getBoundingClientRect();
     if (!rect) {
       const vote = kind === "approved" ? 1 : -1;
-      void applyTransitionVote(kind, vote, null, STAMP_IMPRINT_HOLD_MS);
+      void applyTransitionVote({
+        value: vote,
+        kind,
+        imprint: null,
+        holdMs: STAMP_IMPRINT_HOLD_MS,
+      });
       return;
     }
     beginStampDrop(
@@ -879,11 +943,88 @@ export default function SwipePage() {
     );
   }
 
+  function onTopCardPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (flyoff || transitionInFlightRef.current) return;
+    if (stampDragRef.current || stampDropping) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    cardPanPointerRef.current = {
+      id: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      pan0x: panRef.current.x,
+      pan0y: panRef.current.y,
+    };
+    setCardPanning(true);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function onTopCardPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const c = cardPanPointerRef.current;
+    if (!c || c.id !== e.pointerId) return;
+    const dx = e.clientX - c.startX + c.pan0x;
+    const dy = e.clientY - c.startY + c.pan0y;
+    const next = { x: dx, y: dy };
+    panRef.current = next;
+    setPan(next);
+  }
+
+  function onTopCardPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    const c = cardPanPointerRef.current;
+    if (!c || c.id !== e.pointerId) return;
+    cardPanPointerRef.current = null;
+    setCardPanning(false);
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    const thr = Math.max(56, Math.floor(sheetSize.w * 0.22));
+    const px = panRef.current.x;
+    let vote: 1 | -1 | null = null;
+    let sk: StampKind | null = null;
+    if (px > thr) {
+      vote = 1;
+      sk = "approved";
+    } else if (px < -thr) {
+      vote = -1;
+      sk = "declined";
+    }
+    if (vote !== null && sk !== null && current) {
+      void applyTransitionVote({
+        value: vote,
+        kind: sk,
+        imprint: null,
+        holdMs: 0,
+        fromPan: { x: panRef.current.x, y: panRef.current.y },
+      });
+    } else {
+      const reset = { x: 0, y: 0 };
+      panRef.current = reset;
+      setPan(reset);
+    }
+  }
+
+  function onTopCardPointerLostCapture(e: React.PointerEvent<HTMLDivElement>) {
+    if (cardPanPointerRef.current?.id !== e.pointerId) return;
+    cardPanPointerRef.current = null;
+    setCardPanning(false);
+    const reset = { x: 0, y: 0 };
+    panRef.current = reset;
+    setPan(reset);
+  }
+
   const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
   const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
 
   useEffect(() => {
     setCardEnter("idle");
+    const z = { x: 0, y: 0 };
+    panRef.current = z;
+    setPan(z);
   }, [current?.profile.id]);
 
   useEffect(() => {
@@ -921,7 +1062,7 @@ export default function SwipePage() {
     <div
       id="rs-swipe-page"
       ref={sheetMeasureRef}
-      className="rs-swipe-page-root relative flex h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
+      className="rs-swipe-page-root relative flex h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] max-h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
     >
       <SwipeWelcomeModal open={showOnboarding} onDismiss={dismissOnboarding} />
       <div className="pointer-events-none absolute right-2 top-2 z-[12000] flex justify-end sm:right-3">
@@ -1094,7 +1235,7 @@ export default function SwipePage() {
             }`}
           >
             <div
-              className="relative mx-auto max-h-[calc(100dvh-64px-180px)] max-w-full shrink-0 overflow-visible rounded-xl bg-white shadow-sm md:max-h-[calc(100vh-64px-160px)] md:max-w-[680px]"
+              className="relative mx-auto max-h-[calc(100dvh-var(--rs-swipe-top-offset,72px)-168px)] max-w-full shrink-0 overflow-visible rounded-xl bg-white shadow-sm md:max-h-[calc(100vh-var(--rs-swipe-top-offset,72px)-148px)] md:max-w-[680px]"
               style={{
                 width: sheetSize.w,
                 height: sheetSize.h,
@@ -1115,7 +1256,10 @@ export default function SwipePage() {
                 const zOuter = isTop ? 20 : 5 + (2 - deckIdx) * 6;
 
                 let transform: string;
-                if (deckIdx === 2) {
+                if (isTop) {
+                  const panRot = pan.x * 0.035;
+                  transform = `translate3d(${pan.x}px,${pan.y}px,0) rotate(${panRot}deg)`;
+                } else if (deckIdx === 2) {
                   transform = STACK_DECK_BACK;
                 } else if (deckIdx === 1) {
                   transform = STACK_DECK_MID;
@@ -1124,7 +1268,8 @@ export default function SwipePage() {
                 }
 
                 const transformOrigin = "center center";
-                const transitionDuration = `${CARD_TRANSITION_MS}ms`;
+                const transitionDuration =
+                  isTop && cardPanning ? "0ms" : `${CARD_TRANSITION_MS}ms`;
                 const transitionEasing = "ease-out";
 
                 const shellClass =
@@ -1140,7 +1285,7 @@ export default function SwipePage() {
                 const shell = (
                   <div
                     ref={isTop ? cardDropRef : undefined}
-                    data-stamp-dropzone={isTop && !outgoing ? "1" : undefined}
+                    data-stamp-dropzone={isTop && !flyoff ? "1" : undefined}
                     className={shellClass}
                     style={{
                       transform,
@@ -1187,7 +1332,7 @@ export default function SwipePage() {
                     className="absolute inset-0"
                     style={{
                       zIndex: zOuter,
-                      pointerEvents: isTop && !outgoing ? "auto" : "none",
+                      pointerEvents: isTop && !flyoff ? "auto" : "none",
                     }}
                   >
                     {isTop ? (
@@ -1201,7 +1346,17 @@ export default function SwipePage() {
                         }`}
                         onTransitionEnd={onTopCardEnterTransitionEnd}
                       >
-                        {shell}
+                        <div
+                          className="absolute inset-0 touch-pan-y"
+                          style={{ touchAction: "pan-y" }}
+                          onPointerDown={onTopCardPointerDown}
+                          onPointerMove={onTopCardPointerMove}
+                          onPointerUp={onTopCardPointerUp}
+                          onPointerCancel={onTopCardPointerUp}
+                          onLostPointerCapture={onTopCardPointerLostCapture}
+                        >
+                          {shell}
+                        </div>
                       </div>
                     ) : (
                       shell
@@ -1210,28 +1365,59 @@ export default function SwipePage() {
                 );
               })}
 
-              {outgoing ? (
+              {flyoff ? (
                 <div className="pointer-events-none absolute inset-0 z-[45] overflow-hidden rounded-none">
-                  {outgoing.mode === "fragments" ? (
-                    <SwipeExitFragments width={sheetSize.w} height={sheetSize.h} />
-                  ) : (
-                    <SwipeExitFlipApprove url={outgoing.item.cvUrl} pdfMode={swipePdfMode} />
-                  )}
-                  <div className="pointer-events-none absolute left-1/2 top-2 z-[48] -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
-                    {normHandle(outgoing.item.profile.handle)}
-                  </div>
-                  {outgoing.imprint ? (
-                    <div
-                      className="pointer-events-none absolute z-[50]"
-                      style={{
-                        left: `${outgoing.imprint.x}%`,
-                        top: `${outgoing.imprint.y}%`,
-                        transform: "translate(-50%, -50%)",
-                      }}
-                    >
-                      <StampImprintVisual kind={outgoing.imprint.kind} />
-                    </div>
-                  ) : null}
+                  {(() => {
+                    const vdir = flyoff.voteValue === 1 ? 1 : -1;
+                    const vh =
+                      typeof window !== "undefined" ? window.innerHeight : 920;
+                    const enterT = `translate3d(${flyoff.fromX}px,${flyoff.fromY}px,0) rotate(${flyoff.fromX * 0.045}deg) scale(1)`;
+                    const fallX = flyoff.fromX * 0.1 + vdir * 68;
+                    const fallY = vh * 0.82 + Math.max(0, flyoff.fromY * 0.22);
+                    const fallR = flyoff.fromX * 0.03 + vdir * 11;
+                    const fallT = `translate3d(${fallX}px,${fallY}px,0) rotate(${fallR}deg) scale(0.86)`;
+                    const tfm = flyoff.phase === "enter" ? enterT : fallT;
+                    const tdur = flyoff.phase === "enter" ? "0ms" : `${FALL_EXIT_MS}ms`;
+                    const tease =
+                      flyoff.phase === "enter" ? "linear" : "cubic-bezier(0.33, 1, 0.68, 1)";
+                    return (
+                      <div
+                        className="h-full w-full overflow-hidden rounded-none border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]"
+                        style={{
+                          transform: tfm,
+                          transformOrigin: "center center",
+                          transitionProperty: "transform, opacity",
+                          transitionDuration: tdur,
+                          transitionTimingFunction: tease,
+                          opacity: flyoff.phase === "enter" ? 1 : 0.55,
+                        }}
+                      >
+                        <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
+                          <PdfPreview
+                            key={`flyoff-${flyoff.item.profile.id}`}
+                            url={flyoff.item.cvUrl}
+                            mode={swipePdfMode}
+                            immersive
+                          />
+                        </div>
+                        <div className="pointer-events-none absolute left-1/2 top-2 z-[48] -translate-x-1/2 rounded-full border border-zinc-200/80 bg-white/92 px-2.5 py-0.5 text-[11px] font-black tracking-wide text-zinc-900 shadow-sm sm:top-2.5 sm:px-3 sm:text-xs">
+                          {normHandle(flyoff.item.profile.handle)}
+                        </div>
+                        {cardImprint ? (
+                          <div
+                            className="pointer-events-none absolute z-[50]"
+                            style={{
+                              left: `${cardImprint.x}%`,
+                              top: `${cardImprint.y}%`,
+                              transform: "translate(-50%, -50%)",
+                            }}
+                          >
+                            <StampImprintVisual kind={cardImprint.kind} />
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : null}
             </div>
@@ -1322,7 +1508,8 @@ export default function SwipePage() {
                   </button>
                 </div>
                 <p className="pointer-events-auto max-w-md text-center text-[11px] font-semibold text-[#6B6B6B]">
-                  Glisse le tampon Approuvé ou Refusé sur le CV pour voter.
+                  Glisse le tampon sur le CV, ou fais glisser la carte vers la droite (like) ou la
+                  gauche (passer).
                 </p>
                 {isConnected ? (
                   <p className="pointer-events-auto text-center text-xs text-[#0A0A0A]/80">
