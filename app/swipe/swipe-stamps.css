@@ -350,21 +350,24 @@
   }
 }
 
-/* ── Entrée de la nouvelle carte ── */
+/* ── Entrée de la nouvelle carte (sans opacity 0 → évite flash blanc entre deux CV) ── */
 #rs-swipe-page .rs-swipe-top-enter {
-  transition:
-    transform 320ms cubic-bezier(0.25, 1, 0.5, 1),
-    opacity 260ms ease-out;
+  transition: transform 280ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 #rs-swipe-page .rs-swipe-top-enter--from {
-  transform: translateX(44px) scale(0.96);
-  opacity: 0;
+  transform: translateX(28px) scale(0.985);
+  opacity: 1;
 }
 
 #rs-swipe-page .rs-swipe-top-enter--to {
   transform: translateX(0) scale(1);
   opacity: 1;
+}
+
+/* Pile CV : aligner en haut (ne pas laisser `items-center` centrer verticalement sous le header) */
+#rs-swipe-page .rs-swipe-deck-scroll {
+  align-items: flex-start;
 }
 
 /* ── Tinte de direction pendant le pan ── */

@@ -524,16 +524,20 @@ export default function SwipePage() {
 
       if (desktop) {
         const padX = 10;
-        const padY = 6;
+        const padY = 4;
         const availW = Math.max(0, r.width - padX * 2);
         const availH = Math.max(0, r.height - padY * 2);
         const vw = window.innerWidth || r.width;
         const halfScreen = Math.floor(vw * 0.5);
-        const w = Math.min(availW, halfScreen);
-        const nw = Math.max(280, Math.floor(w));
-        // Ratio A4 portrait (297/210 ≈ 1.414) — privilégier la hauteur pour éviter l’effet « écrasé ».
-        const a4h = Math.floor(nw * (297 / 210));
-        const nh = Math.min(a4h, Math.max(0, availH));
+        const ratio = 297 / 210;
+        let nw = Math.min(availW, halfScreen);
+        nw = Math.max(280, Math.floor(nw));
+        let nh = Math.floor(nw * ratio);
+        /* Garder le ratio A4 : si la hauteur dispo est trop basse, réduire la largeur (évite CV « écrasé »). */
+        if (availH > 0 && nh > availH) {
+          nh = Math.floor(availH);
+          nw = Math.max(280, Math.floor(nh / ratio));
+        }
         setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
         return;
       }
@@ -1221,13 +1225,13 @@ export default function SwipePage() {
       ) : (
         <div
           className={`flex min-w-0 max-w-full flex-col items-stretch justify-stretch overflow-hidden px-0 pb-0 pt-0 ${
-            desktopSwipeLayout ? "min-h-0 shrink-0 py-2" : "min-h-0 flex-1"
+            desktopSwipeLayout ? "min-h-0 flex-1 py-1 md:py-2" : "min-h-0 flex-1"
           }`}
         >
           <div
             dir="ltr"
-            className={`flex min-w-0 max-w-full items-center justify-center overflow-y-auto overflow-x-hidden pt-1 pb-2 max-md:px-0 md:px-4 md:pt-2 md:pb-3 ${
-              desktopSwipeLayout ? "min-h-0" : "min-h-0 flex-1"
+            className={`rs-swipe-deck-scroll flex min-w-0 max-w-full items-start justify-center overflow-y-auto overflow-x-hidden pt-0 pb-2 max-md:px-0 md:px-4 md:pb-3 ${
+              desktopSwipeLayout ? "min-h-0 flex-1" : "min-h-0 flex-1"
             }`}
           >
             <div
@@ -1404,10 +1408,10 @@ export default function SwipePage() {
                         style={{
                           transform: tfm,
                           transformOrigin: "center center",
-                          transitionProperty: "transform, opacity",
+                          transitionProperty: "transform",
                           transitionDuration: tdur,
                           transitionTimingFunction: tease,
-                          opacity: flyoff.phase === "enter" ? 1 : 0.78,
+                          opacity: 1,
                         }}
                       >
                         <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
