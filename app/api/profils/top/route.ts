@@ -13,41 +13,25 @@ const CORS = {
 
 const TOP_N = 3;
 
-function weekAgoIso() {
-  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-}
-
-type VoteRow = { profile_id: string; value: number | null };
-
-function aggregateScores(rows: VoteRow[]): Map<string, number> {
-  const m = new Map<string, number>();
-  for (const r of rows) {
-    const id = String(r.profile_id || "").trim();
-    if (!id) continue;
-    const v = Number(r.value ?? 0);
-    m.set(id, (m.get(id) ?? 0) + v);
-  }
-  return m;
-}
-
-function topN(
-  scores: Map<string, number>,
-  n: number,
-): { id: string; score: number }[] {
-  return [...scores.entries()]
-    .filter(([, score]) => score > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n)
-    .map(([id, score]) => ({ id, score }));
-}
+type ProfileRow = {
+  id: string;
+  handle: string;
+  job_title: string;
+  status: string;
+  cv_path: string | null;
+  likes: number | null;
+  created_at?: string | null;
+};
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
 /**
- * Meilleurs profils publiés. Calcul du score sur la fenêtre 7j (avec repli historique),
- * puis complétion par les profils publiés les plus récents pour toujours retourner TOP_N.
+ * Meilleurs profils publiés (par `profiles.likes` desc, l'agrégat est maintenu par
+ * /api/vote à chaque scrutin). Renvoie toujours TOP_N cartes : si moins de TOP_N
+ * profils publiés ont des votes positifs, on complète par les profils publiés les
+ * plus récents pour ne jamais retourner une grille incomplète.
  */
 export async function GET() {
   const supabase = tryGetSupabaseServer();
@@ -58,82 +42,38 @@ export async function GET() {
     );
   }
 
-  // 1. Votes (7j → repli historique si vide).
-  let rows: VoteRow[] = [];
-  const weekRes = await supabase
-    .from("votes")
-    .select("profile_id,value")
-    .gte("created_at", weekAgoIso());
-  if (weekRes.error) {
+  // Tous les profils publiés, classés par score (`likes` = somme des votes ±1)
+  // puis par date de création pour départager les égalités.
+  const profRes = await supabase
+    .from("profiles")
+    .select("id,handle,job_title,status,cv_path,likes,created_at")
+    .eq("status", "published")
+    .order("likes", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (profRes.error) {
     return NextResponse.json(
-      { error: weekRes.error.message },
+      { error: profRes.error.message },
       { status: 500, headers: CORS },
     );
   }
-  rows = (weekRes.data ?? []) as VoteRow[];
 
-  if (rows.length === 0) {
-    const allRes = await supabase.from("votes").select("profile_id,value");
-    if (allRes.error) {
-      return NextResponse.json(
-        { error: allRes.error.message },
-        { status: 500, headers: CORS },
-      );
-    }
-    rows = (allRes.data ?? []) as VoteRow[];
-  }
+  const allPublished = (profRes.data ?? []) as ProfileRow[];
 
-  const scores = aggregateScores(rows);
-  const winners = topN(scores, TOP_N);
+  // 1) Profils avec score > 0 (les vraies "meilleurs profils").
+  const voted = allPublished.filter((p) => Number(p.likes ?? 0) > 0);
 
-  type ProfileRow = {
-    id: string;
-    handle: string;
-    job_title: string;
-    status: string;
-    cv_path: string | null;
-    created_at?: string;
-  };
-
-  // 2. Profils gagnants publiés.
-  const ordered: { p: ProfileRow; score: number }[] = [];
-  if (winners.length > 0) {
-    const ids = winners.map((w) => w.id);
-    const profRes = await supabase
-      .from("profiles")
-      .select("id,handle,job_title,status,cv_path")
-      .in("id", ids)
-      .eq("status", "published");
-
-    if (!profRes.error && profRes.data?.length) {
-      const byId = new Map(
-        (profRes.data as ProfileRow[]).map((p) => [p.id, p] as const),
-      );
-      for (const w of winners) {
-        const p = byId.get(w.id);
-        if (p) ordered.push({ p, score: w.score });
-      }
-    }
-  }
-
-  // 3. Complétion : si moins de TOP_N profils votés publiés, remplir avec les
-  //    derniers profils publiés (hors doublons) pour toujours afficher 3 cartes.
+  // 2) Complétion : si moins de TOP_N profils votés, on prend les plus récents
+  //    publiés (qui sont en fin de la liste triée par likes desc) pour remplir.
+  const ordered: ProfileRow[] = [...voted.slice(0, TOP_N)];
   if (ordered.length < TOP_N) {
-    const excludeIds = ordered.map(({ p }) => p.id);
-    const recentRes = await supabase
-      .from("profiles")
-      .select("id,handle,job_title,status,cv_path,created_at")
-      .eq("status", "published")
-      .order("created_at", { ascending: false })
-      .limit(TOP_N + excludeIds.length);
-
-    if (!recentRes.error && recentRes.data?.length) {
-      const recents = (recentRes.data as ProfileRow[]).filter(
-        (p) => !excludeIds.includes(p.id),
-      );
-      for (const p of recents) {
-        if (ordered.length >= TOP_N) break;
-        ordered.push({ p, score: scores.get(p.id) ?? 0 });
+    const usedIds = new Set(ordered.map((p) => p.id));
+    for (const p of allPublished) {
+      if (ordered.length >= TOP_N) break;
+      if (!usedIds.has(p.id)) {
+        ordered.push(p);
+        usedIds.add(p.id);
       }
     }
   }
@@ -163,7 +103,7 @@ export async function GET() {
   }[] = [];
 
   for (let i = 0; i < ordered.length; i++) {
-    const { p, score } = ordered[i]!;
+    const p = ordered[i]!;
     const rank = i + 1;
     const rank_label =
       rank === 1
@@ -176,7 +116,9 @@ export async function GET() {
     if (rank === 1) {
       const cvKey = normalizeCvObjectKey(p.cv_path);
       if (cvKey) {
-        const signed = await supabase.storage.from("cvs").createSignedUrl(cvKey, 60 * 15);
+        const signed = await supabase.storage
+          .from("cvs")
+          .createSignedUrl(cvKey, 60 * 15);
         if (!signed.error && signed.data?.signedUrl) {
           cvUrl = signed.data.signedUrl;
         }
@@ -187,7 +129,7 @@ export async function GET() {
       id: p.id,
       handle: p.handle,
       job_title: p.job_title,
-      likes: score,
+      likes: Math.max(0, Number(p.likes ?? 0)),
       rank_label,
       profile_url: `/profil/${encodeURIComponent(p.id)}`,
       ...(cvUrl ? { cv: cvUrl, cv_url: cvUrl } : {}),
