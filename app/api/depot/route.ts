@@ -40,9 +40,11 @@ export async function POST(req: Request) {
   if (!supabaseServer) return bad("server_misconfigured", 500);
 
   const ip = getClientIp(req);
-  const salt =
-    process.env.DEPOT_IP_SALT || process.env.VOTE_IP_SALT || "dev-salt";
-  const ipHash = sha256(`${ip}|${salt}`).slice(0, 48);
+  const salt = process.env.DEPOT_IP_SALT || process.env.VOTE_IP_SALT;
+  if (!salt) {
+    console.warn("[depot] DEPOT_IP_SALT non défini — rate-limiting affaibli");
+  }
+  const ipHash = sha256(`${ip}|${salt ?? crypto.randomUUID()}`).slice(0, 48);
 
   // Anti-spam: basic in-memory rate-limit (per instance)
   const rl1h = rateLimitOrNull(`ip:${ipHash}`, 5, 60 * 60 * 1000); // 5 depots / heure / IP-hash

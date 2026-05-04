@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { HomeHowItWorks } from "@/components/HomeHowItWorks";
 import { HomeHeroSplit } from "@/components/HomeHeroSplit";
 import { HomeTopProfile } from "@/components/HomeTopProfile";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title:
@@ -12,16 +12,40 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
 });
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Recrute Stagiaire",
+  url: siteUrl,
+  sameAs: [
+    "https://www.instagram.com/recrutestagiaire.eu/",
+    "https://www.tiktok.com/@recrutestagiaire",
+    "https://recrutestagiaire.eu",
+  ],
+  description:
+    "Collectif artistique mode & textile parisien. Plateforme de dépôt et vote de CV créatifs pour stagiaires.",
+  foundingLocation: {
+    "@type": "Place",
+    name: "Paris, France",
+  },
+};
+
 export default function Home() {
   return (
-    <div className="rs-home-page">
-      <HomeHeroSplit />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="rs-home-page">
+        <HomeHeroSplit />
 
-      <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
-        <HomeHowItWorks />
+        <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
+          <HomeHowItWorks />
+        </div>
+
+        <HomeTopProfile />
       </div>
-
-      <HomeTopProfile />
-    </div>
+    </>
   );
 }

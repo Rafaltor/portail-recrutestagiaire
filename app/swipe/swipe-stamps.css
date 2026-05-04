@@ -355,3 +355,25 @@
     max-height: 66px !important;
   }
 }
+
+/* ── Entrée de la nouvelle carte ── */
+#rs-swipe-page .rs-swipe-top-enter {
+  transition:
+    transform 320ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 260ms ease-out;
+}
+
+#rs-swipe-page .rs-swipe-top-enter--from {
+  transform: translateX(44px) scale(0.96);
+  opacity: 0;
+}
+
+#rs-swipe-page .rs-swipe-top-enter--to {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+/* ── Tinte de direction pendant le pan ── */
+#rs-swipe-page .rs-swipe-pan-overlay {
+  transition: opacity 60ms linear;
+}

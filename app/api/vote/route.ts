@@ -84,8 +84,11 @@ export async function POST(req: Request) {
   }
 
   const ip = getClientIp(req);
-  const salt = process.env.VOTE_IP_SALT || "dev-salt";
-  const ipHash = sha256(`${ip}|${salt}`).slice(0, 48);
+  const salt = process.env.VOTE_IP_SALT || process.env.DEPOT_IP_SALT;
+  if (!salt) {
+    console.warn("[vote] VOTE_IP_SALT non défini — rate-limiting affaibli");
+  }
+  const ipHash = sha256(`${ip}|${salt ?? crypto.randomUUID()}`).slice(0, 48);
 
   const rl = rateLimitOrNull(ipHash, 25, 10 * 60 * 1000); // 25 votes / 10 min / IP-hash
   if (rl) {

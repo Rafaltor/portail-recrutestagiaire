@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, Manrope } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
+import Image from "next/image";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
@@ -32,10 +33,28 @@ export const viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Recrute Stagiaire — Portail",
+  title: {
+    default: "Recrute Stagiaire — Portail",
+    template: "%s · Recrute Stagiaire",
+  },
   description:
     "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
   applicationName: "Recrute Stagiaire",
+  keywords: [
+    "stage",
+    "stagiaire",
+    "mode",
+    "textile",
+    "design",
+    "Paris",
+    "collectif",
+    "CV créatif",
+    "recrutement",
+    "portail candidature",
+  ],
+  authors: [{ name: "Recrute Stagiaire", url: "https://recrutestagiaire.eu" }],
+  creator: "Recrute Stagiaire",
+  publisher: "Recrute Stagiaire",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
@@ -44,6 +63,16 @@ export const metadata: Metadata = {
     siteName: "Recrute Stagiaire",
     locale: "fr_FR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@recrutestagiaire",
+    creator: "@recrutestagiaire",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
 };
 
@@ -70,14 +99,13 @@ export default function RootLayout({
                     className="rs-header-mobile-bar__brand rs-ph-mbrand no-underline hover:no-underline"
                     href="https://recrutestagiaire.eu"
                   >
-                    <img
+                    <Image
                       className="rs-header-mobile-bar__logo"
                       src="/rs-logo-eu.png"
-                      alt=""
+                      alt="Recrute Stagiaire"
                       width={48}
                       height={48}
-                      loading="eager"
-                      decoding="async"
+                      priority
                     />
                   </Link>
                   <span className="rs-header-mobile-bar__title">
@@ -111,15 +139,14 @@ export default function RootLayout({
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
                         href="https://recrutestagiaire.eu"
                       >
-                        <img
+                        <Image
                           src="/rs-logo-eu.png"
-                          alt=""
+                          alt="Recrute Stagiaire"
                           width={80}
                           height={80}
                           className="rs-ph-brandlink-logo"
                           style={{ maxHeight: 80, width: "auto" }}
-                          loading="eager"
-                          decoding="async"
+                          priority
                         />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
                           <span className="lg:hidden">RS</span>

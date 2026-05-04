@@ -188,6 +188,7 @@ export default function SwipePage() {
   const [stampDropping, setStampDropping] = useState(false);
 
   const cardDropRef = useRef<HTMLDivElement | null>(null);
+  const flyoffCardRectRef = useRef<DOMRect | null>(null);
   const stampDragRef = useRef<StampDragState | null>(null);
   const stampReturnTimerRef = useRef<number | null>(null);
   const stampImpactTimerRef = useRef<number | null>(null);
@@ -529,8 +530,10 @@ export default function SwipePage() {
         const vw = window.innerWidth || r.width;
         const halfScreen = Math.floor(vw * 0.5);
         const w = Math.min(availW, halfScreen);
-        const nw = Math.max(340, Math.floor(w));
-        const nh = nw;
+        const nw = Math.max(280, Math.floor(w));
+        // Ratio A4 portrait (297/210 ≈ 1.414)
+        const a4h = Math.floor(nw * (297 / 210));
+        const nh = Math.min(a4h, Math.max(0, availH));
         setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
         return;
       }
@@ -659,6 +662,7 @@ export default function SwipePage() {
 
     imprintHoldTimerRef.current = window.setTimeout(() => {
       imprintHoldTimerRef.current = null;
+      flyoffCardRectRef.current = cardDropRef.current?.getBoundingClientRect() ?? null;
       setFlyoff({
         item,
         voteValue: value,
@@ -1305,6 +1309,25 @@ export default function SwipePage() {
                       />
                     </div>
 
+                    {isTop && Math.abs(pan.x) > 18 ? (
+                      <div
+                        className="pointer-events-none absolute inset-0 z-[25]"
+                        style={{ opacity: Math.min(1, (Math.abs(pan.x) - 18) / 60) }}
+                      >
+                        <div className={`absolute top-6 ${pan.x > 0 ? "left-5 -rotate-12" : "right-5 rotate-12"}`}>
+                          <span
+                            className={`block rounded-[3px] border-[3.5px] px-3 py-1 font-black text-2xl uppercase tracking-widest ${
+                              pan.x > 0
+                                ? "border-emerald-500 text-emerald-500"
+                                : "border-rose-500 text-rose-500"
+                            }`}
+                          >
+                            {pan.x > 0 ? "TOP" : "NOPE"}
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
+
                     {isTop && cardImprint ? (
                       <div
                         className="pointer-events-none absolute z-30"
@@ -1365,22 +1388,26 @@ export default function SwipePage() {
                 );
               })}
 
-              {flyoff ? (
-                <div className="pointer-events-none absolute inset-0 z-[45] overflow-hidden rounded-none">
-                  {(() => {
-                    const vdir = flyoff.voteValue === 1 ? 1 : -1;
-                    const vh =
-                      typeof window !== "undefined" ? window.innerHeight : 920;
-                    const enterT = `translate3d(${flyoff.fromX}px,${flyoff.fromY}px,0) rotate(${flyoff.fromX * 0.045}deg) scale(1)`;
-                    const fallX = flyoff.fromX * 0.1 + vdir * 68;
-                    const fallY = vh * 0.82 + Math.max(0, flyoff.fromY * 0.22);
-                    const fallR = flyoff.fromX * 0.03 + vdir * 11;
-                    const fallT = `translate3d(${fallX}px,${fallY}px,0) rotate(${fallR}deg) scale(0.86)`;
-                    const tfm = flyoff.phase === "enter" ? enterT : fallT;
-                    const tdur = flyoff.phase === "enter" ? "0ms" : `${FALL_EXIT_MS}ms`;
-                    const tease =
-                      flyoff.phase === "enter" ? "linear" : "cubic-bezier(0.33, 1, 0.68, 1)";
-                    return (
+              {flyoff && flyoffCardRectRef.current ? (
+                (() => {
+                  const rect = flyoffCardRectRef.current!;
+                  const vdir = flyoff.voteValue === 1 ? 1 : -1;
+                  const vw = typeof window !== "undefined" ? window.innerWidth : 420;
+                  const panX = flyoff.fromX;
+                  const panY = flyoff.fromY;
+                  const enterT = `translate3d(${panX}px,${panY}px,0) rotate(${panX * 0.04}deg) scale(1)`;
+                  const fallX = vdir * Math.max(vw * 1.15, 360) + panX * 0.3;
+                  const fallY = Math.max(0, panY * 0.25) + 32;
+                  const fallR = panX * 0.025 + vdir * 22;
+                  const fallT = `translate3d(${fallX}px,${fallY}px,0) rotate(${fallR}deg) scale(0.92)`;
+                  const tfm = flyoff.phase === "enter" ? enterT : fallT;
+                  const tdur = flyoff.phase === "enter" ? "0ms" : `${FALL_EXIT_MS}ms`;
+                  const tease = flyoff.phase === "enter" ? "linear" : "cubic-bezier(0.25, 1, 0.5, 1)";
+                  return (
+                    <div
+                      className="pointer-events-none fixed z-[9500]"
+                      style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }}
+                    >
                       <div
                         className="h-full w-full overflow-hidden rounded-none border border-zinc-300/90 bg-white shadow-[0_1px_0_rgba(0,0,0,0.06),0_24px_52px_-14px_rgba(0,0,0,0.28)]"
                         style={{
@@ -1389,7 +1416,7 @@ export default function SwipePage() {
                           transitionProperty: "transform, opacity",
                           transitionDuration: tdur,
                           transitionTimingFunction: tease,
-                          opacity: flyoff.phase === "enter" ? 1 : 0.55,
+                          opacity: flyoff.phase === "enter" ? 1 : 0.6,
                         }}
                       >
                         <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
@@ -1416,14 +1443,18 @@ export default function SwipePage() {
                           </div>
                         ) : null}
                       </div>
-                    );
-                  })()}
-                </div>
+                    </div>
+                  );
+                })()
               ) : null}
             </div>
           </div>
           {!blockedByFreeLimit ? (
-            <div className="pointer-events-none fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)]">
+            <div
+              className={`pointer-events-none fixed bottom-2 left-0 right-0 z-[9000] px-2 pb-[max(env(safe-area-inset-bottom),0px)] transition-opacity duration-200 ${
+                flyoff ? "opacity-0" : "opacity-100"
+              }`}
+            >
               <div className="mx-auto flex max-w-[980px] flex-col items-center gap-2 px-2 py-0 sm:px-3">
                 <div className="pointer-events-auto flex w-full max-w-xs flex-col items-center gap-1.5">
                   <div className="h-1 w-full max-w-[160px] overflow-hidden rounded-full bg-[#E8E8E8]">
