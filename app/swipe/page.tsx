@@ -25,8 +25,8 @@ import {
 import "./swipe-stamps.css";
 import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
 
-/** Sortie carte : chute (pas fragments / pas flip 3D). */
-const FALL_EXIT_MS = 420;
+/** Sortie carte vers le côté — durée et easing « lisibles » (pas trop rapide). */
+const FALL_EXIT_MS = 780;
 
 function formatSwipeError(e: unknown): string {
   if (e instanceof Error && e.message.trim()) return e.message;
@@ -523,15 +523,15 @@ export default function SwipePage() {
         typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
 
       if (desktop) {
-        const padX = 12;
-        const padY = 10;
+        const padX = 10;
+        const padY = 6;
         const availW = Math.max(0, r.width - padX * 2);
         const availH = Math.max(0, r.height - padY * 2);
         const vw = window.innerWidth || r.width;
         const halfScreen = Math.floor(vw * 0.5);
         const w = Math.min(availW, halfScreen);
         const nw = Math.max(280, Math.floor(w));
-        // Ratio A4 portrait (297/210 ≈ 1.414)
+        // Ratio A4 portrait (297/210 ≈ 1.414) — privilégier la hauteur pour éviter l’effet « écrasé ».
         const a4h = Math.floor(nw * (297 / 210));
         const nh = Math.min(a4h, Math.max(0, availH));
         setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
@@ -539,7 +539,7 @@ export default function SwipePage() {
       }
 
       const padX = 0;
-      const padY = 8;
+      const padY = 4;
       const availW = Math.max(0, r.width - padX * 2);
       const availH = Math.max(0, r.height - padY * 2);
       const a = 210;
@@ -548,7 +548,7 @@ export default function SwipePage() {
       const hIdeal = (w * b) / a;
       const h = Math.min(availH, hIdeal);
       const nw = Math.max(176, Math.floor(w));
-      const nh = Math.max(200, Math.floor(h));
+      const nh = Math.max(220, Math.floor(h));
       setSheetSize((prev) => (prev.w === nw && prev.h === nh ? prev : { w: nw, h: nh }));
     }
     measure();
@@ -1068,7 +1068,7 @@ export default function SwipePage() {
     <div
       id="rs-swipe-page"
       ref={sheetMeasureRef}
-      className="rs-swipe-page-root relative flex h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] max-h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
+      className="rs-swipe-page-root relative flex h-[calc(100dvh-var(--rs-swipe-top-offset,56px))] max-h-[calc(100dvh-var(--rs-swipe-top-offset,56px))] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
     >
       <SwipeWelcomeModal open={showOnboarding} onDismiss={dismissOnboarding} />
       {message.trim() ? (
@@ -1221,17 +1221,17 @@ export default function SwipePage() {
       ) : (
         <div
           className={`flex min-w-0 max-w-full flex-col items-stretch justify-stretch overflow-hidden px-0 pb-0 pt-0 ${
-            desktopSwipeLayout ? "min-h-0 shrink-0 py-3" : "min-h-0 flex-1"
+            desktopSwipeLayout ? "min-h-0 shrink-0 py-2" : "min-h-0 flex-1"
           }`}
         >
           <div
             dir="ltr"
-            className={`flex min-w-0 max-w-full items-center justify-center overflow-y-auto overflow-x-hidden py-2 max-md:px-0 md:px-4 md:py-4 ${
+            className={`flex min-w-0 max-w-full items-center justify-center overflow-y-auto overflow-x-hidden pt-1 pb-2 max-md:px-0 md:px-4 md:pt-2 md:pb-3 ${
               desktopSwipeLayout ? "min-h-0" : "min-h-0 flex-1"
             }`}
           >
             <div
-              className="relative mx-auto max-h-[calc(100dvh-var(--rs-swipe-top-offset,72px)-168px)] max-w-full shrink-0 overflow-visible rounded-xl bg-white shadow-sm md:max-h-[calc(100vh-var(--rs-swipe-top-offset,72px)-148px)] md:max-w-[680px]"
+              className="relative mx-auto max-h-[calc(100dvh-var(--rs-swipe-top-offset,56px)-112px)] max-w-full shrink-0 overflow-visible rounded-xl bg-white shadow-sm md:max-h-[calc(100vh-var(--rs-swipe-top-offset,56px)-96px)] md:max-w-[680px]"
               style={{
                 width: sheetSize.w,
                 height: sheetSize.h,
@@ -1386,13 +1386,14 @@ export default function SwipePage() {
                   const panX = flyoff.fromX;
                   const panY = flyoff.fromY;
                   const enterT = `translate3d(${panX}px,${panY}px,0) rotate(${panX * 0.04}deg) scale(1)`;
-                  const fallX = vdir * Math.max(vw * 1.15, 360) + panX * 0.3;
-                  const fallY = Math.max(0, panY * 0.25) + 32;
-                  const fallR = panX * 0.025 + vdir * 22;
-                  const fallT = `translate3d(${fallX}px,${fallY}px,0) rotate(${fallR}deg) scale(0.92)`;
+                  const fallX = vdir * Math.max(vw * 0.92, 320) + panX * 0.22;
+                  const fallY = Math.max(0, panY * 0.2) + 28;
+                  const fallR = panX * 0.02 + vdir * 18;
+                  const fallT = `translate3d(${fallX}px,${fallY}px,0) rotate(${fallR}deg) scale(0.94)`;
                   const tfm = flyoff.phase === "enter" ? enterT : fallT;
                   const tdur = flyoff.phase === "enter" ? "0ms" : `${FALL_EXIT_MS}ms`;
-                  const tease = flyoff.phase === "enter" ? "linear" : "cubic-bezier(0.25, 1, 0.5, 1)";
+                  const tease =
+                    flyoff.phase === "enter" ? "linear" : "cubic-bezier(0.22, 1, 0.36, 1)";
                   return (
                     <div
                       className="pointer-events-none fixed z-[9500]"
@@ -1406,7 +1407,7 @@ export default function SwipePage() {
                           transitionProperty: "transform, opacity",
                           transitionDuration: tdur,
                           transitionTimingFunction: tease,
-                          opacity: flyoff.phase === "enter" ? 1 : 0.6,
+                          opacity: flyoff.phase === "enter" ? 1 : 0.78,
                         }}
                       >
                         <div className="h-full min-h-0 w-full overflow-hidden rounded-none">
