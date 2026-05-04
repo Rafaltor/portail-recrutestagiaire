@@ -55,13 +55,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Recrute Stagiaire", url: "https://recrutestagiaire.eu" }],
   creator: "Recrute Stagiaire",
   publisher: "Recrute Stagiaire",
-  icons: {
-    icon: [
-      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: [{ url: "/favicon.png", type: "image/png", sizes: "180x180" }],
-  },
+  /* Icônes : fichiers `app/favicon.ico` + `app/icon.png` (même visuel que la charte) — évite le favicon.ico par défaut / mauvais. */
   openGraph: {
     siteName: "Recrute Stagiaire",
     locale: "fr_FR",
