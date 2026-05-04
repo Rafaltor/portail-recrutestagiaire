@@ -699,6 +699,8 @@ export default function SwipePage() {
     const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
         setFlyoff((f) => (f && f.phase === "enter" ? { ...f, phase: "fall" } : f));
+        /* Tampon : ne pas laisser l’empreinte visible une fois la carte en mouvement. */
+        setCardImprint(null);
       });
     });
     return () => {
@@ -1069,16 +1071,6 @@ export default function SwipePage() {
       className="rs-swipe-page-root relative flex h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] max-h-[calc(100dvh-var(--rs-swipe-top-offset,72px))] w-full min-w-0 max-w-full flex-col overflow-hidden overscroll-y-contain"
     >
       <SwipeWelcomeModal open={showOnboarding} onDismiss={dismissOnboarding} />
-      <div className="pointer-events-none absolute right-2 top-2 z-[12000] flex justify-end sm:right-3">
-        <button
-          type="button"
-          onClick={() => setShowOnboarding(true)}
-          className="pointer-events-auto flex h-7 w-7 items-center justify-center rounded-full border border-[#2A2A2A] text-xs text-[#6B6B6B] transition-colors hover:border-[#f472b6] hover:text-[#f472b6]"
-          aria-label="Revoir les règles"
-        >
-          ?
-        </button>
-      </div>
       {message.trim() ? (
         <div className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-3 pt-1">
           <div className="mx-auto flex max-w-xl justify-end">
@@ -1314,21 +1306,19 @@ export default function SwipePage() {
                         className="pointer-events-none absolute inset-0 z-[25]"
                         style={{ opacity: Math.min(1, (Math.abs(pan.x) - 18) / 60) }}
                       >
-                        <div className={`absolute top-6 ${pan.x > 0 ? "left-5 -rotate-12" : "right-5 rotate-12"}`}>
-                          <span
-                            className={`block rounded-[3px] border-[3.5px] px-3 py-1 font-black text-2xl uppercase tracking-widest ${
-                              pan.x > 0
-                                ? "border-emerald-500 text-emerald-500"
-                                : "border-rose-500 text-rose-500"
-                            }`}
-                          >
-                            {pan.x > 0 ? "TOP" : "NOPE"}
-                          </span>
+                        <div
+                          className={`absolute top-5 scale-[0.78] sm:top-6 sm:scale-[0.85] ${pan.x > 0 ? "left-2 -rotate-12 sm:left-4" : "right-2 rotate-12 sm:right-4"}`}
+                        >
+                          <StampVisual
+                            kind={pan.x > 0 ? "approved" : "declined"}
+                            floating
+                            tint
+                          />
                         </div>
                       </div>
                     ) : null}
 
-                    {isTop && cardImprint ? (
+                    {isTop && cardImprint && !flyoff ? (
                       <div
                         className="pointer-events-none absolute z-30"
                         style={{
