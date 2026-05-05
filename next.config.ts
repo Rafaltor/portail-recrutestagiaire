@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const CSP = [
   "default-src 'self'",
-  // Next.js hydration requires 'unsafe-inline'; use nonces for stricter setup
+  // Next.js injects inline scripts for hydration / runtime bootstrapping.
+  // Without `'unsafe-inline'` the app breaks on first render. A stricter setup
+  // would require nonces (not implemented here).
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
@@ -15,6 +17,7 @@ const CSP = [
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
+  "report-uri /api/csp-report",
 ].join("; ");
 
 const nextConfig: NextConfig = {

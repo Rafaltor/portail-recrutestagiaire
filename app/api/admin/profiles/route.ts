@@ -12,6 +12,29 @@ function unauthorized() {
   return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 }
 
+function decodeJwtPayload(token: string): unknown | null {
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  const b64 = parts[1] ?? "";
+  try {
+    const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+    const safe = (b64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+    const json = Buffer.from(safe, "base64").toString("utf8");
+    return JSON.parse(json) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function getJwtIatMs(token: string): number | null {
+  const payload = decodeJwtPayload(token);
+  if (!payload || typeof payload !== "object") return null;
+  const iatRaw = (payload as { iat?: unknown }).iat;
+  const iatSec = typeof iatRaw === "number" ? iatRaw : Number(iatRaw);
+  if (!Number.isFinite(iatSec) || iatSec <= 0) return null;
+  return Math.floor(iatSec * 1000);
+}
+
 async function requireAdmin(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) return { error: "server_misconfigured" as const };
@@ -31,7 +54,18 @@ async function requireAdmin(req: Request) {
     : [];
   const isAdmin = role === "admin" || roles.includes("admin");
   if (!isAdmin) return { error: "forbidden" as const };
-  return { supabaseServer } as const;
+
+  // Session freshness: require a token issued within the last 8h.
+  // NOTE: `user.created_at` is not the token issue time. We rely on JWT `iat`,
+  // and we only trust it after `supabaseServer.auth.getUser(token)` has validated
+  // the signature and session.
+  const iatMs = getJwtIatMs(accessToken);
+  if (iatMs == null) return { error: "unauthorized" as const };
+  const ageMs = Date.now() - iatMs;
+  const maxAgeMs = 8 * 60 * 60 * 1000;
+  if (ageMs < 0 || ageMs > maxAgeMs) return { error: "unauthorized" as const };
+
+  return { supabaseServer, userId: userRes.user.id } as const;
 }
 
 type SupabaseServerClient = ReturnType<typeof tryGetSupabaseServer>;
@@ -103,7 +137,8 @@ export async function GET(req: Request) {
     }
     return NextResponse.json({ error: admin.error }, { status: 500 });
   }
-  const { supabaseServer } = admin;
+  const { supabaseServer, userId } = admin;
+  console.warn("[admin] profiles GET", { userId });
 
   const url = new URL(req.url);
   const status = url.searchParams.get("status") || "pending";
@@ -153,7 +188,8 @@ export async function PATCH(req: Request) {
     }
     return NextResponse.json({ error: admin.error }, { status: 500 });
   }
-  const { supabaseServer } = admin;
+  const { supabaseServer, userId } = admin;
+  console.warn("[admin] profiles PATCH", { userId });
 
   let body: { id?: string; status?: string; rejectionReason?: string };
   try {

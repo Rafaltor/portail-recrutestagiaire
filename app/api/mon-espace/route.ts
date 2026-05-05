@@ -76,11 +76,12 @@ export async function GET(req: Request) {
 
   const votesRes = await supabaseServer
     .from("votes")
-    .select("profile_id,value,visitor_id")
-    .limit(12000);
+    .select("profile_id,value,visitor_id", { count: "exact" })
+    .limit(500);
   if (votesRes.error) return bad(votesRes.error.message, 500);
   const votes = (votesRes.data ??
     []) as Array<VoteRow & { visitor_id: string | null }>;
+  const truncated = Number(votesRes.count ?? 0) >= 500;
 
   const profileVoteMap = new Map<
     string,
@@ -198,6 +199,7 @@ export async function GET(req: Request) {
       candidate,
       candidateHistory,
       voter,
+      truncated,
       links: {
         monProfil: candidate?.token ? `/mon-profil/${candidate.token}` : null,
       },

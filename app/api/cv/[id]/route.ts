@@ -22,6 +22,9 @@ export async function GET(
 ) {
   const { id } = await params;
   const intent = new URL(req.url).searchParams.get("intent");
+  if (intent !== null && intent !== "preview") {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
   const isListPreview = intent === "preview";
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) {
