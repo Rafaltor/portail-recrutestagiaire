@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import {
   AUTH_LIKES_PER_DAY,
   FREE_SWIPE_LIMIT,
+  LIKES_QUOTA_EXHAUSTED_MESSAGE,
   dayKeyUTC,
   getLikesDayKey,
   getSwipeCountKey,
@@ -24,6 +25,7 @@ import {
 } from "@/lib/swipe-gating";
 import "./swipe-stamps.css";
 import { SwipeWelcomeModal } from "@/components/SwipeWelcomeModal";
+import { RequireAuthGate } from "@/components/RequireAuthGate";
 
 /** Sortie carte vers le côté — durée et easing « lisibles » (pas trop rapide). */
 const FALL_EXIT_MS = 780;
@@ -132,6 +134,14 @@ const STACK_DECK_BACK = "translate(10px, 12px) scale(0.94)";
 const STACK_DECK_MID = "translate(5px, 6px) scale(0.97)";
 
 export default function SwipePage() {
+  return (
+    <RequireAuthGate nextPath="/swipe">
+      <SwipePageInner />
+    </RequireAuthGate>
+  );
+}
+
+function SwipePageInner() {
   const visitorId = useMemo(() => getOrCreateVisitorId(), []);
   const [session, setSession] = useState<Session | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -227,7 +237,7 @@ export default function SwipePage() {
   const STAMP_IMPRINT_HOLD_MS = 28;
   const CARD_TRANSITION_MS = 300;
   const STAMP_RETURN_MS = 180;
-  const RH_INSIGHT_DISPLAY_MS = 3000;
+  const RH_INSIGHT_DISPLAY_MS = 4000;
   const RH_INSIGHT_FADE_MS = 280;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
   const likesDayKey = useMemo(
@@ -352,7 +362,7 @@ export default function SwipePage() {
       const currentLikes = readLocalInt(likesDayKey);
       setLikesToday(currentLikes);
       if (currentLikes >= AUTH_LIKES_PER_DAY) {
-        setMessage("Limite atteinte: 10 likes par jour. Réessaie demain.");
+        setMessage(LIKES_QUOTA_EXHAUSTED_MESSAGE);
         return { ok: false };
       }
     }
@@ -374,7 +384,11 @@ export default function SwipePage() {
       rh?: { message?: string };
     };
     if (!r.ok) {
-      setMessage(j?.error || "Impossible d’enregistrer le vote.");
+      if (j?.error === "likes_limit_reached") {
+        setMessage(LIKES_QUOTA_EXHAUSTED_MESSAGE);
+      } else {
+        setMessage(j?.error || "Impossible d’enregistrer le vote.");
+      }
       return { ok: false };
     }
     if (!isConnected) {
@@ -1155,7 +1169,7 @@ export default function SwipePage() {
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           <div className="w-full max-w-md rounded-lg border border-[#ddd] bg-white p-6">
             <div className="text-lg font-black">
-              Créez un compte pour continuer à voter et débloquer les récompenses.
+              Connecte-toi pour continuer à voter.
             </div>
             <p className="mt-2 text-sm text-[#0A0A0A]/85">
               Tu as utilisé {freeSwipesUsed} swipes gratuits sur {FREE_SWIPE_LIMIT}.

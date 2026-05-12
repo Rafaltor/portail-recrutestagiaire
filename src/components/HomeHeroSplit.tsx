@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { PortalAuthLink } from "@/components/PortalAuthLink";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { HomeHeroBackdrop } from "@/components/HomeHeroBackdrop";
 
-function fmt(n: number | null) {
-  if (n === null || Number.isNaN(n)) return "—";
+function fmt(n: number) {
   return String(n);
 }
 
 export function HomeHeroSplit() {
-  const [profiles, setProfiles] = useState<number | null>(null);
-  const [votes, setVotes] = useState<number | null>(null);
+  const [profiles, setProfiles] = useState(0);
+  const [votes, setVotes] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -25,8 +25,8 @@ export function HomeHeroSplit() {
         supabase.from("votes").select("profile_id", { count: "exact", head: true }),
       ]);
       if (!alive) return;
-      setProfiles(profRes.error ? null : profRes.count ?? 0);
-      setVotes(voteRes.error ? null : voteRes.count ?? 0);
+      setProfiles(profRes.error ? 0 : profRes.count ?? 0);
+      setVotes(voteRes.error ? 0 : voteRes.count ?? 0);
     }
     void load();
     return () => {
@@ -64,9 +64,9 @@ export function HomeHeroSplit() {
               </h1>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-3">
-              <Link href="/depot" className={primary}>
+              <PortalAuthLink href="/depot" mode="signup" className={primary}>
                 Poste ton CV
-              </Link>
+              </PortalAuthLink>
               <Link href="/profils" className={secondary}>
                 Voir les profils
               </Link>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PortalAuthLink } from "@/components/PortalAuthLink";
 
 type CardDef = {
   step: string;
@@ -77,12 +77,16 @@ function BlocPris() {
             Sortie du cycle
           </p>
           <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
-            Le meilleur CV
+            T&apos;as été pris
           </h3>
         </div>
-        <Link href="/depot" className={`${blocPrisCtaClass} hidden lg:inline-flex`}>
+        <PortalAuthLink
+          href="/depot"
+          mode="signup"
+          className={`${blocPrisCtaClass} hidden lg:inline-flex`}
+        >
           Déposer mon CV →
-        </Link>
+        </PortalAuthLink>
       </div>
       <div className="-mx-1 flex min-w-0 flex-col items-center gap-2 px-1 pb-0.5 text-center font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-2 sm:text-[13px] md:gap-x-4 md:text-[15px]">
         {prisLines.map((line) => (
@@ -100,9 +104,13 @@ function BlocPris() {
           ✦
         </span>
       </div>
-      <Link href="/depot" className={`${blocPrisCtaClass} mt-2 lg:hidden`}>
+      <PortalAuthLink
+        href="/depot"
+        mode="signup"
+        className={`${blocPrisCtaClass} mt-2 lg:hidden`}
+      >
         Déposer mon CV →
-      </Link>
+      </PortalAuthLink>
     </article>
   );
 }
@@ -153,17 +161,6 @@ export function HomeHowItWorks() {
     {
       step: "02",
       title: "Vote",
-      sublines: ["Ton CV est boosté", "Réduction sur le shop"],
-    },
-    {
-      step: "03",
-      title: "Classement",
-      sublines: ["Observe tes stats", "Regarde les meilleurs CV"],
-    },
-    {
-      step: "04",
-      title: "Bosse et redépose",
-      subtitle: "Améliore ton CV",
     },
   ];
 
@@ -191,14 +188,6 @@ export function HomeHowItWorks() {
             <Chevron />
             <div className="flex min-h-0 min-w-0 flex-1">
               <ParcoursCard {...steps[1]!} />
-            </div>
-            <Chevron />
-            <div className="flex min-h-0 min-w-0 flex-1">
-              <ParcoursCard {...steps[2]!} />
-            </div>
-            <Chevron />
-            <div className="flex min-h-0 min-w-0 flex-1">
-              <ParcoursCard {...steps[3]!} />
             </div>
           </div>
 

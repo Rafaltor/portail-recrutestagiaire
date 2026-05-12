@@ -3,8 +3,6 @@
 const RULES = [
   "Vote pour les CVs que tu aimes",
   "10 likes par jour maximum",
-  "Ton CV est boosté si tu votes",
-  "-10% sur le shop si ton candidat est recruté",
   "Pas de photo · CV PDF uniquement",
 ];
 
@@ -25,9 +23,7 @@ export function SwipeWelcomeModal({
       aria-modal="true"
       aria-labelledby="swipe-rules-title"
     >
-      <div
-        className="w-full max-w-[320px] rounded-[12px] bg-white p-6 font-[family-name:var(--font-dm)] shadow-none"
-      >
+      <div className="w-full max-w-[320px] rounded-[12px] bg-white p-6 font-[family-name:var(--font-dm)] shadow-none">
         <h2
           id="swipe-rules-title"
           className="break-words px-1 text-center text-[13px] font-bold leading-tight text-[#0A0A0A] sm:text-[14px]"

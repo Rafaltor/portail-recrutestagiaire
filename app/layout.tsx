@@ -3,6 +3,7 @@ import { Syne, Manrope } from "next/font/google";
 import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
+import { PortalAuthLink } from "@/components/PortalAuthLink";
 import { HeaderMobileNav } from "@/components/HeaderMobileNav";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { PortalHeaderDrawer } from "@/components/PortalHeaderDrawer";
@@ -75,8 +76,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   const fontVars = `${syne.variable} ${manrope.variable}`;
 
@@ -155,12 +158,13 @@ export default function RootLayout({
                     <PortalHeaderNav />
 
                     <div className="rs-banner-top__actions d-inline-flex align-items-center">
-                      <Link
+                      <PortalAuthLink
                         href="/depot"
+                        mode="signup"
                         className="rs-ph-cta text-decoration-none no-underline hover:no-underline"
                       >
                         Déposer mon CV
-                      </Link>
+                      </PortalAuthLink>
 
                       <HeaderAccountLink className="!bg-[#0a0a0a] !text-white !border !border-[#0a0a0a] shadow-none hover:!bg-[#1a1a1a] hover:!text-white" />
                     </div>
@@ -175,6 +179,7 @@ export default function RootLayout({
         <main className="rs-portal-main mx-auto w-full min-w-0 max-w-full flex-1 overflow-x-clip pb-8">
           {children}
         </main>
+        {modal}
 
         <footer className="footer skin-dark-footer rs-footer-portal-simple">
           <div className="container mx-auto max-w-[var(--rs-content-max,1200px)] px-4 py-10">

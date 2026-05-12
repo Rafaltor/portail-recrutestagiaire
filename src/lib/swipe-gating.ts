@@ -1,5 +1,7 @@
 export const FREE_SWIPE_LIMIT = 20;
 export const AUTH_LIKES_PER_DAY = 10;
+export const LIKES_QUOTA_EXHAUSTED_MESSAGE =
+  "Tes 10 likes sont épuisés pour aujourd'hui. Ton CV te remercie. Reviens demain.";
 
 export function dayKeyUTC(date = new Date()) {
   return date.toISOString().slice(0, 10);

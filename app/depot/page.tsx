@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
+import { RequireAuthGate } from "@/components/RequireAuthGate";
 
 type FormState = {
   handle: string;
@@ -24,7 +25,7 @@ type StepTwoState = {
   manualFallback: boolean;
 };
 
-export default function DepotPage() {
+function DepotPageInner() {
   const [form, setForm] = useState<FormState>({
     handle: "",
     accepted: false,
@@ -531,6 +532,14 @@ export default function DepotPage() {
       </div>
       )}
     </div>
+  );
+}
+
+export default function DepotPage() {
+  return (
+    <RequireAuthGate nextPath="/depot" initialMode="signup">
+      <DepotPageInner />
+    </RequireAuthGate>
   );
 }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { HeaderAccountLink } from "@/components/HeaderAccountLink";
+import { PortalAuthLink } from "@/components/PortalAuthLink";
 
 /**
  * Menu mobile : panneau pleine largeur depuis le haut (design system Paris).
@@ -246,19 +247,20 @@ export function PortalHeaderDrawer() {
                 Boutique
               </a>
               <Link href="/profils">Profils candidats</Link>
-              <Link href="/swipe">Voter</Link>
+              <PortalAuthLink href="/swipe">Voter</PortalAuthLink>
               <a href="https://recrutestagiaire.eu/pages/about">Le collectif</a>
             </div>
           </div>
         </nav>
         <div className="rs-header-drawer__footer">
           <div className="rs-banner-top__actions rs-header-drawer__footer-actions d-inline-flex flex-column align-items-stretch gap-2 w-100">
-            <Link
+            <PortalAuthLink
               href="/depot"
+              mode="signup"
               className="rs-ph-drawer-cta rs-btn rs-btn--primary rs-header-drawer__caf-btn text-center text-decoration-none no-underline hover:no-underline"
             >
               Déposer mon CV
-            </Link>
+            </PortalAuthLink>
             <HeaderAccountLink className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none" />
           </div>
         </div>
