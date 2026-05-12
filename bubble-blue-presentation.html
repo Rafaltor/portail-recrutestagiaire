@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUBBLE-BLUE — Choix Technologiques</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --surface2: #eef1f4;
+    --border: #d8dee6;
+    --accent: #0052cc;
+    --accent2: #0052cc;
+    --green: #1e7e34;
+    --red: #c0392b;
+    --yellow: #b88700;
+    --text: #1a2340;
+    --text-muted: #5a6378;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --nav-bg: rgba(17, 24, 39, 0.95);
+    --nav-border: #2a3548;
+    --nav-text: #c5cdd8;
+    --nav-text-muted: #8899aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* NAVIGATION */
+  #nav {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: var(--nav-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 50px;
+    padding: 0.75rem 1.5rem;
+    z-index: 1000;
+  }
+
+  #nav button {
+    background: none;
+    border: none;
+    color: var(--nav-text-muted);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    transition: color 0.2s, background 0.2s;
+  }
+  #nav button:hover { color: #ffffff; }
+  #nav button.active { background: var(--accent); color: #ffffff; }
+  #slide-counter {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--nav-text-muted);
+    padding: 0 0.5rem;
+    border-left: 1px solid var(--nav-border);
+    border-right: 1px solid var(--nav-border);
+  }
+
+  /* SLIDES */
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    padding: 3rem 4rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .slide.active { display: flex; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SLIDE HEADER */
+  .slide-num {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+  }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  .subtitle {
+    font-family: var(--sans);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+
+  /* TITLE SLIDE */
+  .title-slide {
+    justify-content: center;
+    background: var(--bg);
+  }
+
+  .title-slide h1 {
+    font-size: 5rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .title-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 0.3rem; }
+  .meta-label { font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .meta-value { font-family: var(--sans); font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .plan-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+  }
+  .plan-item::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 0.5rem; right: 0.75rem;
+    font-family: var(--sans);
+    font-size: 1.5rem;
+    color: var(--border);
+    font-weight: 700;
+  }
+  .plan-item-title { font-size: 0.75rem; font-weight: 600; color: var(--accent); margin-bottom: 0.3rem; }
+  .plan-item-sub { font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted); }
+
+  /* TABLES */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    margin-bottom: 1.5rem;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--text);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  td {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:nth-child(even) td { background: rgba(26, 35, 64, 0.04); }
+
+  .cell-good { color: var(--green); font-weight: 600; }
+  .cell-bad { color: var(--red); }
+  .cell-warn { color: var(--yellow); }
+  .cell-neutral { color: var(--text-muted); }
+
+  /* COMPARISON BOXES */
+  .compare-grid { display: grid; gap: 1rem; }
+  .compare-2 { grid-template-columns: 1fr 1fr; }
+  .compare-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .compare-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    position: relative;
+  }
+
+  .compare-box.winner { border-color: var(--green); }
+  .compare-box.loser { border-color: var(--border); opacity: 0.85; }
+  .compare-box.winner::after {
+    content: '✅ RETENU';
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .compare-box.loser::after {
+    content: '❌ ÉLIMINÉ';
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .compare-box.phase2::after {
+    content: '🔄 PHASE 2';
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .box-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .box-list li {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .box-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  .box-list li.good { color: var(--green); }
+  .box-list li.bad { color: var(--red); }
+  .box-list li.warn { color: var(--yellow); }
+
+  /* STAT BOXES */
+  .stat-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .stat-label { font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stat-value { font-family: var(--sans); font-size: 1.4rem; font-weight: 700; }
+  .stat-context { font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted); }
+  .stat-box.green .stat-value { color: var(--green); }
+  .stat-box.red .stat-value { color: var(--red); }
+  .stat-box.blue .stat-value { color: var(--accent); }
+  .stat-box.yellow .stat-value { color: var(--yellow); }
+
+  /* VERDICT BOX */
+  .verdict {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-top: 1rem;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+  }
+  .verdict-label {
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ROADMAP */
+  .roadmap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .roadmap-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .roadmap-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .roadmap-item.p1::before { background: var(--green); }
+  .roadmap-item.p2::before { background: var(--accent); }
+  .roadmap-item.p3::before { background: var(--yellow); }
+  .roadmap-item.p4::before { background: var(--text-muted); }
+
+  .phase-label {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .p1 .phase-label { color: var(--green); }
+  .p2 .phase-label { color: var(--accent); }
+  .p3 .phase-label { color: var(--yellow); }
+  .p4 .phase-label { color: var(--text-muted); }
+
+  .phase-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; }
+
+  .phase-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .phase-items li {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    padding-left: 0.8rem;
+    position: relative;
+  }
+  .phase-items li::before { content: '·'; position: absolute; left: 0; color: var(--accent); }
+
+  /* LAYOUT HELPERS */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    flex: 1;
+  }
+
+  .section-label {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  /* ARCH DIAGRAM */
+  .arch-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 1rem 0;
+  }
+  .arch-layer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.2s;
+  }
+  .arch-layer:hover { border-color: var(--accent); }
+  .arch-layer-name { font-weight: 600; font-size: 0.85rem; }
+  .arch-layer-desc { font-family: var(--sans); font-size: 0.7rem; color: var(--text-muted); }
+  .arch-layer-tech { font-family: var(--sans); font-size: 0.7rem; color: var(--accent); font-weight: 500; }
+  .arch-layer.highlight { border-color: var(--accent); background: var(--surface); border-left: 4px solid var(--accent); }
+
+  /* UNICAST CALC */
+  .calc-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+  }
+  .calc-label { color: var(--text-muted); flex: 1; }
+  .calc-bar-wrap { flex: 2; height: 6px; background: var(--border); border-radius: 3px; }
+  .calc-bar { height: 100%; border-radius: 3px; }
+  .calc-value { width: 80px; text-align: right; font-weight: 700; }
+  .bar-red { background: var(--red); }
+  .bar-yellow { background: var(--yellow); }
+  .bar-green { background: var(--green); }
+  .bar-blue { background: var(--accent); }
+
+  /* BATTERY */
+  .battery-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 0.5rem 0;
+  }
+  .battery-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .battery-fill-wrap {
+    height: 12px;
+    background: var(--border);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+  }
+  .battery-fill { height: 100%; border-radius: 6px; }
+
+  /* PROGRESS BARS FOR OVERHEAD */
+  .overhead-item {
+    margin-bottom: 0.6rem;
+  }
+  .overhead-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    margin-bottom: 0.25rem;
+  }
+  .overhead-bar-wrap {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .overhead-bar { height: 100%; border-radius: 4px; }
+
+  /* KEYBOARD HINT */
+  .kbd-hint {
+    position: fixed;
+    top: 1.5rem;
+    right: 2rem;
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .kbd {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.6rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="kbd-hint">
+  <kbd class="kbd">←</kbd><kbd class="kbd">→</kbd> naviguer
+  <kbd class="kbd">F</kbd> plein écran
+</div>
+
+<!-- SLIDE 1: TITRE -->
+<div class="slide title-slide active" id="s1">
+  <div>
+    <div class="slide-num">PROJET STAGE — BUBBLE-BLUE</div>
+    <h1>BUBBLE-BLUE</h1>
+    <h2 style="color: var(--text-muted); font-weight: 400; font-size: 1.3rem;">Choix Technologiques pour l'Implémentation</h2>
+    <p style="font-family: var(--sans); font-size: 0.78rem; color: var(--text-muted); margin-top: 1rem; max-width: 600px; line-height: 1.7;">
+      Analyse comparative des technologies de transport, forwarding, sécurité et langage pour implémenter le protocole BB — réseau privé multihop Bluetooth sans infrastructure.
+    </p>
+    <div class="title-meta">
+      <div class="meta-item">
+        <span class="meta-label">Ingénieur de Recherche</span>
+        <span class="meta-value">Projet BUBBLE-BLUE</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Boards cibles</span>
+        <span class="meta-value">Rubik Pi 3 (BT 5.0) + Arduino UNO Q (BT 5.1)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Référence</span>
+        <span class="meta-value">arXiv:2509.00967</span>
+      </div>
+    </div>
+    <div class="plan-grid" style="margin-top: 2rem;">
+      <div class="plan-item" data-num="1">
+        <div class="plan-item-title">BT Classic vs BLE</div>
+        <div class="plan-item-sub">Transport radio</div>
+      </div>
+      <div class="plan-item" data-num="2">
+        <div class="plan-item-title">L2CAP vs RFCOMM vs GATT</div>
+        <div class="plan-item-sub">Couche protocole</div>
+      </div>
+      <div class="plan-item" data-num="3">
+        <div class="plan-item-title">CDS vs MPR</div>
+        <div class="plan-item-sub">Forwarding</div>
+      </div>
+      <div class="plan-item" data-num="4">
+        <div class="plan-item-title">AES-GCM vs CCM</div>
+        <div class="plan-item-sub">Sécurité</div>
+      </div>
+      <div class="plan-item" data-num="5">
+        <div class="plan-item-title">Python vs C</div>
+        <div class="plan-item-sub">Langage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: ARCHITECTURE -->
+<div class="slide" id="s2">
+  <div class="slide-num">00 — ARCHITECTURE</div>
+  <h2>Stack BB — Architecture en couches</h2>
+  <h3>Transport Abstraction Layer (TAL) — Clé pour la vision multi-transport</h3>
+
+  <div class="two-col">
+    <div>
+      <div class="arch-stack">
+        <div class="arch-layer" style="background: var(--surface); border-color: var(--border); border-left: 3px solid var(--green);">
+          <span class="arch-layer-name">Application BB</span>
+          <span class="arch-layer-tech">Chat sécurisé · Geo-sharing</span>
+        </div>
+        <div class="arch-layer" style="background: var(--surface); border-color: var(--border); border-left: 3px solid var(--yellow);">
+          <span class="arch-layer-name">Sécurité</span>
+          <span class="arch-layer-desc">Chiffrement groupe · Clés · Anti-replay</span>
+          <span class="arch-layer-tech">AES-GCM</span>
+        </div>
+        <div class="arch-layer" style="background: var(--surface); border-color: var(--border); border-left: 3px solid var(--accent);">
+          <span class="arch-layer-name">Contrôle</span>
+          <span class="arch-layer-desc">Voisinage · Découverte</span>
+          <span class="arch-layer-tech">Hello · CDS · MPR</span>
+        </div>
+        <div class="arch-layer highlight">
+          <span class="arch-layer-name">TAL — Transport Abstraction Layer</span>
+          <span class="arch-layer-tech">send(addr, data) · receive(cb)</span>
+        </div>
+        <div class="arch-layer">
+          <div style="display:flex; gap: 0.5rem; align-items: center;">
+            <span style="font-family: var(--sans); font-size: 0.7rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; color: var(--accent);">BLE L2CAP CoC</span>
+            <span style="font-family: var(--sans); font-size: 0.7rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; color: var(--text);">Wi-Fi Direct</span>
+            <span style="font-family: var(--sans); font-size: 0.7rem; background: var(--surface2); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 4px; color: var(--text-muted);">5G Gateway</span>
+          </div>
+          <span class="arch-layer-tech">Phase 1 → 2 → 3</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Choix à discuter</div>
+      <table>
+        <thead>
+          <tr><th>Couche</th><th>Options</th><th>Critère clé</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Radio</td><td>BT Classic vs <span class="cell-good">BLE</span></td><td>Mobilité, conso</td></tr>
+          <tr><td>Transport</td><td><span class="cell-good">L2CAP</span> vs RFCOMM vs GATT</td><td>Parallélisme</td></tr>
+          <tr><td>Forwarding</td><td><span class="cell-good">CDS</span> → MPR</td><td>Unicasts réduits</td></tr>
+          <tr><td>Sécurité</td><td><span class="cell-good">AES-GCM</span> vs CCM</td><td>Performance</td></tr>
+          <tr><td>Langage</td><td><span class="cell-good">Python</span> → C</td><td>Vitesse dev</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict">
+        <div class="verdict-label">Principe fondateur</div>
+        Le TAL découple l'architecture BB de la technologie radio. Un seul stack BB tourne sur BLE aujourd'hui, Wi-Fi demain, 5G après-demain — sans rien réécrire au-dessus du TAL.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: BLE vs BT CLASSIC — CRITÈRES 1 & 2 -->
+<div class="slide" id="s3">
+  <div class="slide-num">01 — BT CLASSIC vs BLE</div>
+  <h2>Critères 1 & 2 — Voisinage dynamique & Overhead unicasts</h2>
+  <h3>Les deux critères les plus impactants pour le CDS de BB</h3>
+
+  <div class="stat-row">
+    <div class="stat-box red">
+      <span class="stat-label">Voisins max BT Classic</span>
+      <span class="stat-value">7</span>
+      <span class="stat-context">Limite piconet — Scatternet instable au-delà</span>
+    </div>
+    <div class="stat-box green">
+      <span class="stat-label">Voisins max BLE</span>
+      <span class="stat-value">∞</span>
+      <span class="stat-context">Pas de limite architecturale</span>
+    </div>
+    <div class="stat-box red">
+      <span class="stat-label">Temps redécouverte BT Classic</span>
+      <span class="stat-value">~2 s</span>
+      <span class="stat-context">Reconnexion piconet après mobilité</span>
+    </div>
+    <div class="stat-box green">
+      <span class="stat-label">Temps redécouverte BLE</span>
+      <span class="stat-value">100 ms</span>
+      <span class="stat-context">Via advertising scan</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Overhead par paquet — Hello BB de 72 bytes (10 voisins)</div>
+      <table>
+        <thead>
+          <tr><th>Transport</th><th>MTU utile</th><th>Overhead header</th><th>Fragments (72B)</th><th>Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>BT Classic L2CAP</td><td>1021 B</td><td>4 B</td><td class="cell-good">1</td><td class="cell-good">✅ Excellent</td></tr>
+          <tr><td>BLE GATT (défaut)</td><td>20 B</td><td>9 B</td><td class="cell-bad">4</td><td class="cell-bad">❌ 4× pire</td></tr>
+          <tr><td><strong>BLE L2CAP CoC</strong></td><td><strong>512 B</strong></td><td><strong>4 B</strong></td><td class="cell-good"><strong>1</strong></td><td class="cell-good"><strong>✅ Identique</strong></td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label" style="margin-top: 0.75rem;">Overhead unicasts pour diffuser à 5 voisins CDS</div>
+      <div class="overhead-item">
+        <div class="overhead-header"><span>GATT (sérialisé)</span><span class="cell-bad">500 ms · 20 fragments</span></div>
+        <div class="overhead-bar-wrap"><div class="overhead-bar bar-red" style="width:100%"></div></div>
+      </div>
+      <div class="overhead-item">
+        <div class="overhead-header"><span>BLE L2CAP CoC (parallèle)</span><span class="cell-good">10 ms · 5 paquets</span></div>
+        <div class="overhead-bar-wrap"><div class="overhead-bar bar-green" style="width:2%"></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Comparaison architecturale complète</div>
+      <table>
+        <thead>
+          <tr><th>Critère</th><th>BT Classic</th><th>BLE</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Voisins max</td><td class="cell-bad">7 (piconet)</td><td class="cell-good">Illimité</td></tr>
+          <tr><td>Redécouverte</td><td class="cell-bad">~2 000 ms</td><td class="cell-good">~100 ms</td></tr>
+          <tr><td>MTU L2CAP</td><td class="cell-good">1 021 B</td><td class="cell-warn">512 B (CoC)</td></tr>
+          <tr><td>Overhead header</td><td class="cell-good">4 B</td><td class="cell-good">4 B (CoC)</td></tr>
+          <tr><td>Scatternet</td><td class="cell-bad">Instable</td><td class="cell-good">Non requis</td></tr>
+          <tr><td>Mobilité rapide</td><td class="cell-bad">❌</td><td class="cell-good">✅</td></tr>
+        </tbody>
+      </table>
+      <div class="verdict">
+        <div class="verdict-label">Conclusion critères 1 & 2</div>
+        BLE L2CAP CoC est aussi efficace que BT Classic en overhead (MTU 512 B, 4 B header) et nettement supérieur pour le voisinage dynamique. La limite des 7 voisins de BT Classic pénalise directement la qualité du CDS.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: BLE vs BT CLASSIC — CRITÈRES 3 & 4 -->
+<div class="slide" id="s4">
+  <div class="slide-num">01 — BT CLASSIC vs BLE (suite)</div>
+  <h2>Critères 3 & 4 — Sécurité & Consommation énergétique</h2>
+  <h3>Arguments décisifs pour un déploiement réel — militaire ou civil</h3>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Sécurité — Comparaison au niveau lien</div>
+      <table>
+        <thead>
+          <tr><th>Mécanisme</th><th>BT Classic (5.x)</th><th>BLE (5.x)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Chiffrement lien</td><td class="cell-good">AES-128-CCM</td><td class="cell-good">AES-128-CCM</td></tr>
+          <tr><td>Pairing</td><td class="cell-good">ECDH P-256</td><td class="cell-good">ECDH P-256</td></tr>
+          <tr><td>Anti-replay lien</td><td class="cell-bad">❌ À charge de BB</td><td class="cell-good">✅ Natif (compteurs LL)</td></tr>
+          <tr><td>MIC par paquet</td><td class="cell-warn">Optionnel</td><td class="cell-good">✅ Intégré</td></tr>
+          <tr><td>Sécurité groupe</td><td class="cell-bad">❌ Non</td><td class="cell-bad">❌ Non</td></tr>
+        </tbody>
+      </table>
+      <div style="font-family: var(--sans); font-size: 0.68rem; color: var(--text-muted); margin-top: 0.5rem;">
+        ⚠️ Dans les deux cas : BB doit construire sa propre couche crypto de groupe (AES-GCM applicatif)
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Consommation — Batterie Li-Ion 3 000 mAh / mission 24 h</div>
+      <div class="battery-compare">
+        <div class="battery-bar">
+          <div style="font-family: var(--sans); font-size: 0.72rem; color: var(--red); font-weight: 700; margin-bottom: 0.25rem;">BT Classic</div>
+          <div style="font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted);">25–100 mA continu · Radio always-on</div>
+          <div class="battery-fill-wrap" style="margin-top: 0.5rem;">
+            <div class="battery-fill" style="width: 40%; background: var(--red);"></div>
+          </div>
+          <div style="font-family: var(--sans); font-size: 0.68rem; margin-top: 0.3rem; color: var(--red);">1 200 mAh consommés = <strong>40%</strong></div>
+        </div>
+        <div class="battery-bar">
+          <div style="font-family: var(--sans); font-size: 0.72rem; color: var(--green); font-weight: 700; margin-bottom: 0.25rem;">BLE</div>
+          <div style="font-family: var(--sans); font-size: 0.65rem; color: var(--text-muted);">&lt;5 mA moyen · Duty cycle Hello 5 s</div>
+          <div class="battery-fill-wrap" style="margin-top: 0.5rem;">
+            <div class="battery-fill" style="width: 4%; background: var(--green);"></div>
+          </div>
+          <div style="font-family: var(--sans); font-size: 0.68rem; margin-top: 0.3rem; color: var(--green);">120 mAh consommés = <strong>4%</strong></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 0.75rem;">
+        <div class="section-label">Furtivité RF — Avantage tactique</div>
+        <table>
+          <thead><tr><th>Propriété</th><th>BT Classic</th><th>BLE</th></tr></thead>
+          <tbody>
+            <tr><td>Émission RF</td><td class="cell-bad">Continue · forte</td><td class="cell-good">Courtes rafales</td></tr>
+            <tr><td>Détectabilité</td><td class="cell-bad">Signature permanente</td><td class="cell-good">Difficile à localiser</td></tr>
+            <tr><td>Autonomie device</td><td class="cell-bad">~60 h (50 mA moy.)</td><td class="cell-good">~600 h (5 mA moy.)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="verdict-label">Conclusion critères 3 & 4</div>
+    BLE gagne sur la sécurité (anti-replay natif) et très largement sur la consommation (×10). Pour un déploiement militaire ou sur smartphones, BLE n'est pas une option parmi d'autres — c'est une nécessité opérationnelle.
+  </div>
+</div>
+
+<!-- SLIDE 5: VISION MULTI-TRANSPORT -->
+<div class="slide" id="s5">
+  <div class="slide-num">01 — BT CLASSIC vs BLE (suite)</div>
+  <h2>Critère 5 — Vision multi-transport Wi-Fi & 5G</h2>
+  <h3>L'argument architectural décisif — BT Classic est un cul-de-sac</h3>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Compatibilité avec le TAL — API socket</div>
+      <table>
+        <thead><tr><th>Transport</th><th>Socket API</th><th>Portée</th><th>Conso</th><th>Sans infra</th></tr></thead>
+        <tbody>
+          <tr><td class="cell-bad">BT Classic</td><td class="cell-bad">AF_BLUETOOTH<br>BTPROTO_L2CAP</td><td class="cell-warn">100 m</td><td class="cell-bad">25–100 mA</td><td class="cell-good">✅</td></tr>
+          <tr><td class="cell-good"><strong>BLE L2CAP CoC</strong></td><td class="cell-good">AF_BLUETOOTH<br>BTPROTO_L2CAP</td><td class="cell-warn">400 m</td><td class="cell-good">&lt;5 mA</td><td class="cell-good">✅</td></tr>
+          <tr><td class="cell-warn">Wi-Fi Direct</td><td class="cell-good">AF_INET<br>SOCK_DGRAM</td><td class="cell-good">200 m</td><td class="cell-warn">Moyenne</td><td class="cell-good">✅</td></tr>
+          <tr><td class="cell-warn">5G D2D (ProSe)</td><td class="cell-good">AF_INET<br>SOCK_DGRAM</td><td class="cell-good">km</td><td class="cell-bad">Élevée</td><td class="cell-bad">❌ Opérateur requis</td></tr>
+        </tbody>
+      </table>
+      <div style="font-family: var(--sans); font-size: 0.68rem; color: var(--text-muted); margin-top: 0.5rem; padding: 0.6rem; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 6px;">
+        ❌ BT Classic → Wi-Fi Direct : APIs incompatibles → réécriture complète du TAL<br>
+        ✅ BLE → Wi-Fi Direct : même socket POSIX → migration quasi-transparente
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Roadmap multi-transport</div>
+      <div class="roadmap" style="grid-template-columns: 1fr; gap: 0.6rem;">
+        <div class="roadmap-item p1">
+          <div class="phase-label">Phase 1 — Stage actuel</div>
+          <div class="phase-title">BLE L2CAP CoC</div>
+          <ul class="phase-items">
+            <li>Validation protocole BB complet</li>
+            <li>Hello + CDS + AES-GCM + Python</li>
+            <li>Testbed Rubik Pi 3 + Arduino UNO Q</li>
+          </ul>
+        </div>
+        <div class="roadmap-item p2">
+          <div class="phase-label">Phase 2 — Court terme</div>
+          <div class="phase-title">BLE + Wi-Fi Direct dans TAL</div>
+          <ul class="phase-items">
+            <li>Même stack BB, nouveau transport</li>
+            <li>MPR + Python/C hybride</li>
+            <li>Benchmark BLE vs Wi-Fi overhead</li>
+          </ul>
+        </div>
+        <div class="roadmap-item p3">
+          <div class="phase-label">Phase 3 — Long terme</div>
+          <div class="phase-title">5G Gateway inter-bulles</div>
+          <ul class="phase-items">
+            <li>5G uniquement en mode passerelle</li>
+            <li>Propriété sans-infra préservée en local</li>
+            <li>Extension de portée entre îlots BB</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="verdict">
+    <div class="verdict-label">Verdict final — BT Classic vs BLE</div>
+    BLE gagne sur 4 critères / 5. BLE L2CAP CoC est le seul choix cohérent avec la vision multi-transport. BT Classic est un cul-de-sac architectural : piconet incompatible avec Wi-Fi et 5G, migration = réécriture complète.
+  </div>
+</div>
+
+<!-- SLIDE 6: L2CAP vs RFCOMM vs GATT -->
+<div class="slide" id="s6">
+  <div class="slide-num">02 — COUCHE TRANSPORT</div>
+  <h2>L2CAP vs RFCOMM vs GATT</h2>
+  <h3>Le parallélisme est le critère décisif pour BB</h3>
+
+  <div class="compare-grid compare-3" style="margin-bottom: 1rem;">
+    <div class="compare-box winner">
+      <div class="box-title" style="color: var(--green);">L2CAP CoC</div>
+      <ul class="box-list">
+        <li class="good">Envoi parallèle vers N voisins CDS</li>
+        <li class="good">Overhead : 4 bytes seulement</li>
+        <li class="good">MTU : 512–1021 bytes</li>
+        <li class="good">Compatible BT Classic ET BLE</li>
+        <li class="good">Abstraction naturelle Wi-Fi/5G</li>
+        <li class="good">Contrôle de flux par crédits</li>
+        <li>5 voisins CDS = 10 ms latence</li>
+      </ul>
+    </div>
+    <div class="compare-box loser">
+      <div class="box-title">RFCOMM</div>
+      <ul class="box-list">
+        <li class="bad">BT Classic uniquement</li>
+        <li class="bad">Flux série — pas de paquets délimités</li>
+        <li class="bad">Overhead : 8 bytes</li>
+        <li class="bad">Max 30 canaux (vs 65535 TCP)</li>
+        <li class="bad">Pas d'équivalent Wi-Fi ou 5G</li>
+        <li class="bad">Migration multi-transport = impossible</li>
+        <li>Utile uniquement pour debug</li>
+      </ul>
+    </div>
+    <div class="compare-box loser">
+      <div class="box-title">GATT</div>
+      <ul class="box-list">
+        <li class="bad">Modèle requête-réponse sérialisé</li>
+        <li class="bad">MTU : 20 bytes par défaut</li>
+        <li class="bad">5 voisins CDS = 500 ms latence</li>
+        <li class="bad">Attendre ACK avant prochain paquet</li>
+        <li class="warn">MTU négociable jusqu'à 247 bytes</li>
+        <li class="bad">Headers ATT supplémentaires</li>
+        <li>Conçu pour IoT capteurs — pas MANet</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Tableau comparatif chiffré</div>
+      <table>
+        <thead><tr><th>Critère</th><th>RFCOMM</th><th>GATT</th><th>L2CAP CoC</th></tr></thead>
+        <tbody>
+          <tr><td>Overhead header</td><td class="cell-bad">8 B</td><td class="cell-bad">9 B</td><td class="cell-good">4 B</td></tr>
+          <tr><td>MTU utile</td><td class="cell-warn">20 B</td><td class="cell-warn">244 B (négocié)</td><td class="cell-good">512 B</td></tr>
+          <tr><td>Fragments Hello 72B</td><td class="cell-bad">4</td><td class="cell-warn">1</td><td class="cell-good">1</td></tr>
+          <tr><td>Envoi parallèle</td><td class="cell-bad">❌</td><td class="cell-bad">❌</td><td class="cell-good">✅</td></tr>
+          <tr><td>Compatible BLE</td><td class="cell-bad">❌</td><td class="cell-warn">⚠️</td><td class="cell-good">✅</td></tr>
+          <tr><td>Débit effectif</td><td class="cell-warn">~1 Mbps</td><td class="cell-bad">~700 kbps</td><td class="cell-good">~2 Mbps</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="section-label">Latence diffusion CDS — 5 voisins</div>
+      <div class="calc-row">
+        <span class="calc-label">GATT (sérialisé)</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-red" style="width:100%"></div></div>
+        <span class="calc-value cell-bad">500 ms</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">RFCOMM</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-yellow" style="width:40%"></div></div>
+        <span class="calc-value cell-warn">~200 ms</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">L2CAP CoC (parallèle)</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-green" style="width:2%"></div></div>
+        <span class="calc-value cell-good">10 ms</span>
+      </div>
+      <div class="verdict" style="margin-top: 0.75rem;">
+        <div class="verdict-label">Conclusion</div>
+        L2CAP est le seul choix viable. Le modèle sérialisé de GATT est fondamentalement incompatible avec les unicasts parallèles du CDS. L2CAP CoC = ×50 moins de latence que GATT pour 5 voisins.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: CDS vs MPR -->
+<div class="slide" id="s7">
+  <div class="slide-num">03 — FORWARDING</div>
+  <h2>CDS Greedy vs MPR — Réduction des unicasts L2CAP</h2>
+  <h3>MPR est une méthode de construction de CDS — pas un concurrent</h3>
+
+  <div class="stat-row">
+    <div class="stat-box red">
+      <span class="stat-label">Flooding naïf (10 nœuds)</span>
+      <span class="stat-value">45</span>
+      <span class="stat-context">unicasts L2CAP — référence 100%</span>
+    </div>
+    <div class="stat-box yellow">
+      <span class="stat-label">CDS Greedy (Phase 1)</span>
+      <span class="stat-value">18</span>
+      <span class="stat-context">unicasts L2CAP — réduction de 60%</span>
+    </div>
+    <div class="stat-box green">
+      <span class="stat-label">MPR optimisé (Phase 2)</span>
+      <span class="stat-value">12</span>
+      <span class="stat-context">unicasts L2CAP — réduction de 73%</span>
+    </div>
+    <div class="stat-box blue">
+      <span class="stat-label">Durée de vie réseau (MPR)</span>
+      <span class="stat-value">+25%</span>
+      <span class="stat-context">vs algorithme sans optimisation</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Réduction des unicasts L2CAP — 10 nœuds</div>
+      <div class="calc-row">
+        <span class="calc-label">Flooding naïf</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-red" style="width:100%"></div></div>
+        <span class="calc-value cell-bad">45 unicasts</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">CDS Greedy — Phase 1</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-yellow" style="width:40%"></div></div>
+        <span class="calc-value cell-warn">18 unicasts</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">MPR — Phase 2</span>
+        <div class="calc-bar-wrap"><div class="calc-bar bar-green" style="width:27%"></div></div>
+        <span class="calc-value cell-good">12 unicasts</span>
+      </div>
+
+      <div class="section-label" style="margin-top: 1rem;">Comparaison CDS Greedy vs MPR</div>
+      <table>
+        <thead><tr><th>Critère</th><th>CDS Greedy</th><th>MPR</th></tr></thead>
+        <tbody>
+          <tr><td>Info requise</td><td class="cell-good">Voisinage 2 sauts</td><td class="cell-good">Voisinage 2 sauts</td></tr>
+          <tr><td>Unicasts (10 nœuds)</td><td class="cell-warn">18 (-60%)</td><td class="cell-good">12 (-73%)</td></tr>
+          <tr><td>Complexité algo</td><td class="cell-good">Faible</td><td class="cell-warn">Moyenne</td></tr>
+          <tr><td>Overhead Hello</td><td class="cell-good">Faible</td><td class="cell-warn">+liste MPR</td></tr>
+          <tr><td>Stabilité mobilité</td><td class="cell-good">Bonne</td><td class="cell-warn">Réduite</td></tr>
+          <tr><td>Msgs contrôle</td><td class="cell-warn">Standard</td><td class="cell-good">-60%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="compare-grid compare-2" style="margin-bottom: 0.75rem;">
+        <div class="compare-box winner">
+          <div class="box-title" style="color: var(--green);">CDS Greedy — Phase 1</div>
+          <ul class="box-list">
+            <li class="good">Simple à implémenter</li>
+            <li class="good">Voisinage 2 sauts suffisant</li>
+            <li class="good">Résultats comparables au preprint</li>
+            <li class="good">Base solide pour benchmark</li>
+            <li>Réduction 60% des unicasts</li>
+          </ul>
+        </div>
+        <div class="compare-box phase2">
+          <div class="box-title" style="color: var(--yellow);">MPR — Phase 2</div>
+          <ul class="box-list">
+            <li class="good">Réduction 73% des unicasts</li>
+            <li class="good">Standard OLSR documenté</li>
+            <li class="good">Contribution originale mesurable</li>
+            <li class="warn">Liste MPR dans Hello (+overhead)</li>
+            <li class="warn">Stabilité réduite sous mobilité</li>
+          </ul>
+        </div>
+      </div>
+      <div class="verdict">
+        <div class="verdict-label">Relation fondamentale</div>
+        <strong>CDS = résultat</strong> (le backbone de relais) — <strong>MPR = algorithme</strong> d'élection du CDS. MPR n'est pas une alternative, c'est une amélioration de la construction du CDS. Phase 1 : CDS Greedy. Phase 2 : MPR comme méthode de construction.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: AES MODES -->
+<div class="slide" id="s8">
+  <div class="slide-num">04 — SÉCURITÉ</div>
+  <h2>AES-CCM vs AES-GCM + Gestion des clés</h2>
+  <h3>Deux couches de sécurité distinctes — lien radio et groupe applicatif</h3>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Mode AES — Chiffrement applicatif BB</div>
+      <table>
+        <thead><tr><th>Critère</th><th>AES-CCM</th><th>AES-GCM</th></tr></thead>
+        <tbody>
+          <tr><td>Modèle</td><td class="cell-warn">MAC-then-Encrypt</td><td class="cell-good">Encrypt-then-MAC</td></tr>
+          <tr><td>Passes sur données</td><td class="cell-bad">2 (séquentiel)</td><td class="cell-good">1 (parallèle)</td></tr>
+          <tr><td>Parallélisable</td><td class="cell-bad">❌</td><td class="cell-good">✅</td></tr>
+          <tr><td>HW accélération</td><td class="cell-warn">Partielle</td><td class="cell-good">✅ ARMv8 Crypto</td></tr>
+          <tr><td>OpenSSL défaut</td><td class="cell-bad">❌ Désactivé</td><td class="cell-good">✅ Activé</td></tr>
+          <tr><td>Python cryptography</td><td class="cell-warn">⚠️ Limitée</td><td class="cell-good">✅ Natif</td></tr>
+          <tr><td>Latence (Hello 72B)</td><td class="cell-bad">~1 ms</td><td class="cell-good">~0.05 ms</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label" style="margin-top: 0.75rem;">Structure paquet BB sécurisé</div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: var(--sans); font-size: 0.7rem;">
+        <div style="display: flex; gap: 0; margin-bottom: 0.4rem;">
+          <div style="flex: 2; background: var(--surface2); border: 1px solid var(--border); padding: 0.4rem; border-radius: 4px 0 0 4px; text-align: center;">
+            Routing Header<br><span style="color: var(--text-muted);">Src·Dst·TTL·Seq — 12 B — EN CLAIR</span>
+          </div>
+          <div style="flex: 2; background: var(--surface); border: 1px solid var(--border); border-left: none; padding: 0.4rem; text-align: center;">
+            Key Header<br><span style="color: var(--text-muted);">N × 32 B — chiffré clé groupe</span>
+          </div>
+          <div style="flex: 3; background: var(--surface2); border: 1px solid var(--border); border-left: none; padding: 0.4rem; text-align: center;">
+            Payload AES-GCM<br><span style="color: var(--text-muted);">Variable — session key</span>
+          </div>
+          <div style="flex: 1; background: var(--surface); border: 1px solid var(--accent); border-left: none; padding: 0.4rem; border-radius: 0 4px 4px 0; text-align: center;">
+            Tag<br><span style="color: var(--text-muted);">16 B</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Gestion des clés de groupe — 3 options</div>
+      <div class="compare-box loser" style="margin-bottom: 0.6rem; padding: 0.9rem;">
+        <div class="box-title">Option A — Clé statique partagée</div>
+        <ul class="box-list">
+          <li>Simple, overhead zéro</li>
+          <li class="bad">1 membre compromis = groupe entier compromis</li>
+          <li class="bad">Pas de forward secrecy · Révocation impossible</li>
+        </ul>
+      </div>
+      <div class="compare-box winner" style="margin-bottom: 0.6rem; padding: 0.9rem;">
+        <div class="box-title" style="color: var(--green);">Option B — Session key par paquet (Phase 1)</div>
+        <ul class="box-list">
+          <li class="good">Forward secrecy parfaite</li>
+          <li class="good">Révocation : exclure du key header</li>
+          <li>Overhead : N × 32 bytes (≤ 15 membres OK)</li>
+          <li>5 membres = 160 B · 10 membres = 320 B · 20 membres = 640 B</li>
+          <li class="good">Key rotation périodique → anti-replay multihop</li>
+        </ul>
+      </div>
+      <div class="compare-box phase2" style="padding: 0.9rem;">
+        <div class="box-title" style="color: var(--yellow);">Option C — ECDH éphémère (Phase 2)</div>
+        <ul class="box-list">
+          <li class="good">Overhead constant — indépendant de N</li>
+          <li class="good">Forward + backward secrecy</li>
+          <li class="warn">Latence ECDH au join/leave ~50 ms</li>
+          <li class="good">Contribution originale mesurable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: PYTHON vs C -->
+<div class="slide" id="s9">
+  <div class="slide-num">05 — LANGAGE & PLATEFORME</div>
+  <h2>Python vs C — Approche hybride par phases</h2>
+  <h3>La performance de Python est suffisante pour la Phase 1 — voici pourquoi</h3>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Comparaison performance — Opérations BB critiques</div>
+      <table>
+        <thead><tr><th>Opération</th><th>Python</th><th>C</th><th>Ratio</th><th>Impact BB</th></tr></thead>
+        <tbody>
+          <tr><td>Envoi L2CAP</td><td class="cell-warn">~2 ms</td><td class="cell-good">~0.1 ms</td><td>×20</td><td class="cell-good">Négligeable</td></tr>
+          <tr><td>AES-GCM (72B)</td><td class="cell-warn">~1 ms</td><td class="cell-good">~0.05 ms</td><td>×20</td><td class="cell-good">Négligeable</td></tr>
+          <tr><td>Calcul CDS (10 nœuds)</td><td class="cell-warn">~10 ms</td><td class="cell-good">~0.5 ms</td><td>×20</td><td class="cell-good">Négligeable</td></tr>
+          <tr><td>Parse Hello</td><td class="cell-warn">~0.5 ms</td><td class="cell-good">~0.02 ms</td><td>×25</td><td class="cell-good">Négligeable</td></tr>
+        </tbody>
+      </table>
+
+      <div style="font-family: var(--sans); font-size: 0.7rem; padding: 0.8rem; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 6px; margin-top: 0.75rem;">
+        💡 Intervalle Hello = 5 000 ms<br>
+        Temps traitement Python = 10 ms<br>
+        <strong style="color: var(--green);">CPU utilisé pour BB = 10/5000 = 0.2%</strong><br>
+        → Python est largement suffisant pour la validation Phase 1
+      </div>
+
+      <div class="section-label" style="margin-top: 0.75rem;">Même code sur les deux boards</div>
+      <table>
+        <thead><tr><th>Board</th><th>OS</th><th>Python</th><th>BlueZ</th></tr></thead>
+        <tbody>
+          <tr><td>Rubik Pi 3</td><td class="cell-good">Ubuntu 24.04</td><td class="cell-good">3.12</td><td class="cell-good">✅</td></tr>
+          <tr><td>Arduino UNO Q</td><td class="cell-good">Debian Linux</td><td class="cell-good">3.11</td><td class="cell-good">✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="compare-grid compare-2" style="margin-bottom: 0.75rem;">
+        <div class="compare-box winner">
+          <div class="box-title" style="color: var(--green);">Python — Phase 1</div>
+          <ul class="box-list">
+            <li class="good">Prototypage rapide stack complet</li>
+            <li class="good">BlueZ sockets natifs (AF_BLUETOOTH)</li>
+            <li class="good">asyncio → parallélisme BB réel</li>
+            <li class="good">lib cryptography → AES-GCM natif</li>
+            <li class="good">Même code Rubik Pi + UNO Q</li>
+            <li class="good">TAL trivial : même API BLE/WiFi/5G</li>
+          </ul>
+        </div>
+        <div class="compare-box phase2">
+          <div class="box-title" style="color: var(--yellow);">C — Phase 2</div>
+          <ul class="box-list">
+            <li class="good">Transport L2CAP bas niveau</li>
+            <li class="good">Vrais threads POSIX</li>
+            <li class="good">AES optimisé OpenSSL/mbedTLS</li>
+            <li class="good">Performance maximale production</li>
+            <li class="warn">Debugging plus complexe</li>
+            <li class="warn">Segfaults, gestion mémoire</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-label">Architecture hybride recommandée</div>
+      <div class="arch-stack">
+        <div class="arch-layer" style="border-color: var(--green);">
+          <span class="arch-layer-name">Orchestration + Config + Logs</span>
+          <span class="arch-layer-tech">Python toujours</span>
+        </div>
+        <div class="arch-layer" style="border-color: var(--yellow);">
+          <span class="arch-layer-name">Hello / CDS / Forwarding</span>
+          <span class="arch-layer-desc">Python Phase 1 → C Phase 2</span>
+        </div>
+        <div class="arch-layer" style="border-color: var(--yellow);">
+          <span class="arch-layer-name">AES-GCM Crypto</span>
+          <span class="arch-layer-desc">lib cryptography Phase 1 → OpenSSL Phase 2</span>
+        </div>
+        <div class="arch-layer" style="border-color: var(--yellow);">
+          <span class="arch-layer-name">Transport L2CAP</span>
+          <span class="arch-layer-desc">Python sockets Phase 1 → BlueZ C direct Phase 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: SYNTHESE -->
+<div class="slide" id="s10">
+  <div class="slide-num">SYNTHÈSE</div>
+  <h2>Tableau de décision final</h2>
+  <h3>5 choix technologiques — 2 phases d'implémentation</h3>
+
+  <table style="margin-bottom: 1.5rem;">
+    <thead>
+      <tr>
+        <th>Point</th>
+        <th>Options analysées</th>
+        <th>Phase 1 — Stage</th>
+        <th>Phase 2</th>
+        <th>Critère décisif</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Transport radio</strong></td>
+        <td>BT Classic vs BLE</td>
+        <td class="cell-good">✅ BLE L2CAP CoC</td>
+        <td class="cell-warn">BLE + Wi-Fi Direct</td>
+        <td>Voisins illimités · TAL extensible</td>
+      </tr>
+      <tr>
+        <td><strong>Protocole</strong></td>
+        <td>L2CAP vs RFCOMM vs GATT</td>
+        <td class="cell-good">✅ L2CAP</td>
+        <td class="cell-good">L2CAP C</td>
+        <td>Parallélisme unicasts · 10 ms vs 500 ms</td>
+      </tr>
+      <tr>
+        <td><strong>Forwarding</strong></td>
+        <td>Flooding vs CDS vs MPR</td>
+        <td class="cell-good">✅ CDS Greedy</td>
+        <td class="cell-warn">MPR (-73%)</td>
+        <td>-60% unicasts · Implémentation simple</td>
+      </tr>
+      <tr>
+        <td><strong>Sécurité mode</strong></td>
+        <td>AES-CCM vs AES-GCM</td>
+        <td class="cell-good">✅ AES-GCM</td>
+        <td class="cell-good">AES-GCM</td>
+        <td>ARMv8 HW · OpenSSL natif · Parallèle</td>
+      </tr>
+      <tr>
+        <td><strong>Clés de groupe</strong></td>
+        <td>Statique vs Session vs ECDH</td>
+        <td class="cell-good">✅ Session key/paquet</td>
+        <td class="cell-warn">ECDH éphémère</td>
+        <td>Forward secrecy · Révocation simple</td>
+      </tr>
+      <tr>
+        <td><strong>Langage</strong></td>
+        <td>Python vs C</td>
+        <td class="cell-good">✅ Python + asyncio</td>
+        <td class="cell-warn">Python + C hybride</td>
+        <td>0.2% CPU · Même code sur 2 boards</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="roadmap">
+    <div class="roadmap-item p1">
+      <div class="phase-label">Phase 1 — Stage</div>
+      <div class="phase-title">Validation BB</div>
+      <ul class="phase-items">
+        <li>BLE L2CAP CoC</li>
+        <li>CDS Greedy (-60%)</li>
+        <li>AES-GCM + session key</li>
+        <li>Python + asyncio</li>
+        <li>Rubik Pi 3 + UNO Q</li>
+      </ul>
+    </div>
+    <div class="roadmap-item p2">
+      <div class="phase-label">Phase 2 — Court terme</div>
+      <div class="phase-title">Extension & Optim.</div>
+      <ul class="phase-items">
+        <li>Wi-Fi Direct dans TAL</li>
+        <li>MPR (-73% unicasts)</li>
+        <li>Python + C hybride</li>
+        <li>ECDH éphémère</li>
+      </ul>
+    </div>
+    <div class="roadmap-item p3">
+      <div class="phase-label">Phase 3 — Long terme</div>
+      <div class="phase-title">Gateway 5G</div>
+      <ul class="phase-items">
+        <li>5G inter-bulles</li>
+        <li>Sans-infra préservé</li>
+        <li>Optimisation C</li>
+      </ul>
+    </div>
+    <div class="roadmap-item p4">
+      <div class="phase-label">En continu</div>
+      <div class="phase-title">Recherche</div>
+      <ul class="phase-items">
+        <li>Benchmark expérimental</li>
+        <li>Publication résultats</li>
+        <li>Comparaison BLE/WiFi</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<div id="nav">
+  <button onclick="goTo(1)" class="active" id="btn1">Titre</button>
+  <button onclick="goTo(2)" id="btn2">Archi</button>
+  <button onclick="goTo(3)" id="btn3">BLE 1&2</button>
+  <button onclick="goTo(4)" id="btn4">BLE 3&4</button>
+  <button onclick="goTo(5)" id="btn5">Multi-T</button>
+  <button onclick="goTo(6)" id="btn6">L2CAP</button>
+  <button onclick="goTo(7)" id="btn7">CDS/MPR</button>
+  <button onclick="goTo(8)" id="btn8">AES</button>
+  <button onclick="goTo(9)" id="btn9">Py/C</button>
+  <button onclick="goTo(10)" id="btn10">Synthèse</button>
+  <span id="slide-counter">1 / 10</span>
+</div>
+
+<script>
+  let current = 1;
+  const total = 10;
+
+  function goTo(n) {
+    document.getElementById('s' + current).classList.remove('active');
+    document.getElementById('btn' + current).classList.remove('active');
+    current = n;
+    document.getElementById('s' + current).classList.add('active');
+    document.getElementById('btn' + current).classList.add('active');
+    document.getElementById('slide-counter').textContent = current + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' && current < total) goTo(current + 1);
+    if (e.key === 'ArrowLeft' && current > 1) goTo(current - 1);
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+</script>
+</body>
+</html>
