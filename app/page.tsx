@@ -38,11 +38,11 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="rs-home-page">
-        <HomeHeroSplit />
-
         <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
           <HomeHowItWorks />
         </div>
+
+        <HomeHeroSplit />
 
         <HomeTopProfile />
       </div>

@@ -1,5 +1,3 @@
-import { PortalAuthLink } from "@/components/PortalAuthLink";
-
 type CardDef = {
   step: string;
   title: string;
@@ -65,52 +63,22 @@ function ParcoursCard({
   );
 }
 
-const blocPrisCtaClass =
-  "rs-on-pink inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-[#f472b6] px-5 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[#db2777] sm:w-auto sm:min-h-[48px] sm:shrink-0 sm:px-7 sm:py-3 sm:text-sm";
-
 function BlocPris() {
   return (
-    <article className="flex w-full flex-col gap-4 rounded-xl bg-[#0A0A0A] px-4 py-6 text-white sm:gap-6 sm:px-8 sm:py-8">
-      <div className="flex flex-row items-start justify-between gap-4">
-        <div className="min-w-0 pr-2">
-          <p className="font-[family-name:var(--font-syne)] text-[11px] font-bold uppercase tracking-[0.14em] text-[#f472b6]">
-            Sortie du cycle
-          </p>
-          <h3 className="mt-3 font-[family-name:var(--font-syne)] text-[clamp(18px,2.5vw,22px)] font-extrabold leading-snug tracking-tight text-white">
-            T&apos;as été pris
-          </h3>
-        </div>
-        <PortalAuthLink
-          href="/depot"
-          mode="signup"
-          className={`${blocPrisCtaClass} hidden lg:inline-flex`}
-        >
-          Déposer mon CV →
-        </PortalAuthLink>
-      </div>
-      <div className="-mx-1 flex min-w-0 flex-col items-center gap-2 px-1 pb-0.5 text-center font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-3 sm:gap-y-2 sm:text-[13px] md:gap-x-4 md:text-[15px]">
+    <article className="flex h-full min-h-0 w-full flex-col gap-4 rounded-xl bg-[#0A0A0A] px-4 py-6 text-white sm:px-5 sm:py-5">
+      <h3 className="font-[family-name:var(--font-syne)] text-[13px] font-extrabold leading-snug tracking-tight text-white sm:text-[16px]">
+        T&apos;as été pris
+      </h3>
+      <div className="flex min-w-0 flex-col gap-2 font-[family-name:var(--font-dm)] text-[11px] font-normal leading-snug text-[#E8E8E8] sm:text-[12px]">
         {prisLines.map((line) => (
-          <span
-            key={line}
-            className="inline-flex w-full max-w-full items-center justify-center gap-1.5 sm:inline-flex sm:w-auto sm:max-w-none sm:justify-center sm:whitespace-nowrap"
-          >
-            <span className="shrink-0 text-[#f472b6]" aria-hidden>
+          <span key={line} className="inline-flex items-start gap-1.5">
+            <span className="mt-1 shrink-0 text-[#f472b6]" aria-hidden>
               ✦
             </span>
             {line}
           </span>
         ))}
-        <span className="hidden shrink-0 text-[#f472b6] sm:inline" aria-hidden>
-          ✦
-        </span>
       </div>
-      <PortalAuthLink
-        href="/depot"
-        mode="signup"
-        className={`${blocPrisCtaClass} mt-2 lg:hidden`}
-      >
-        Déposer mon CV →
-      </PortalAuthLink>
     </article>
   );
 }
@@ -140,23 +108,11 @@ function ColumnTitle({
   );
 }
 
-function Chevron() {
-  return (
-    <span
-      className="hidden shrink-0 select-none items-center justify-center self-center px-1 font-[family-name:var(--font-syne)] text-2xl font-bold leading-none text-[#f472b6] lg:flex"
-      aria-hidden
-    >
-      ›
-    </span>
-  );
-}
-
 export function HomeHowItWorks() {
   const steps: CardDef[] = [
     {
       step: "01",
       title: "Poste ton CV",
-      sublines: ["Monopage", "Pas de photo"],
     },
     {
       step: "02",
@@ -172,34 +128,9 @@ export function HomeHowItWorks() {
       <div className={`${shell} space-y-6`}>
         <ColumnTitle title="Ton parcours" id="rs-home-how-parcours" />
 
-        <div className="mx-auto w-full max-w-[var(--rs-content-max)]">
-          {/* Mobile / tablette : 2 colonnes */}
-          <div className="grid grid-cols-2 items-stretch gap-4 lg:hidden">
-            {steps.map((c) => (
-              <ParcoursCard key={c.step} {...c} />
-            ))}
-          </div>
-
-          {/* Desktop : 1 ligne + chevrons */}
-          <div className="hidden items-stretch gap-2 lg:flex">
-            <div className="flex min-h-0 min-w-0 flex-1">
-              <ParcoursCard {...steps[0]!} />
-            </div>
-            <Chevron />
-            <div className="flex min-h-0 min-w-0 flex-1">
-              <ParcoursCard {...steps[1]!} />
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-col items-center gap-1 pt-2">
-            <span className="text-xl font-bold text-[#f472b6] lg:hidden" aria-hidden>
-              ↓
-            </span>
-            <span className="hidden text-2xl font-bold text-[#f472b6] lg:inline" aria-hidden>
-              ↓
-            </span>
-          </div>
-
+        <div className="mx-auto grid w-full max-w-[var(--rs-content-max)] grid-cols-1 items-stretch gap-4 sm:grid-cols-3">
+          <ParcoursCard {...steps[0]!} />
+          <ParcoursCard {...steps[1]!} />
           <BlocPris />
         </div>
       </div>
