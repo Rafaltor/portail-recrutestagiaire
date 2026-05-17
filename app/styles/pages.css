@@ -535,32 +535,60 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
   background: #0a0a0a;
 }
 
-.rs-home-immersive-nav {
+.rs-home-panorama__hotspots {
   position: absolute;
-  left: 50%;
-  bottom: max(28px, env(safe-area-inset-bottom, 0px));
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 100%;
-  padding: 0 16px;
-  transform: translateX(-50%);
-  pointer-events: auto;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
-html[data-rs-home-immersive="1"] .rs-home-immersive-nav__btn {
+.rs-home-hotspot {
+  position: absolute;
+  top: var(--rs-hotspot-top, 50%);
+  left: var(--rs-hotspot-left, 50%);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.rs-home-hotspot__btn {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  font-family: var(--font-syne);
+  font-size: clamp(10px, 2.8vw, 12px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: #fff !important;
   text-decoration: none !important;
-  font-weight: 700;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
 
+.rs-home-hotspot__btn:hover,
+.rs-home-hotspot__btn:focus-visible {
+  color: #f9a8d4 !important;
+  text-decoration: none !important;
+  outline: none;
+}
+
+html[data-rs-home-immersive="1"] .rs-home-hotspot__btn {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Desktop : hotspots fixes sur l'écran (couche non défilante) */
 @media (min-width: 768px) {
-  .rs-home-immersive-nav {
-    bottom: max(40px, env(safe-area-inset-bottom, 0px));
-    gap: 12px;
+  .rs-home-panorama--static .rs-home-panorama__hotspots {
+    position: absolute;
+    inset: 0;
   }
 }
 
@@ -587,6 +615,10 @@ html[data-rs-home-immersive="1"] .rs-home-immersive-nav__btn {
   height: 100%;
   transition: opacity 0.35s ease;
   opacity: 0.35;
+}
+
+.rs-home-panorama__layer:has(.rs-home-panorama__hotspots) {
+  isolation: isolate;
 }
 
 .rs-home-panorama--draggable .rs-home-panorama__layer {

@@ -245,9 +245,8 @@ export function HomePanoramicHero() {
             className={`rs-home-panorama__image object-cover ${isMobile ? "object-left" : "object-center"}`}
             onLoad={(e) => onImageReady(e.currentTarget)}
           />
+          <HomeImmersiveNav />
         </div>
-
-        <HomeImmersiveNav />
       </div>
     </section>
   );

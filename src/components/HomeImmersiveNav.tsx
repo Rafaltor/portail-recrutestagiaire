@@ -2,34 +2,73 @@
 
 import Link from "next/link";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 
-const btnClass =
-  "rs-home-immersive-nav__btn inline-flex min-h-[48px] w-full max-w-[min(320px,88vw)] items-center justify-center rounded-full border border-white/35 bg-black/35 px-6 py-3 text-center font-[family-name:var(--font-syne)] text-[13px] font-bold uppercase tracking-[0.08em] text-white no-underline backdrop-blur-md transition-colors hover:border-white/60 hover:bg-black/50 hover:no-underline sm:text-sm";
+type HotspotDef = {
+  id: string;
+  label: string;
+  top: number;
+  left: number;
+  href: string;
+  auth?: boolean;
+  mode?: "login" | "signup";
+};
+
+/** Positions en % du wallpaper (largeur / hauteur de la couche panoramique). */
+const HOTSPOTS: HotspotDef[] = [
+  { id: "voter", label: "Voter", href: "/swipe", top: 30, left: 20, auth: true },
+  {
+    id: "depot",
+    label: "Déposer son CV",
+    href: "/depot",
+    top: 55,
+    left: 50,
+    auth: true,
+    mode: "signup",
+  },
+  { id: "atelier", label: "Atelier", href: "/profils", top: 42, left: 38 },
+  { id: "espace", label: "Mon espace", href: "/mon-espace", top: 65, left: 70, auth: true },
+];
+
+const btnClass = "rs-home-hotspot__btn";
 
 function stopPan(e: ReactPointerEvent) {
   e.stopPropagation();
 }
 
-export function HomeImmersiveNav() {
+function HotspotLink({ spot }: { spot: HotspotDef }) {
+  const style = {
+    "--rs-hotspot-top": `${spot.top}%`,
+    "--rs-hotspot-left": `${spot.left}%`,
+  } as CSSProperties;
+
+  const inner = spot.auth ? (
+    <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClass}>
+      {spot.label}
+    </PortalAuthLink>
+  ) : (
+    <Link href={spot.href} className={btnClass}>
+      {spot.label}
+    </Link>
+  );
+
   return (
-    <nav
-      className="rs-home-immersive-nav"
-      aria-label="Navigation principale"
+    <div
+      className={`rs-home-hotspot${spot.id === "depot" ? " rs-home-hotspot--wide" : ""}`}
+      style={style}
       onPointerDown={stopPan}
     >
-      <PortalAuthLink href="/swipe" className={btnClass}>
-        Voter
-      </PortalAuthLink>
-      <PortalAuthLink href="/depot" mode="signup" className={btnClass}>
-        Déposer son CV
-      </PortalAuthLink>
-      <Link href="/profils" className={btnClass}>
-        Classement
-      </Link>
-      <PortalAuthLink href="/mon-espace" className={btnClass}>
-        Mon espace
-      </PortalAuthLink>
-    </nav>
+      {inner}
+    </div>
+  );
+}
+
+export function HomeImmersiveNav() {
+  return (
+    <div className="rs-home-panorama__hotspots" aria-label="Navigation atelier">
+      {HOTSPOTS.map((spot) => (
+        <HotspotLink key={spot.id} spot={spot} />
+      ))}
+    </div>
   );
 }

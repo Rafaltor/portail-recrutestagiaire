@@ -1888,15 +1888,47 @@ html[data-rs-home-immersive="1"] .rs-header-body {
 
 @media (max-width: 899.98px) {
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar {
-    grid-template-columns: auto 1fr;
-    justify-items: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
   }
 
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar__brand {
-    justify-self: start;
+    position: absolute;
+    left: max(12px, env(safe-area-inset-left, 0px));
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
   }
 
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title {
-    justify-self: center;
+    position: relative;
+    left: auto;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: max-content;
+    max-width: min(58vw, 240px);
+    margin: 0;
+    padding: 0;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line {
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line + .rs-header-mobile-bar__title-line {
+    margin-top: 2px;
   }
 }
