@@ -553,17 +553,22 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
 }
 
 .rs-home-hotspot__btn {
-  display: inline;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: none;
   font-family: var(--font-syne);
   font-size: clamp(10px, 2.8vw, 12px);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: 0.14em;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #fff !important;
   text-decoration: none !important;
@@ -574,7 +579,9 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
 
 .rs-home-hotspot__btn:hover,
 .rs-home-hotspot__btn:focus-visible {
-  color: #f9a8d4 !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   text-decoration: none !important;
   outline: none;
 }

@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
+import { boutiqueUrl } from "@/lib/seo";
+import type {
+  CSSProperties,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from "react";
 
 type HotspotDef = {
   id: string;
@@ -12,22 +17,23 @@ type HotspotDef = {
   href: string;
   auth?: boolean;
   mode?: "login" | "signup";
+  external?: boolean;
 };
 
 /** Positions en % du wallpaper (largeur / hauteur de la couche panoramique). */
 const HOTSPOTS: HotspotDef[] = [
-  { id: "voter", label: "Voter", href: "/swipe", top: 30, left: 20, auth: true },
+  { id: "voter", label: "Voter", href: "/swipe", top: 40, left: 10, auth: true },
   {
     id: "depot",
     label: "Déposer son CV",
     href: "/depot",
     top: 55,
-    left: 50,
+    left: 60,
     auth: true,
     mode: "signup",
   },
-  { id: "atelier", label: "Atelier", href: "/profils", top: 42, left: 38 },
-  { id: "espace", label: "Mon espace", href: "/mon-espace", top: 65, left: 70, auth: true },
+  { id: "atelier", label: "Atelier", href: boutiqueUrl, top: 50, left: 90, external: true },
+  { id: "espace", label: "Mon espace", href: "/mon-espace", top: 75, left: 70, auth: true },
 ];
 
 const btnClass = "rs-home-hotspot__btn";
@@ -42,22 +48,34 @@ function HotspotLink({ spot }: { spot: HotspotDef }) {
     "--rs-hotspot-left": `${spot.left}%`,
   } as CSSProperties;
 
-  const inner = spot.auth ? (
-    <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClass}>
-      {spot.label}
-    </PortalAuthLink>
-  ) : (
-    <Link href={spot.href} className={btnClass}>
-      {spot.label}
-    </Link>
-  );
+  let inner: ReactNode;
+  if (spot.external) {
+    inner = (
+      <a
+        href={spot.href}
+        className={btnClass}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        {spot.label}
+      </a>
+    );
+  } else if (spot.auth) {
+    inner = (
+      <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClass}>
+        {spot.label}
+      </PortalAuthLink>
+    );
+  } else {
+    inner = (
+      <Link href={spot.href} className={btnClass}>
+        {spot.label}
+      </Link>
+    );
+  }
 
   return (
-    <div
-      className={`rs-home-hotspot${spot.id === "depot" ? " rs-home-hotspot--wide" : ""}`}
-      style={style}
-      onPointerDown={stopPan}
-    >
+    <div className="rs-home-hotspot" style={style} onPointerDown={stopPan}>
       {inner}
     </div>
   );

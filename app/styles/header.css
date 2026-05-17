@@ -1881,8 +1881,49 @@ html[data-rs-home-immersive="1"] .rs-header-body {
   }
 
   html[data-rs-home-immersive="1"] .rs-header-top-line {
+    position: relative;
+    justify-content: center;
     border: none;
     background: transparent;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-top-line .rs-banner-top.rs-header-pole-brand {
+    flex: 0 1 auto;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-ph-brandlink {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-ph-brandlink-logo {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  html[data-rs-home-immersive="1"] .rs-ph-brandlink-title {
+    display: block !important;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:first-of-type {
+    display: none !important;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:last-of-type {
+    display: inline !important;
   }
 }
 
