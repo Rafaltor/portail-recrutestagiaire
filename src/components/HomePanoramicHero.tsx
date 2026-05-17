@@ -72,6 +72,7 @@ export function HomePanoramicHero() {
     lastT: 0,
   });
   const rafRef = useRef<number | null>(null);
+  const userHasPannedRef = useRef(false);
 
   const [metrics, setMetrics] = useState<PanoramaMetrics>({
     renderedWidth: 0,
@@ -102,7 +103,11 @@ export function HomePanoramicHero() {
     const { w, h } = naturalSizeRef.current;
     const next = measurePanorama(el.clientWidth, el.clientHeight, w, h);
     setMetrics(next);
-    setOffsetX((prev) => clampOffset(prev, next.maxOffset));
+    setOffsetX((prev) => {
+      if (next.maxOffset <= 0) return 0;
+      if (!userHasPannedRef.current) return next.maxOffset / 2;
+      return clampOffset(prev, next.maxOffset);
+    });
     if (layerRef.current) {
       layerRef.current.style.width = `${next.renderedWidth}px`;
     }
@@ -171,6 +176,7 @@ export function HomePanoramicHero() {
 
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!isMobile || e.button !== 0) return;
+    userHasPannedRef.current = true;
     stopInertia();
     dragRef.current = {
       active: true,
@@ -242,7 +248,7 @@ export function HomePanoramicHero() {
             priority
             draggable={false}
             sizes={isMobile ? "200vw" : "100vw"}
-            className={`rs-home-panorama__image object-cover ${isMobile ? "object-left" : "object-center"}`}
+            className="rs-home-panorama__image object-cover object-center"
             onLoad={(e) => onImageReady(e.currentTarget)}
           />
           <HomeImmersiveNav />
