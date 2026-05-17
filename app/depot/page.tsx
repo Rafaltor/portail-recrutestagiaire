@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import { RequireAuthGate } from "@/components/RequireAuthGate";
 import {
+  DEPOT_API_MAX_BYTES,
   DEPOT_MAX_BYTES,
   formatDepotError,
   readDepotApiError,
 } from "@/lib/depot-errors";
+import { uploadDepotCv } from "@/lib/depot-upload-client";
 import { isPdfUpload } from "@/lib/pdf-file";
 
 type FormState = {
@@ -47,6 +49,10 @@ function DepotPageInner() {
   const [ownerProfileAbsoluteUrl, setOwnerProfileAbsoluteUrl] = useState<string>(
     "",
   );
+  const [cvStorage, setCvStorage] = useState<{
+    path: string;
+    ownerToken: string;
+  } | null>(null);
   const ownerToken = useMemo(() => {
     return ownerProfileUrl.split("/").pop() || "";
   }, [ownerProfileUrl]);
@@ -119,12 +125,20 @@ function DepotPageInner() {
 
     setParsing(true);
     try {
-      const fd = new FormData();
-      fd.set("cv", file);
-      const r = await fetch("/api/depot", {
-        method: "PUT",
-        body: fd,
-      });
+      let r: Response;
+      if (file.size > DEPOT_API_MAX_BYTES) {
+        const uploaded = await uploadDepotCv(file, form.handle);
+        setCvStorage(uploaded);
+        r = await fetch("/api/depot", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ path: uploaded.path }),
+        });
+      } else {
+        const fd = new FormData();
+        fd.set("cv", file);
+        r = await fetch("/api/depot", { method: "PUT", body: fd });
+      }
       if (!r.ok) {
         const j: { error?: string } = await r.json().catch(() => ({}));
         throw new Error(j.error || "affinda_failed");
@@ -184,17 +198,25 @@ function DepotPageInner() {
       if (!stepTwo) throw new Error("Analyse ou saisie manuelle requise avant validation.");
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
-      const fd = new FormData();
-      fd.set("handle", form.handle.trim());
-      fd.set("candidateName", stepTwo.name || "");
-      fd.set("parsedEmail", stepTwo.email || "");
-      fd.set("parsedJobTitle", stepTwo.jobTitle || "");
-      fd.set("parsedSkills", stepTwo.skills || "");
-      fd.set("parsedCity", stepTwo.city || "");
-      fd.set("accepted", String(!!form.accepted));
-      fd.set("cv", file);
+      let uploadTarget = cvStorage;
+      if (!uploadTarget) {
+        uploadTarget = await uploadDepotCv(file, form.handle.trim());
+        setCvStorage(uploadTarget);
+      }
 
-      const r = await fetch("/api/depot", { method: "POST", body: fd });
+      const r = await fetch("/api/depot", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          path: uploadTarget.path,
+          ownerToken: uploadTarget.ownerToken,
+          handle: form.handle.trim(),
+          parsedJobTitle: stepTwo.jobTitle || "",
+          parsedSkills: stepTwo.skills || "",
+          parsedCity: stepTwo.city || "",
+          accepted: true,
+        }),
+      });
       if (!r.ok) {
         throw new Error(await readDepotApiError(r));
       }
@@ -209,6 +231,7 @@ function DepotPageInner() {
         setOwnerProfileAbsoluteUrl(data.absoluteProfileUrl);
       }
       setFile(null);
+      setCvStorage(null);
       setStepTwo(null);
       setForm((f) => ({ ...f, accepted: false }));
     } catch (e: unknown) {
@@ -335,13 +358,14 @@ function DepotPageInner() {
                 Glisse-dépose ton PDF ou clique pour choisir un fichier
               </span>
               <span className="mt-0.5 block text-[11px] font-normal text-[#6B6B6B]/90 sm:mt-1 sm:text-xs">
-                Un seul fichier · PDF uniquement · max 4 Mo
+                Un seul fichier · PDF uniquement · max 12 Mo
               </span>
               <input
                 type="file"
                 accept="application/pdf"
                 onChange={(e) => {
                   setFile(e.target.files?.[0] ?? null);
+                  setCvStorage(null);
                   setStepTwo(null);
                   resetStatusForInput();
                 }}

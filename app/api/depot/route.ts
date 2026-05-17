@@ -1,46 +1,39 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 import { generateProfileOwnerToken } from "@/lib/profile-owner-token";
 import { parseCvWithAffinda } from "@/lib/affinda";
 import { isPdfUpload } from "@/lib/pdf-file";
-import { DEPOT_MAX_BYTES } from "@/lib/depot-errors";
+import { DEPOT_API_MAX_BYTES } from "@/lib/depot-errors";
+import {
+  assertCvObjectExists,
+  assertDepotHandleAvailable,
+  assertDepotRateLimits,
+  buildDepotCvPath,
+  depotIpHash,
+  depotProfileUrls,
+  insertDepotProfile,
+  normalizeDepotHandle,
+} from "@/lib/depot-server";
+import { extractOwnerTokenFromCvPath } from "@/lib/profile-owner-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-declare global {
-  var __rsDepotHits: Map<string, number[]> | undefined;
-}
-
-function getClientIp(req: Request): string {
-  const xf = req.headers.get("x-forwarded-for");
-  if (xf) return xf.split(",")[0]?.trim() || "unknown";
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
-function sha256(input: string) {
-  return crypto.createHash("sha256").update(input).digest("hex");
-}
-
-function rateLimitOrNull(key: string, limit: number, windowMs: number) {
-  const now = Date.now();
-  const map = (globalThis.__rsDepotHits ??= new Map<string, number[]>());
-  const prev = map.get(key) ?? [];
-  const next = prev.filter((t) => now - t < windowMs);
-  next.push(now);
-  map.set(key, next);
-  return next.length > limit ? { retryAfterSec: Math.ceil(windowMs / 1000) } : null;
-}
-
-function bad(msg: string, status = 400) {
-  return NextResponse.json({ error: msg }, { status });
+function bad(msg: string, status = 400, retryAfterSec?: number) {
+  return NextResponse.json(
+    retryAfterSec != null ? { error: msg, retryAfterSec } : { error: msg },
+    { status },
+  );
 }
 
 export async function POST(req: Request) {
   try {
-    return await handleDepotPost(req);
+    const contentType = req.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return await finalizeDepotPost(req);
+    }
+    return await multipartDepotPost(req);
   } catch (e: unknown) {
     const detail = e instanceof Error ? e.message : "unknown";
     console.error("[depot] POST unhandled:", detail);
@@ -48,33 +41,89 @@ export async function POST(req: Request) {
   }
 }
 
-async function handleDepotPost(req: Request) {
+async function finalizeDepotPost(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) return bad("server_misconfigured", 500);
 
-  const ip = getClientIp(req);
-  const salt = process.env.DEPOT_IP_SALT || process.env.VOTE_IP_SALT;
-  if (!salt) {
-    console.warn("[depot] DEPOT_IP_SALT non défini — rate-limiting affaibli");
-  }
-  const ipHash = sha256(`${ip}|${salt ?? crypto.randomUUID()}`).slice(0, 48);
-
-  // Anti-spam: basic in-memory rate-limit (per instance)
-  const rl1h = rateLimitOrNull(`ip:${ipHash}`, 5, 60 * 60 * 1000); // 5 depots / heure / IP-hash
-  if (rl1h) {
-    return NextResponse.json(
-      { error: "rate_limited", retryAfterSec: rl1h.retryAfterSec },
-      { status: 429 },
-    );
-  }
-  const rl1d = rateLimitOrNull(`ipd:${ipHash}`, 20, 24 * 60 * 60 * 1000); // 20 / jour / IP-hash
-  if (rl1d) {
-    return NextResponse.json(
-      { error: "rate_limited", retryAfterSec: rl1d.retryAfterSec },
-      { status: 429 },
-    );
+  let body: {
+    path?: string;
+    ownerToken?: string;
+    handle?: string;
+    parsedJobTitle?: string;
+    parsedSkills?: string;
+    parsedCity?: string;
+    accepted?: boolean;
+  };
+  try {
+    body = (await req.json()) as typeof body;
+  } catch {
+    return bad("bad_json", 400);
   }
 
+  const path = String(body.path || "").trim();
+  const ownerToken = String(body.ownerToken || "").trim();
+  const handle = String(body.handle || "").trim();
+  const parsedJobTitle = String(body.parsedJobTitle || "").trim();
+  const parsedSkillsRaw = String(body.parsedSkills || "").trim();
+  const parsedCity = String(body.parsedCity || "").trim();
+  const accepted = body.accepted === true;
+
+  if (!accepted) return bad("charte_required");
+  if (handle.length < 2) return bad("handle_required");
+  if (!path || !ownerToken) return bad("file_required");
+  if (extractOwnerTokenFromCvPath(path) !== ownerToken) {
+    return bad("bad_request", 400);
+  }
+
+  const ipHash = depotIpHash(req);
+  const { handleNorm, storedHandle, safeHandle, handleCandidates } =
+    normalizeDepotHandle(handle);
+  if (safeHandle.length < 1) return bad("handle_invalid");
+
+  const rl = assertDepotRateLimits(ipHash, handleNorm);
+  if (rl.error) return bad(rl.error, 429, rl.retryAfterSec);
+
+  const handleCheck = await assertDepotHandleAvailable(
+    supabaseServer,
+    handleCandidates,
+  );
+  if (handleCheck.error) {
+    return bad(handleCheck.error, 409);
+  }
+
+  const exists = await assertCvObjectExists(supabaseServer, path);
+  if (!exists.ok) return bad(exists.error, 400);
+
+  const parsedSkills = parsedSkillsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 12);
+
+  const insert = await insertDepotProfile(supabaseServer, {
+    storedHandle,
+    parsedJobTitle,
+    parsedSkills,
+    parsedCity,
+    cvPath: path,
+  });
+  if (insert.error) {
+    console.error("[depot] insert_failed:", insert.error.message);
+    return bad(`insert_failed:${insert.error.message}`, 500);
+  }
+
+  return NextResponse.json(
+    { ok: true, ...depotProfileUrls(req, ownerToken) },
+    { status: 200 },
+  );
+}
+
+/** Petit PDF uniquement — limite corps requête Vercel (~4,5 Mo). */
+async function multipartDepotPost(req: Request) {
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return bad("server_misconfigured", 500);
+
+  const ipHash = depotIpHash(req);
   const form = await req.formData().catch(() => null);
   if (!form) return bad("bad_formdata");
 
@@ -89,55 +138,23 @@ async function handleDepotPost(req: Request) {
   if (handle.length < 2) return bad("handle_required");
   if (!file || !(file instanceof File)) return bad("file_required");
   if (!isPdfUpload(file)) return bad("pdf_only");
-  if (file.size > DEPOT_MAX_BYTES) return bad("file_too_large");
+  if (file.size > DEPOT_API_MAX_BYTES) return bad("file_too_large");
 
-  const parsedSkills = parsedSkillsRaw
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .slice(0, 12);
-
-  const handleNorm = handle.replace(/^@/, "").toLowerCase();
-  const storedHandle = handle.startsWith("@") ? handle : `@${handleNorm}`;
-  const rlHandle = rateLimitOrNull(`iphandle:${ipHash}:${handleNorm}`, 1, 60 * 60 * 1000); // 2e tentative même pseudo / 1h
-  if (rlHandle) {
-    return NextResponse.json(
-      { error: "rate_limited_handle", retryAfterSec: rlHandle.retryAfterSec },
-      { status: 429 },
-    );
-  }
-
-  const handleCandidates = Array.from(
-    new Set([handle, handleNorm, `@${handleNorm}`, storedHandle].filter(Boolean)),
-  );
-
-  // Anti-doublon: refuse si un profil existe déjà avec ce pseudo
-  const existing = await supabaseServer
-    .from("profiles")
-    .select("id,status")
-    .in("handle", handleCandidates)
-    .limit(1);
-  if (existing.error) return bad(`check_failed:${existing.error.message}`, 500);
-  if (existing.data && existing.data.length > 0) {
-    const row = existing.data[0] as { status?: string };
-    if (row.status === "pending") return bad("already_pending", 409);
-    return bad("handle_taken", 409);
-  }
-
-  const safeHandle = handle
-    .replace(/^@/, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
+  const { handleNorm, storedHandle, safeHandle, handleCandidates } =
+    normalizeDepotHandle(handle);
   if (safeHandle.length < 1) return bad("handle_invalid");
-  const safeName = file.name
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, "-")
-    .slice(0, 80);
+
+  const rl = assertDepotRateLimits(ipHash, handleNorm);
+  if (rl.error) return bad(rl.error, 429, rl.retryAfterSec);
+
+  const handleCheck = await assertDepotHandleAvailable(
+    supabaseServer,
+    handleCandidates,
+  );
+  if (handleCheck.error) return bad(handleCheck.error, 409);
+
   const ownerToken = generateProfileOwnerToken();
-  const path = `pending/${safeHandle}/${ownerToken}-${Date.now()}-${safeName}`;
+  const path = buildDepotCvPath(safeHandle, ownerToken, file.name);
 
   const upload = await supabaseServer.storage.from("cvs").upload(path, file, {
     upsert: false,
@@ -148,52 +165,72 @@ async function handleDepotPost(req: Request) {
     return bad(`upload_failed:${upload.error.message}`, 500);
   }
 
-  const inferredJobTitle = parsedJobTitle.length > 0 ? parsedJobTitle : "Candidature";
-  const normalizedCity = parsedCity.length > 0 ? parsedCity : null;
+  const parsedSkills = parsedSkillsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 12);
 
-  const insert = await supabaseServer.from("profiles").insert({
-    handle: storedHandle,
-    job_title: inferredJobTitle,
-    tags: parsedSkills.length > 0 ? parsedSkills : ["candidature"],
-    portfolio_url: null,
-    cv_path: path,
-    status: "pending",
-    city: normalizedCity,
+  const insert = await insertDepotProfile(supabaseServer, {
+    storedHandle,
+    parsedJobTitle,
+    parsedSkills,
+    parsedCity,
+    cvPath: path,
   });
   if (insert.error) {
     console.error("[depot] insert_failed:", insert.error.message);
     return bad(`insert_failed:${insert.error.message}`, 500);
   }
 
-  const origin = req.headers.get("origin") || "";
-  const ALLOWED_ORIGINS = [
-    "https://recrutestagiaire.eu",
-    "https://www.recrutestagiaire.eu",
-    "http://localhost:3000",
-  ];
-  const safeOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : "";
-  const absoluteProfileUrl = safeOrigin
-    ? `${safeOrigin}/mon-profil/${ownerToken}`
-    : `/mon-profil/${ownerToken}`;
-
   return NextResponse.json(
-    {
-      ok: true,
-      ownerToken,
-      profileUrl: `/mon-profil/${ownerToken}`,
-      absoluteProfileUrl,
-    },
+    { ok: true, ...depotProfileUrls(req, ownerToken) },
     { status: 200 },
   );
 }
 
 export async function PUT(req: Request) {
+  const contentType = req.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return analyzeFromStorage(req);
+  }
+  return analyzeFromMultipart(req);
+}
+
+async function analyzeFromStorage(req: Request) {
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return bad("server_misconfigured", 500);
+
+  let body: { path?: string };
+  try {
+    body = (await req.json()) as typeof body;
+  } catch {
+    return bad("bad_json", 400);
+  }
+  const path = String(body.path || "").trim();
+  if (!path) return bad("file_required");
+
+  const download = await supabaseServer.storage.from("cvs").download(path);
+  if (download.error || !download.data) {
+    return bad(`affinda_failed:storage_${download.error?.message ?? "missing"}`, 502);
+  }
+  const file = new File([await download.data.arrayBuffer()], "cv.pdf", {
+    type: "application/pdf",
+  });
+  return runAffindaParse(file);
+}
+
+async function analyzeFromMultipart(req: Request) {
   const form = await req.formData().catch(() => null);
   if (!form) return bad("bad_formdata");
   const file = form.get("cv");
   if (!file || !(file instanceof File)) return bad("file_required");
   if (!isPdfUpload(file)) return bad("pdf_only");
-  if (file.size > DEPOT_MAX_BYTES) return bad("file_too_large");
+  if (file.size > DEPOT_API_MAX_BYTES) return bad("file_too_large");
+  return runAffindaParse(file);
+}
+
+async function runAffindaParse(file: File) {
   try {
     const parsed = await parseCvWithAffinda(file);
     return NextResponse.json(
@@ -214,4 +251,3 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }
-

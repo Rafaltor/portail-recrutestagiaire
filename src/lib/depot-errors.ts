@@ -1,5 +1,8 @@
-/** Limite corps requête Vercel (~4,5 Mo) — marge pour le multipart. */
-export const DEPOT_MAX_BYTES = 4 * 1024 * 1024;
+/** Taille max CV (upload direct Supabase Storage). */
+export const DEPOT_MAX_BYTES = 12 * 1024 * 1024;
+
+/** Limite si le PDF transite par l’API Vercel (multipart). */
+export const DEPOT_API_MAX_BYTES = 4 * 1024 * 1024;
 
 export function formatDepotError(code: string, retryAfterSec?: number): string {
   if (code === "rate_limited" || code === "rate_limited_handle") {
@@ -12,7 +15,7 @@ export function formatDepotError(code: string, retryAfterSec?: number): string {
     return "Ce pseudo Instagram est déjà utilisé sur le portail.";
   }
   if (code === "file_too_large" || code === "payload_too_large") {
-    return "PDF trop lourd (max 4 Mo). Compresse ton fichier ou envoie une version plus légère.";
+    return "PDF trop lourd (max 12 Mo). Compresse ton fichier ou envoie une version plus légère.";
   }
   if (code === "pdf_only") {
     return "Le CV doit être un fichier PDF (extension .pdf).";
@@ -43,7 +46,7 @@ export function formatDepotError(code: string, retryAfterSec?: number): string {
     return "Impossible de vérifier le pseudo. Réessaie dans quelques instants.";
   }
   if (code === "http_413") {
-    return "PDF trop lourd (max 4 Mo). Compresse ton fichier ou envoie une version plus légère.";
+    return "PDF trop lourd (max 12 Mo). Compresse ton fichier ou envoie une version plus légère.";
   }
   if (code === "http_502" || code === "http_503" || code === "http_504") {
     return "Le serveur met trop de temps à répondre. Réessaie dans un instant.";
