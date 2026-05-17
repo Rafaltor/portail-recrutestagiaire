@@ -32,11 +32,25 @@ const HOTSPOTS: HotspotDef[] = [
     auth: true,
     mode: "signup",
   },
-  { id: "atelier", label: "Atelier", href: boutiqueUrl, top: 60, left: 90, external: true },
+  { id: "atelier", label: "L'atelier", href: boutiqueUrl, top: 60, left: 90, external: true },
   { id: "espace", label: "Mon espace", href: "/mon-espace", top: 75, left: 70, auth: true },
 ];
 
 const btnClass = "rs-home-hotspot__btn";
+
+function HotspotButtonLabel({ spot }: { spot: HotspotDef }) {
+  if (spot.id === "atelier") {
+    return (
+      <>
+        L&apos;atelier
+        <span className="rs-home-hotspot__arrow" aria-hidden="true">
+          →
+        </span>
+      </>
+    );
+  }
+  return spot.label;
+}
 
 function stopPan(e: ReactPointerEvent) {
   e.stopPropagation();
@@ -48,23 +62,26 @@ function HotspotLink({ spot }: { spot: HotspotDef }) {
     "--rs-hotspot-left": `${spot.left}%`,
   } as CSSProperties;
 
+  const btnClassName =
+    spot.id === "atelier" ? `${btnClass} rs-home-hotspot__btn--atelier` : btnClass;
+
   let inner: ReactNode;
   if (spot.external) {
     inner = (
-      <a href={spot.href} className={btnClass}>
-        {spot.label}
+      <a href={spot.href} className={btnClassName}>
+        <HotspotButtonLabel spot={spot} />
       </a>
     );
   } else if (spot.auth) {
     inner = (
-      <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClass}>
-        {spot.label}
+      <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClassName}>
+        <HotspotButtonLabel spot={spot} />
       </PortalAuthLink>
     );
   } else {
     inner = (
-      <Link href={spot.href} className={btnClass}>
-        {spot.label}
+      <Link href={spot.href} className={btnClassName}>
+        <HotspotButtonLabel spot={spot} />
       </Link>
     );
   }

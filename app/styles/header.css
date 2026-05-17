@@ -16,6 +16,7 @@
   --rs-header-logo-size: 60px;
   --rs-header-title-size-mobile: clamp(10px, 3.3vw, 17px);
   --rs-header-title-size-desktop: clamp(1.35rem, 4.2vw, 1.85rem);
+  --rs-header-title-size-desktop-lg: clamp(1.9rem, 5vw, 2.65rem);
   position: sticky;
   top: 0;
   z-index: 9999;
@@ -1393,6 +1394,16 @@ body.rs-portal-header .rs-header-mobile-bar__title {
   -webkit-text-fill-color: var(--color-brand);
 }
 
+@media (min-width: 900px) {
+  body.rs-portal-header .rs-nav-brand__name.logo.rs-nav-brand__name--headline,
+  body.rs-portal-header .rs-ph-brandlink-title,
+  .header-wrap .rs-nav-brand__name.logo.rs-nav-brand__name--headline {
+    font-size: var(--rs-header-title-size-desktop-lg);
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+  }
+}
+
 body.rs-portal-header .rs-ph-navdesk {
   display: none;
   align-items: center;
@@ -2057,9 +2068,9 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     overflow: visible;
     text-overflow: unset;
     z-index: 1;
-    font-size: var(--rs-header-title-size-desktop);
-    line-height: 1.15;
-    letter-spacing: 0.045em;
+    font-size: clamp(2rem, 5.8vw, 3.2rem);
+    line-height: 1.08;
+    letter-spacing: 0.06em;
   }
 
   html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:first-of-type {
