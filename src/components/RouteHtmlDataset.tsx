@@ -27,6 +27,12 @@ export function RouteHtmlDataset() {
     } else {
       document.documentElement.removeAttribute("data-rs-swipe");
     }
+
+    if (pathname === "/") {
+      document.documentElement.setAttribute("data-rs-home-immersive", "1");
+    } else {
+      document.documentElement.removeAttribute("data-rs-home-immersive");
+    }
   }, [pathname]);
 
   return null;

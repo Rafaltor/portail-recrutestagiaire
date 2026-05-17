@@ -46,21 +46,37 @@ body.rs-ds-paris main.rs-portal-main:has(.rs-home-page--panorama) {
 }
 
 /* Accueil immersif (style Drake Related) : header seul, fond plein écran */
-html:has(.rs-home-page--immersive) .footer {
+html[data-rs-home-immersive="1"],
+html[data-rs-home-immersive="1"] body.rs-portal-body {
+  overflow: hidden;
+  height: 100%;
+  min-height: 100dvh;
+}
+
+html[data-rs-home-immersive="1"] .footer {
   display: none;
 }
 
-html:has(.rs-home-page--immersive) main.rs-portal-main {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  padding-bottom: 0;
+html[data-rs-home-immersive="1"] main.rs-portal-main,
+html[data-rs-home-immersive="1"] body > main,
+html[data-rs-home-immersive="1"] body > main.rs-portal-main.mx-auto {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 !important;
   overflow: hidden;
+  background: transparent;
 }
 
-html:has(.rs-home-page--immersive) body.rs-portal-body {
+html[data-rs-home-immersive="1"] .rs-home-page--immersive {
+  width: 100%;
+  height: 100%;
   min-height: 100dvh;
+  min-height: 100svh;
 }
 
 /* Swipe : main transparent et plein écran */
@@ -492,33 +508,60 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
 
 /* ===== Accueil immersif : fond panoramique ================================ */
 .rs-home-page--panorama.rs-home-page--immersive {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
   gap: 0;
   width: 100%;
+  height: 100%;
   max-width: none;
   margin: 0;
 }
 
 .rs-home-panorama {
-  position: relative;
-  flex: 1;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 100vw;
-  min-height: 0;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
+  margin: 0;
 }
 
 .rs-home-panorama__viewport {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: calc(100dvh - var(--rs-header-stack, 132px));
+  min-height: 100dvh;
+  min-height: 100svh;
   overflow: hidden;
   background: #0a0a0a;
+}
+
+.rs-home-immersive-nav {
+  position: absolute;
+  left: 50%;
+  bottom: max(28px, env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 16px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+html[data-rs-home-immersive="1"] .rs-home-immersive-nav__btn {
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .rs-home-immersive-nav {
+    bottom: max(40px, env(safe-area-inset-bottom, 0px));
+    gap: 12px;
+  }
 }
 
 .rs-home-panorama--draggable .rs-home-panorama__viewport {

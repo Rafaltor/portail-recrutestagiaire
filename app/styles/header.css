@@ -1821,3 +1821,82 @@ html[data-rs-swipe="1"] main.mx-auto {
     --rs-swipe-top-offset: calc(36px + 56px + env(safe-area-inset-top, 0px));
   }
 }
+
+/* ===== Accueil immersif : header transparent, sans menu ==================== */
+html[data-rs-home-immersive="1"] .header-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rs-home-immersive="1"] .header-wrap::after,
+html[data-rs-home-immersive="1"] .header-wrap.rs-header--banner::before {
+  display: none;
+}
+
+html[data-rs-home-immersive="1"] .rs-ticker {
+  display: none;
+}
+
+html[data-rs-home-immersive="1"] .rs-header-mobile-bar__menu-btn,
+html[data-rs-home-immersive="1"] .rs-ph-navdesk,
+html[data-rs-home-immersive="1"] .rs-header-top-line .rs-banner-top__actions {
+  display: none !important;
+}
+
+html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title,
+html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line,
+html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline,
+html[data-rs-home-immersive="1"] .rs-ph-brandlink-title {
+  color: #fff !important;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+html[data-rs-home-immersive="1"] .rs-header-mobile-bar {
+  background: transparent;
+}
+
+html[data-rs-home-immersive="1"] .rs-header-body {
+  background: transparent;
+}
+
+@media (max-width: 899.98px) {
+  html[data-rs-home-immersive="1"] .rs-header-main-row--desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 900px) {
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar {
+    display: none !important;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-main-row--desktop {
+    display: flex !important;
+    background: transparent;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-top-line {
+    border: none;
+    background: transparent;
+  }
+}
+
+@media (max-width: 899.98px) {
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar {
+    grid-template-columns: auto 1fr;
+    justify-items: center;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar__brand {
+    justify-self: start;
+  }
+
+  html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title {
+    justify-self: center;
+  }
+}

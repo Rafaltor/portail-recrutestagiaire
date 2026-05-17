@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { HomeImmersiveNav } from "@/components/HomeImmersiveNav";
 import {
   useCallback,
   useEffect,
@@ -245,6 +246,8 @@ export function HomePanoramicHero() {
             onLoad={(e) => onImageReady(e.currentTarget)}
           />
         </div>
+
+        <HomeImmersiveNav />
       </div>
     </section>
   );
