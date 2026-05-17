@@ -51,12 +51,7 @@ function HotspotLink({ spot }: { spot: HotspotDef }) {
   let inner: ReactNode;
   if (spot.external) {
     inner = (
-      <a
-        href={spot.href}
-        className={btnClass}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
+      <a href={spot.href} className={btnClass}>
         {spot.label}
       </a>
     );
