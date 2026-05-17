@@ -3,6 +3,50 @@
 import { useMemo, useState } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import { RequireAuthGate } from "@/components/RequireAuthGate";
+import { isPdfUpload } from "@/lib/pdf-file";
+
+function formatDepotError(code: string, retryAfterSec?: number): string {
+  if (code === "rate_limited" || code === "rate_limited_handle") {
+    return `Trop de dépôts d’un coup. Réessaie dans ~${retryAfterSec ?? 60}s.`;
+  }
+  if (code === "already_pending") {
+    return "Un profil avec ce pseudo est déjà en attente de modération.";
+  }
+  if (code === "handle_taken") {
+    return "Ce pseudo Instagram est déjà utilisé sur le portail.";
+  }
+  if (code === "file_too_large") return "PDF trop lourd (max ~12 Mo).";
+  if (code === "pdf_only") {
+    return "Le CV doit être un fichier PDF (extension .pdf).";
+  }
+  if (code === "charte_required") return "Tu dois accepter la charte.";
+  if (code === "handle_required") return "Pseudo Instagram obligatoire.";
+  if (code === "handle_invalid") {
+    return "Pseudo invalide : utilise des lettres, chiffres, points ou tirets.";
+  }
+  if (code === "file_required") return "Ajoute ton CV en PDF.";
+  if (code === "bad_formdata") return "Envoi invalide. Recharge la page et réessaie.";
+  if (code === "server_misconfigured") {
+    return "Service temporairement indisponible. Réessaie plus tard.";
+  }
+  if (code.startsWith("upload_failed:")) {
+    return "Impossible d’enregistrer le PDF. Réessaie dans quelques minutes.";
+  }
+  if (code.startsWith("insert_failed:")) {
+    const detail = code.slice("insert_failed:".length);
+    if (/duplicate|unique|already exists/i.test(detail)) {
+      return "Ce pseudo Instagram est déjà utilisé sur le portail.";
+    }
+    return "Impossible d’enregistrer la candidature. Vérifie le pseudo et réessaie.";
+  }
+  if (code.startsWith("check_failed:")) {
+    return "Impossible de vérifier le pseudo. Réessaie dans quelques instants.";
+  }
+  if (code === "Erreur dépôt" || !code.trim()) {
+    return "Erreur lors du dépôt. Vérifie ta connexion et réessaie.";
+  }
+  return code;
+}
 
 type FormState = {
   handle: string;
@@ -100,7 +144,7 @@ function DepotPageInner() {
       setMessage("Ajoute un CV PDF pour continuer.");
       return;
     }
-    if (file.type !== "application/pdf") {
+    if (!isPdfUpload(file)) {
       setStatus("error");
       setMessage("Le CV doit être au format PDF.");
       return;
@@ -164,7 +208,7 @@ function DepotPageInner() {
 
     try {
       if (!file) throw new Error("Ajoute un PDF.");
-      if (file.type !== "application/pdf") {
+      if (!isPdfUpload(file)) {
         throw new Error("Le CV doit être au format PDF.");
       }
       if (!stepTwo) throw new Error("Analyse ou saisie manuelle requise avant validation.");
@@ -187,31 +231,7 @@ function DepotPageInner() {
           .catch(() => ({}));
 
         const code = j?.error || "Erreur dépôt";
-        const retry = j?.retryAfterSec;
-        if (code === "rate_limited" || code === "rate_limited_handle") {
-          throw new Error(
-            `Trop de dépôts d’un coup. Réessaie dans ~${retry ?? 60}s.`,
-          );
-        }
-        if (code === "already_pending") {
-          throw new Error(
-            "Un profil avec ce pseudo est déjà en attente de modération.",
-          );
-        }
-        if (code === "file_too_large") {
-          throw new Error("PDF trop lourd (max ~12 Mo).");
-        }
-        if (code === "pdf_only") {
-          throw new Error("Le CV doit être au format PDF.");
-        }
-        if (code === "charte_required") {
-          throw new Error("Tu dois accepter la charte.");
-        }
-        if (code === "handle_required") {
-          throw new Error("Pseudo Instagram obligatoire.");
-        }
-
-        throw new Error(code);
+        throw new Error(formatDepotError(code, j?.retryAfterSec));
       }
 
       const data = (await r.json()) as DepotSuccess;

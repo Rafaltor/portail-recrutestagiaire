@@ -1083,9 +1083,25 @@ html.rs-header-drawer-open body {
   overflow: hidden;
 }
 
-/* ===== Drawer mobile : footer (boutons rose pleine largeur) ================ */
+/* ===== Drawer mobile : footer (boutons empilés pleine largeur) ============== */
+.header-wrap .rs-header-drawer__footer .rs-header-drawer__footer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 10px;
+}
+
+.header-wrap .rs-header-drawer__footer .rs-header-drawer__footer-actions > a {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 auto;
+}
+
 .header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn,
-.header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-header-drawer__caf-btn {
+.header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-header-drawer__caf-btn,
+.header-wrap .rs-header-drawer__footer .rs-header-drawer__footer-actions .rs-header-drawer__caf-btn {
   clip-path: none;
   width: 100%;
   max-width: 100%;
@@ -1105,7 +1121,9 @@ html.rs-header-drawer-open body {
 .header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:hover,
 .header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-caf-btn-dossier.abt-btn:focus-visible,
 .header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-header-drawer__caf-btn:hover,
-.header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-header-drawer__caf-btn:focus-visible {
+.header-wrap .rs-header-drawer__footer .rs-banner-top__actions .rs-header-drawer__caf-btn:focus-visible,
+.header-wrap .rs-header-drawer__footer .rs-header-drawer__footer-actions .rs-header-drawer__caf-btn:hover,
+.header-wrap .rs-header-drawer__footer .rs-header-drawer__footer-actions .rs-header-drawer__caf-btn:focus-visible {
   background: #1a1a1a !important;
   border: none !important;
   color: #fff !important;
@@ -1595,7 +1613,16 @@ body.rs-portal-header .rs-header-drawer__footer {
 }
 
 body.rs-portal-header .rs-header-drawer__footer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
   gap: 10px;
+}
+
+body.rs-portal-header .rs-header-drawer__footer-actions > a {
+  width: 100%;
+  max-width: 100%;
 }
 
 body.rs-portal-header .rs-header-drawer__footer .rs-ph-drawer-cta {

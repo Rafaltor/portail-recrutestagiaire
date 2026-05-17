@@ -248,17 +248,17 @@ export function PortalHeaderDrawer() {
           </div>
         </nav>
         <div className="rs-header-drawer__footer">
-          <div className="rs-banner-top__actions rs-header-drawer__footer-actions d-inline-flex flex-column align-items-stretch gap-2 w-100">
+          <div className="rs-header-drawer__footer-actions flex w-full flex-col gap-2.5">
             <PortalAuthLink
               href="/depot"
               mode="signup"
-              className="rs-ph-drawer-cta rs-btn rs-btn--primary rs-header-drawer__caf-btn text-center text-decoration-none no-underline hover:no-underline"
+              className="rs-ph-drawer-cta rs-btn rs-btn--primary rs-header-drawer__caf-btn w-full text-center text-decoration-none no-underline hover:no-underline"
             >
               Déposer mon CV
             </PortalAuthLink>
             <PortalAuthLink
               href="/mon-espace"
-              className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-center text-decoration-none no-underline hover:no-underline"
+              className="rs-header-drawer__caf-btn w-full text-center text-decoration-none no-underline hover:no-underline"
             >
               Mon espace
             </PortalAuthLink>

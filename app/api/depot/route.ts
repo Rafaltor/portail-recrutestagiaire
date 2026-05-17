@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 import { generateProfileOwnerToken } from "@/lib/profile-owner-token";
 import { parseCvWithAffinda } from "@/lib/affinda";
+import { isPdfUpload } from "@/lib/pdf-file";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
   if (!accepted) return bad("charte_required");
   if (handle.length < 2) return bad("handle_required");
   if (!file || !(file instanceof File)) return bad("file_required");
-  if (file.type !== "application/pdf") return bad("pdf_only");
+  if (!isPdfUpload(file)) return bad("pdf_only");
   if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
 
   const parsedSkills = parsedSkillsRaw
@@ -93,21 +94,31 @@ export async function POST(req: Request) {
     );
   }
 
-  // Anti-doublon: refuse un nouveau dépôt si un profil est déjà "pending" avec ce pseudo
+  const handleCandidates = Array.from(
+    new Set([handle, handleNorm, `@${handleNorm}`].filter(Boolean)),
+  );
+
+  // Anti-doublon: refuse si un profil existe déjà avec ce pseudo
   const existing = await supabaseServer
     .from("profiles")
     .select("id,status")
-    .in("handle", [handle, handleNorm, `@${handleNorm}`])
-    .eq("status", "pending")
+    .in("handle", handleCandidates)
     .limit(1);
   if (existing.error) return bad(`check_failed:${existing.error.message}`, 500);
-  if (existing.data && existing.data.length > 0) return bad("already_pending", 409);
+  if (existing.data && existing.data.length > 0) {
+    const row = existing.data[0] as { status?: string };
+    if (row.status === "pending") return bad("already_pending", 409);
+    return bad("handle_taken", 409);
+  }
 
   const safeHandle = handle
     .replace(/^@/, "")
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .slice(0, 60);
+  if (safeHandle.length < 1) return bad("handle_invalid");
   const safeName = file.name
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, "-")
@@ -162,7 +173,7 @@ export async function PUT(req: Request) {
   if (!form) return bad("bad_formdata");
   const file = form.get("cv");
   if (!file || !(file instanceof File)) return bad("file_required");
-  if (file.type !== "application/pdf") return bad("pdf_only");
+  if (!isPdfUpload(file)) return bad("pdf_only");
   if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
   try {
     const parsed = await parseCvWithAffinda(file);
