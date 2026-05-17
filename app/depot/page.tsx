@@ -49,6 +49,8 @@ function DepotPageInner() {
     return form.handle.trim().length > 1 && !!file;
   }, [form.handle, file]);
 
+  const canContinueWithoutAnalysis = canAnalyze;
+
   const canSubmit = useMemo(() => {
     return (
       form.accepted &&
@@ -63,6 +65,22 @@ function DepotPageInner() {
       setStatus("idle");
     }
     setMessage("");
+  }
+
+  function enableManualStepTwo(infoMessage?: string) {
+    setStatus("idle");
+    setMessage(
+      infoMessage ||
+        "Analyse indisponible pour le moment. Complète les champs manuellement.",
+    );
+    setStepTwo({
+      name: "",
+      email: "",
+      jobTitle: "",
+      skills: "",
+      city: "",
+      manualFallback: true,
+    });
   }
 
   function onSkillsChange(nextValue: string) {
@@ -121,48 +139,17 @@ function DepotPageInner() {
       });
     } catch (e: unknown) {
       const raw = e instanceof Error ? e.message : "Erreur inconnue";
-      if (raw === "affinda_not_configured") {
-        setStatus("idle");
-        setMessage(
-          "Analyse indisponible pour le moment. Complète les champs manuellement.",
-        );
-        setStepTwo({
-          name: "",
-          email: "",
-          jobTitle: "",
-          skills: "",
-          city: "",
-          manualFallback: true,
-        });
-      } else if (raw.startsWith("affinda_failed_")) {
-        setStatus("idle");
-        setMessage(
-          "Analyse indisponible pour le moment. Complète les champs manuellement.",
-        );
-        setStepTwo({
-          name: "",
-          email: "",
-          jobTitle: "",
-          skills: "",
-          city: "",
-          manualFallback: true,
-        });
-      } else if (raw === "affinda_invalid_payload") {
-        setStatus("idle");
-        setMessage(
-          "Analyse indisponible pour le moment. Complète les champs manuellement.",
-        );
-        setStepTwo({
-          name: "",
-          email: "",
-          jobTitle: "",
-          skills: "",
-          city: "",
-          manualFallback: true,
-        });
+      const affindaLike =
+        raw === "affinda_not_configured" ||
+        raw === "affinda_invalid_payload" ||
+        raw === "affinda_failed" ||
+        raw.startsWith("affinda_failed_");
+      if (affindaLike) {
+        enableManualStepTwo();
       } else {
-        setStatus("error");
-        setMessage(raw);
+        enableManualStepTwo(
+          "Analyse impossible. Tu peux compléter les champs manuellement.",
+        );
       }
     } finally {
       setParsing(false);
@@ -378,18 +365,32 @@ function DepotPageInner() {
           </div>
         </div>
 
-        <button
-          type="button"
-          disabled={!canAnalyze || parsing}
-          onClick={onAnalyzeCv}
-          className={`mt-4 w-full rounded-full border-0 px-4 py-3 text-xs font-bold transition-colors duration-150 sm:mt-5 sm:py-[14px] sm:text-sm ${
-            canAnalyze
-              ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#db2777]"
-              : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
-          }`}
-        >
-          Analyser mon CV
-        </button>
+        <div className="mt-4 flex flex-col gap-2 sm:mt-5">
+          <button
+            type="button"
+            disabled={!canAnalyze || parsing}
+            onClick={onAnalyzeCv}
+            className={`w-full rounded-full border-0 px-4 py-3 text-xs font-bold transition-colors duration-150 sm:py-[14px] sm:text-sm ${
+              canAnalyze
+                ? "cursor-pointer bg-[#f472b6] text-white hover:bg-[#db2777]"
+                : "cursor-not-allowed bg-[#f4f4f2] text-[#999990]"
+            }`}
+          >
+            Analyser mon CV
+          </button>
+          <button
+            type="button"
+            disabled={!canContinueWithoutAnalysis || parsing || !!stepTwo}
+            onClick={() => enableManualStepTwo()}
+            className={`w-full rounded-full border px-4 py-3 text-xs font-bold transition-colors duration-150 sm:py-[14px] sm:text-sm ${
+              canContinueWithoutAnalysis && !stepTwo
+                ? "cursor-pointer border-[#E8E8E8] bg-white text-[#0A0A0A] hover:border-[#f472b6]"
+                : "cursor-not-allowed border-[#F0F0F0] bg-[#FAFAFA] text-[#999990]"
+            }`}
+          >
+            Continuer sans analyse
+          </button>
+        </div>
 
         {parsing ? (
           <div className="mt-3 flex items-center gap-2 rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-2.5 text-xs text-[#6B6B6B] sm:mt-4 sm:p-3 sm:text-sm">

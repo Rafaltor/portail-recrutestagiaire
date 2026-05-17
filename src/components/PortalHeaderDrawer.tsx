@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { HeaderAccountLink } from "@/components/HeaderAccountLink";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
 
 /**
@@ -257,7 +256,12 @@ export function PortalHeaderDrawer() {
             >
               Déposer mon CV
             </PortalAuthLink>
-            <HeaderAccountLink className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none" />
+            <PortalAuthLink
+              href="/mon-espace"
+              className="rs-header-ghost-link rs-header-drawer__caf-btn d-inline-flex align-items-center justify-content-center gap-2 text-center text-decoration-none no-underline hover:no-underline"
+            >
+              Mon espace
+            </PortalAuthLink>
           </div>
         </div>
       </div>

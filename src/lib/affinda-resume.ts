@@ -3,6 +3,8 @@
  * Aligné sur la logique du proxy PHP (rs_map_affinda_to_form).
  */
 
+import { getAffindaApiBase } from "@/lib/affinda-config";
+
 export type ParsedCvForm = {
   name: string;
   email: string;
@@ -128,15 +130,6 @@ export function mapAffindaResumeToForm(resume: unknown): ParsedCvForm {
     source: "affinda",
     note: "Vérifiez et complétez les champs. Les textes proviennent d’une analyse automatique du document.",
   };
-}
-
-export function getAffindaApiBase(): string {
-  const b = process.env.AFFINDA_API_BASE?.trim();
-  if (b && b.length > 0) {
-    return b.replace(/\/+$/, "");
-  }
-  /* Défaut EU ; si ton compte est app.affinda.com ou app.us1.affinda.com, surcharge AFFINDA_API_BASE */
-  return "https://api.eu1.affinda.com";
 }
 
 function sleep(ms: number) {

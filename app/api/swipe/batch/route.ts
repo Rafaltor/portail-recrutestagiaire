@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readLinkedVisitorIds } from "@/lib/auth-linked-visitors";
 import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
@@ -28,6 +29,53 @@ type ProfileRow = {
   likes: number | null;
 };
 
+async function resolveVisitorIdsForExclusion(
+  req: Request,
+  visitorId: string,
+): Promise<string[]> {
+  const ids = new Set<string>([visitorId]);
+  const authHeader = req.headers.get("authorization") || "";
+  const accessToken = authHeader.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length).trim()
+    : "";
+  if (!accessToken) return [...ids];
+
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return [...ids];
+
+  const { data: userRes } = await supabaseServer.auth.getUser(accessToken);
+  if (!userRes?.user) return [...ids];
+
+  for (const linked of readLinkedVisitorIds(
+    userRes.user.user_metadata?.linked_visitor_ids,
+  )) {
+    ids.add(linked);
+  }
+  return [...ids];
+}
+
+async function fetchVotedProfileIds(
+  visitorIds: string[],
+): Promise<Set<string>> {
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return new Set();
+
+  const voted = new Set<string>();
+  for (const vid of visitorIds) {
+    const res = await supabaseServer
+      .from("votes")
+      .select("profile_id")
+      .eq("visitor_id", vid)
+      .limit(5000);
+    if (res.error) throw new Error(res.error.message);
+    for (const row of res.data ?? []) {
+      const id = String((row as { profile_id: string }).profile_id || "").trim();
+      if (id) voted.add(id);
+    }
+  }
+  return voted;
+}
+
 export async function GET(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) return bad("server_misconfigured", 500);
@@ -47,47 +95,37 @@ export async function GET(req: Request) {
         .slice(0, 200)
     : [];
 
-  const voted = await supabaseServer
-    .from("votes")
-    .select("profile_id")
-    .eq("visitor_id", visitorId)
-    .limit(4000);
-  if (voted.error) return bad(`votes_failed:${voted.error.message}`, 500);
+  let visitorIdsForVotes: string[];
+  let votedIds: Set<string>;
+  try {
+    visitorIdsForVotes = await resolveVisitorIdsForExclusion(req, visitorId);
+    votedIds = await fetchVotedProfileIds(visitorIdsForVotes);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "votes_failed";
+    return bad(`votes_failed:${msg}`, 500);
+  }
 
-  const votedIds = (voted.data ?? [])
-    .map((r) => String((r as { profile_id: string }).profile_id))
-    .filter(Boolean)
-    .slice(0, 4000);
+  const excludeSet = new Set<string>([...excludeIds, ...votedIds]);
 
-  const allExcludes = Array.from(new Set([...excludeIds, ...votedIds])).slice(
-    0,
-    400,
-  );
-
-  /* Pas de tri par score ici : ordre aléatoire côté swipe (page /profils garde le classement). */
-  let q = supabaseServer
+  const res = await supabaseServer
     .from("profiles")
     .select("id,handle,job_title,city,portfolio_url,cv_path,likes")
     .eq("status", "published")
-    .limit(120);
+    .limit(500);
 
-  if (allExcludes.length > 0) {
-    const escaped = allExcludes
-      .map((id) => `"${id.replace(/"/g, "")}"`)
-      .join(",");
-    q = q.not("id", "in", `(${escaped})`);
-  }
-
-  const res = await q;
   if (res.error) return bad(`profiles_failed:${res.error.message}`, 500);
 
-  const candidates = (res.data ?? []) as ProfileRow[];
+  const candidates = ((res.data ?? []) as ProfileRow[]).filter(
+    (p) => p.id && !excludeSet.has(p.id),
+  );
+
   if (!candidates.length) {
     return NextResponse.json({ done: true, items: [] }, { status: 200 });
   }
 
   shuffleInPlace(candidates);
   const picked = candidates.slice(0, n);
+  const done = candidates.length <= n;
 
   const items: {
     profile: {
@@ -99,6 +137,7 @@ export async function GET(req: Request) {
     };
     cvUrl: string;
   }[] = [];
+
   for (const p of picked) {
     const cvPath = normalizeCvObjectKey(p.cv_path);
     if (!cvPath) continue;
@@ -118,8 +157,9 @@ export async function GET(req: Request) {
     });
   }
 
-  /* `done` = plus aucun profil publié hors exclus/votes en base — pas « aucune URL signée » sur ce tirage. */
-  const done = candidates.length === 0;
+  if (!items.length && candidates.length > 0) {
+    return bad("signed_url_failed", 500);
+  }
+
   return NextResponse.json({ done, items }, { status: 200 });
 }
-

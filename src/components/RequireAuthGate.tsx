@@ -55,6 +55,7 @@ export function RequireAuthGate({
     return (
       <ConnexionOverlay
         initialMode={initialMode}
+        nextPath={nextPath}
         onClose={() => router.push("/")}
       />
     );

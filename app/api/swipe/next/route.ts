@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readLinkedVisitorIds } from "@/lib/auth-linked-visitors";
 import { normalizeCvObjectKey } from "@/lib/cv-storage-path";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 
@@ -18,6 +19,51 @@ type ProfileRow = {
   cv_path: string;
 };
 
+async function resolveVisitorIdsForExclusion(
+  req: Request,
+  visitorId: string,
+): Promise<string[]> {
+  const ids = new Set<string>([visitorId]);
+  const authHeader = req.headers.get("authorization") || "";
+  const accessToken = authHeader.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length).trim()
+    : "";
+  if (!accessToken) return [...ids];
+
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return [...ids];
+
+  const { data: userRes } = await supabaseServer.auth.getUser(accessToken);
+  if (!userRes?.user) return [...ids];
+
+  for (const linked of readLinkedVisitorIds(
+    userRes.user.user_metadata?.linked_visitor_ids,
+  )) {
+    ids.add(linked);
+  }
+  return [...ids];
+}
+
+async function fetchVotedProfileIds(visitorIds: string[]): Promise<Set<string>> {
+  const supabaseServer = tryGetSupabaseServer();
+  if (!supabaseServer) return new Set();
+
+  const voted = new Set<string>();
+  for (const vid of visitorIds) {
+    const res = await supabaseServer
+      .from("votes")
+      .select("profile_id")
+      .eq("visitor_id", vid)
+      .limit(5000);
+    if (res.error) throw new Error(res.error.message);
+    for (const row of res.data ?? []) {
+      const id = String((row as { profile_id: string }).profile_id || "").trim();
+      if (id) voted.add(id);
+    }
+  }
+  return voted;
+}
+
 export async function GET(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) return bad("server_misconfigured", 500);
@@ -26,37 +72,27 @@ export async function GET(req: Request) {
   const visitorId = String(searchParams.get("visitorId") || "").trim();
   if (!visitorId) return bad("visitor_required");
 
-  const voted = await supabaseServer
-    .from("votes")
-    .select("profile_id")
-    .eq("visitor_id", visitorId)
-    .limit(2000);
-  if (voted.error) return bad(`votes_failed:${voted.error.message}`, 500);
+  let votedIds: Set<string>;
+  try {
+    const visitorIds = await resolveVisitorIdsForExclusion(req, visitorId);
+    votedIds = await fetchVotedProfileIds(visitorIds);
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "votes_failed";
+    return bad(`votes_failed:${msg}`, 500);
+  }
 
-  const votedIds = (voted.data ?? [])
-    .map((r) => String((r as { profile_id: string }).profile_id))
-    .filter(Boolean);
-
-  let q = supabaseServer
+  const res = await supabaseServer
     .from("profiles")
     .select("id,handle,job_title,city,portfolio_url,cv_path")
     .eq("status", "published")
-    .limit(60);
+    .limit(500);
 
-  // Exclude already voted profiles (simple MVP strategy)
-  if (votedIds.length > 0) {
-    // supabase-js expects a string like "(id1,id2,...)"
-    const escaped = votedIds
-      .slice(0, 200)
-      .map((id) => `"${id.replace(/"/g, "")}"`)
-      .join(",");
-    q = q.not("id", "in", `(${escaped})`);
-  }
-
-  const res = await q;
   if (res.error) return bad(`profiles_failed:${res.error.message}`, 500);
 
-  const list = (res.data ?? []) as ProfileRow[];
+  const list = ((res.data ?? []) as ProfileRow[]).filter(
+    (p) => p.id && !votedIds.has(p.id),
+  );
+
   if (!list.length) {
     return NextResponse.json({ done: true }, { status: 200 });
   }
@@ -88,4 +124,3 @@ export async function GET(req: Request) {
     { status: 200 },
   );
 }
-

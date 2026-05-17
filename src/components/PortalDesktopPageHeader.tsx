@@ -25,7 +25,7 @@ export function PortalDesktopPageHeader({
 }: PortalDesktopPageHeaderProps) {
   return (
     <header
-      className={`rs-panel hidden overflow-hidden rounded-xl p-4 sm:p-6 md:p-8 lg:block ${className}`.trim()}
+      className={`rs-panel hidden overflow-hidden rounded-xl p-4 sm:p-6 md:p-8 min-[900px]:block ${className}`.trim()}
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">

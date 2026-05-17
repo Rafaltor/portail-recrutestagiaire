@@ -12,7 +12,7 @@ const CSP = [
   "img-src 'self' https: blob:",
   // worker-src blob: requis pour le web worker PDF.js
   "worker-src blob: 'self'",
-  "connect-src 'self' https://*.supabase.co https://api.eu1.affinda.com https://api.affinda.com",
+  "connect-src 'self' https://*.supabase.co https://api.eu1.affinda.com https://api.affinda.com https://api.us1.affinda.com",
   "frame-src 'none'",
   "frame-ancestors 'none'",
   "object-src 'none'",

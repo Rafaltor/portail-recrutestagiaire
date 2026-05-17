@@ -255,8 +255,14 @@ function SwipePageInner() {
       controller.abort("profile_fetch_timeout");
     }, PROFILE_FETCH_TIMEOUT_MS);
     try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const r = await fetch(`/api/swipe/batch?${qp.toString()}`, {
         signal: controller.signal,
+        headers: session?.access_token
+          ? { authorization: `Bearer ${session.access_token}` }
+          : undefined,
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));

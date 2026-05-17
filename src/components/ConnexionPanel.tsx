@@ -5,16 +5,11 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { ConnexionMode } from "@/lib/connexion-url";
 
-type LinkRes = { ok: true; shopifyCustomerId: string };
-
 const connexionInputClass =
   "w-full rounded-[12px] border-[1.5px] border-[#e8e8e4] bg-white px-4 py-3 font-[family-name:var(--font-dm)] text-[14px] font-normal text-[#0a0a0a] outline-none transition-[border-color] focus:border-[#f472b6]";
 
 const connexionPrimaryBtn =
   "w-full rounded-full border-0 bg-[#0a0a0a] py-[14px] text-center font-[family-name:var(--font-dm)] text-[14px] font-medium text-white transition-colors hover:bg-[#f472b6] disabled:cursor-not-allowed disabled:opacity-50";
-
-const connexionOutlineBtn =
-  "inline-flex w-full items-center justify-center rounded-full border-[1.5px] border-[#e8e8e4] bg-white py-[14px] text-center font-[family-name:var(--font-dm)] text-[14px] font-medium text-[#0a0a0a] transition-colors hover:border-[#0a0a0a]";
 
 function GoogleAuthButton({
   disabled,
@@ -90,9 +85,7 @@ export function ConnexionPanel({
   const [status, setStatus] = useState<
     | "idle"
     | "sent"
-    | "linking"
     | "error"
-    | "linked"
     | "authing-login"
     | "authing-signup"
     | "oauth"
@@ -101,9 +94,6 @@ export function ConnexionPanel({
   >("idle");
   const [message, setMessage] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
-  const [shopifyCustomerId, setShopifyCustomerId] = useState<string | null>(
-    null,
-  );
 
   const redirectTo = useMemo(() => {
     if (typeof window === "undefined") return "";
@@ -125,7 +115,11 @@ export function ConnexionPanel({
     onAuthenticated?.();
     const cleanNext = nextPath.trim();
     if (cleanNext.startsWith("/") && !cleanNext.startsWith("//")) {
-      router.push(cleanNext);
+      router.replace(cleanNext);
+      return;
+    }
+    if (variant !== "modal" && !linkToken) {
+      router.replace("/mon-espace");
     }
   }
 
@@ -171,6 +165,10 @@ export function ConnexionPanel({
       setUserEmail(data.user?.email ?? "");
       if (data.user?.email && linkToken) {
         await linkTokenToCurrentUser(linkToken);
+        return;
+      }
+      if (data.user?.email) {
+        finishAuth();
       }
     }
     void loadUser();
@@ -260,55 +258,6 @@ export function ConnexionPanel({
     }
   }
 
-  async function linkShopify() {
-    setStatus("linking");
-    setMessage("");
-
-    const {
-      data: { session },
-      error: sessErr,
-    } = await supabase.auth.getSession();
-
-    if (sessErr || !session?.access_token) {
-      setStatus("error");
-      setMessage("Session manquante. Reconnecte-toi.");
-      return;
-    }
-
-    const r = await fetch("/api/account/link-shopify", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${session.access_token}`,
-      },
-    });
-
-    if (!r.ok) {
-      const j = await r.json().catch(() => ({}));
-      setStatus("error");
-      if (j?.error === "shopify_customer_not_found") {
-        setMessage(
-          "Aucun compte client Shopify trouvé pour cet email. (On peut activer la création automatique si tu veux.)",
-        );
-      } else {
-        setMessage(j?.error || "Impossible de lier le compte Shopify.");
-      }
-      return;
-    }
-
-    const j = (await r.json()) as LinkRes;
-    setShopifyCustomerId(j.shopifyCustomerId);
-    setStatus("linked");
-    setMessage("Compte Shopify lié.");
-  }
-
-  async function signOut() {
-    setStatus("idle");
-    setMessage("");
-    setShopifyCustomerId(null);
-    await supabase.auth.signOut();
-    setUserEmail("");
-  }
-
   const oauthBusy = status === "oauth";
   const loginPwdBusy = status === "authing-login";
   const signupPwdBusy = status === "authing-signup";
@@ -316,68 +265,9 @@ export function ConnexionPanel({
 
   if (userEmail) {
     return (
-      <div
-        className={
-          isModal
-            ? "w-full"
-            : "mx-auto w-full max-w-[480px] rounded-[20px] border border-[#e8e8e4] bg-white p-8 shadow-none sm:p-10"
-        }
-      >
-        <div className="font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/90">
-          Connecté en tant que <span className="font-semibold">{userEmail}</span>
-        </div>
-        {linkToken ? (
-          <div className="mt-2 font-mono text-xs text-[#0a0a0a]/80">
-            Token détecté: {linkToken}
-          </div>
-        ) : null}
-
-        <div className="mt-6 flex flex-col gap-3">
-          <button
-            type="button"
-            disabled={status === "linking"}
-            onClick={() => void linkShopify()}
-            className={connexionPrimaryBtn}
-          >
-            {status === "linking" ? "Liaison…" : "Lier Shopify"}
-          </button>
-
-          <button type="button" onClick={() => void signOut()} className={connexionOutlineBtn}>
-            Déconnexion
-          </button>
-        </div>
-        {profileUrlParam ? (
-          <div className="mt-3">
-            <a href={profileUrlParam} className={`${connexionOutlineBtn} no-underline`}>
-              Ouvrir mon profil privé
-            </a>
-          </div>
-        ) : null}
-        {!isModal ? (
-          <div className="mt-3">
-            <a href="/mon-espace" className={`${connexionOutlineBtn} no-underline`}>
-              Aller à mon espace
-            </a>
-          </div>
-        ) : null}
-
-        {shopifyCustomerId ? (
-          <div className="mt-4 font-[family-name:var(--font-dm)] text-sm text-[#0a0a0a]/85">
-            Shopify customer id:{" "}
-            <span className="font-mono font-semibold">{shopifyCustomerId}</span>
-          </div>
-        ) : null}
-
-        {message ? (
-          <p
-            className={`mt-4 font-[family-name:var(--font-dm)] text-sm ${
-              status === "error" ? "text-red-700" : "text-[#0a0a0a]/85"
-            }`}
-          >
-            {message}
-          </p>
-        ) : null}
-      </div>
+      <p className="font-[family-name:var(--font-dm)] text-sm text-[#555550]">
+        Redirection…
+      </p>
     );
   }
 

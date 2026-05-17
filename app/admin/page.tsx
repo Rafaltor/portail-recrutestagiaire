@@ -487,10 +487,6 @@ export default function AdminPage() {
           description="Accès réservé aux administrateurs du portail."
           message={<p className="text-sm text-red-700">Accès réservé aux admins.</p>}
         />
-        <div className="rs-panel rounded-lg p-6 lg:hidden">
-          <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
-          <p className="mt-2 text-sm text-red-700">Accès réservé aux admins.</p>
-        </div>
       </div>
     );
   }
@@ -515,19 +511,6 @@ export default function AdminPage() {
         }
       />
 
-      <div className="rs-panel rounded-lg p-6 lg:hidden">
-        <h1 className="text-xl font-black tracking-tight">Admin — Modération</h1>
-        <p className="mt-1 text-sm text-[#0A0A0A]/85">
-          Validation des CVs en attente avec aperçu inline.
-        </p>
-        <button
-          onClick={() => void load()}
-          className="mt-4 rounded-md bg-[#F472B6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#ec4899]"
-        >
-          Recharger les profils en attente
-        </button>
-        {message ? <p className="mt-3 text-sm text-red-700">{message}</p> : null}
-      </div>
 
       <div className="rs-panel rounded-lg p-6">
         {loading ? (

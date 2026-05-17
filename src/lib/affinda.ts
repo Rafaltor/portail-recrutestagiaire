@@ -2,6 +2,7 @@ import {
   departmentFromPostalCode,
   prefectureCityForDepartment,
 } from "@/lib/fr-dept-prefecture";
+import { getAffindaApiBase, getAffindaApiKey } from "@/lib/affinda-config";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -31,21 +32,7 @@ function firstString(values: unknown): string {
   return "";
 }
 
-function readAffindaBaseUrl() {
-  return (
-    process.env.AFFINDA_API_BASE_URL?.trim() ||
-    process.env.AFFINDA_BASE_URL?.trim() ||
-    "https://api.affinda.com"
-  ).replace(/\/+$/, "");
-}
-
-function readAffindaApiKey() {
-  return process.env.AFFINDA_API_KEY?.trim() || "";
-}
-
-export function isAffindaConfigured() {
-  return !!readAffindaApiKey();
-}
+export { isAffindaConfigured } from "@/lib/affinda-config";
 
 function normalizeSkills(rawSkills: unknown): string[] {
   if (!Array.isArray(rawSkills)) return [];
@@ -415,18 +402,35 @@ function pickResumeData(payload: UnknownRecord): UnknownRecord {
   return nested ?? payloadData;
 }
 
+function extractAffindaErrorDetail(body: unknown): string {
+  const r = asRecord(body);
+  if (!r) return "";
+  const err = asRecord(r.error);
+  if (err && typeof err.message === "string" && err.message.trim()) {
+    return err.message.trim();
+  }
+  if (typeof r.message === "string" && r.message.trim()) return r.message.trim();
+  if (typeof r.detail === "string" && r.detail.trim()) return r.detail.trim();
+  return "";
+}
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export async function parseCvWithAffinda(file: File): Promise<AffindaParseResult> {
-  const apiKey = readAffindaApiKey();
+  const apiKey = getAffindaApiKey();
   if (!apiKey) {
     throw new Error("affinda_not_configured");
   }
 
+  const base = getAffindaApiBase();
   const body = new FormData();
   body.set("file", file, file.name || "cv.pdf");
   body.set("wait", "true");
   body.set("compact", "true");
 
-  const response = await fetch(`${readAffindaBaseUrl()}/v2/resumes`, {
+  const response = await fetch(`${base}/v2/resumes`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -435,23 +439,87 @@ export async function parseCvWithAffinda(file: File): Promise<AffindaParseResult
     cache: "no-store",
   });
 
-  if (!response.ok) {
-    throw new Error(`affinda_failed_${response.status}`);
+  const rawText = await response.text();
+  let payload: UnknownRecord | null = null;
+  try {
+    payload = rawText ? (JSON.parse(rawText) as UnknownRecord) : null;
+  } catch {
+    payload = null;
   }
 
-  const payload = (await response.json().catch(() => null)) as UnknownRecord | null;
+  if (!response.ok) {
+    const detail = extractAffindaErrorDetail(payload);
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        `Affinda a refusé la clé (${response.status}). Vérifie AFFINDA_API_KEY et AFFINDA_API_BASE (EU: https://api.eu1.affinda.com).${detail ? ` — ${detail}` : ""}`,
+      );
+    }
+    throw new Error(detail || `affinda_failed_${response.status}`);
+  }
+
   if (!payload) {
     throw new Error("affinda_invalid_payload");
   }
 
-  const parsed = pickResumeData(payload);
-  const preview: AffindaParsedPreview = {
-    name: extractName(parsed),
-    email: extractEmail(parsed),
-    jobTitle: extractJobTitle(parsed),
-    skills: normalizeSkills(parsed.skill ?? parsed.skills),
-    city: resolveCity(parsed),
-  };
+  const root = asRecord(payload);
+  const data = pickResumeData(payload);
+  const hasContent =
+    extractEmail(data).length > 0 ||
+    extractName(data).length > 0 ||
+    Object.keys(data).length > 0;
 
-  return { preview };
+  if (hasContent) {
+    return {
+      preview: {
+        name: extractName(data),
+        email: extractEmail(data),
+        jobTitle: extractJobTitle(data),
+        skills: normalizeSkills(data.skill ?? data.skills),
+        city: resolveCity(data),
+      },
+    };
+  }
+
+  const meta = root ? asRecord(root.meta) : null;
+  const id =
+    (meta?.identifier as string | undefined) ||
+    (root?.identifier as string | undefined) ||
+    "";
+
+  if (id) {
+    for (let attempt = 0; attempt < 25; attempt++) {
+      await sleep(500);
+      const pollRes = await fetch(`${base}/v2/resumes/${encodeURIComponent(id)}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        cache: "no-store",
+      });
+      const pollText = await pollRes.text();
+      let polled: UnknownRecord | null = null;
+      try {
+        polled = pollText ? (JSON.parse(pollText) as UnknownRecord) : null;
+      } catch {
+        polled = null;
+      }
+      if (!pollRes.ok || !polled) continue;
+      const polledData = pickResumeData(polled);
+      const prMeta = asRecord(polled.meta);
+      const ready =
+        extractEmail(polledData).length > 0 ||
+        extractName(polledData).length > 0 ||
+        prMeta?.ready === true;
+      if (ready) {
+        return {
+          preview: {
+            name: extractName(polledData),
+            email: extractEmail(polledData),
+            jobTitle: extractJobTitle(polledData),
+            skills: normalizeSkills(polledData.skill ?? polledData.skills),
+            city: resolveCity(polledData),
+          },
+        };
+      }
+    }
+  }
+
+  throw new Error("affinda_empty");
 }
