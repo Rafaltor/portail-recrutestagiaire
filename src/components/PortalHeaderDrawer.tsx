@@ -258,7 +258,7 @@ export function PortalHeaderDrawer() {
             </PortalAuthLink>
             <PortalAuthLink
               href="/mon-espace"
-              className="rs-header-drawer__caf-btn w-full text-center text-decoration-none no-underline hover:no-underline"
+              className="rs-header-drawer__caf-btn rs-ph-drawer-cta--outline w-full text-center text-decoration-none no-underline hover:no-underline"
             >
               Mon espace
             </PortalAuthLink>

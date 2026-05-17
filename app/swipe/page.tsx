@@ -208,6 +208,8 @@ function SwipePageInner() {
   const suppressClickUntilRef = useRef(0);
   const refillInFlightRef = useRef(false);
   const transitionInFlightRef = useRef(false);
+  /** Profils déjà swipés cette session (avant persistance API / refill). */
+  const votedProfileIdsRef = useRef<Set<string>>(new Set());
   const sheetMeasureRef = useRef<HTMLDivElement | null>(null);
   const [sheetSize, setSheetSize] = useState({ w: 320, h: 453 });
 
@@ -245,7 +247,24 @@ function SwipePageInner() {
     [visitorId],
   );
 
-  async function fetchBatch(excludeIds: string[], n = DECK_SIZE): Promise<ApiBatch> {
+  function batchExcludeIds(deckItems: SwipeItem[]): string[] {
+    const ids = new Set<string>(votedProfileIdsRef.current);
+    for (const item of deckItems) {
+      ids.add(item.profile.id);
+    }
+    return [...ids];
+  }
+
+  function markProfileVoted(profileId: string) {
+    votedProfileIdsRef.current.add(profileId);
+  }
+
+  function unmarkProfileVoted(profileId: string) {
+    votedProfileIdsRef.current.delete(profileId);
+  }
+
+  async function fetchBatch(deckItems: SwipeItem[], n = DECK_SIZE): Promise<ApiBatch> {
+    const excludeIds = batchExcludeIds(deckItems);
     const qp = new URLSearchParams();
     qp.set("visitorId", visitorId);
     qp.set("n", String(n));
@@ -304,6 +323,7 @@ function SwipePageInner() {
       setBlockedByFreeLimit(false);
     }
     try {
+      votedProfileIdsRef.current.clear();
       const firstBatch = await fetchBatch([], 1);
       const first = firstBatch.items[0] ?? null;
       if (!first) {
@@ -335,8 +355,7 @@ function SwipePageInner() {
     refillInFlightRef.current = true;
     setNextCardLoading(true);
     try {
-      const excludeIds = nextDeck.map((i) => i.profile.id);
-      const res = await fetchBatch(excludeIds, DECK_SIZE - nextDeck.length);
+      const res = await fetchBatch(nextDeck, DECK_SIZE - nextDeck.length);
       if (!res.items.length) {
         /* Vide ≠ « plus rien à swiper » : le deck peut encore contenir des cartes. */
         setDone(nextDeck.length === 0 && (res.done !== false));
@@ -663,6 +682,7 @@ function SwipePageInner() {
     const holdMs = Math.max(0, holdImprintMs);
     transitionInFlightRef.current = true;
     const profileId = current.profile.id;
+    markProfileVoted(profileId);
     const item = current;
     const fp = fromPan ?? { x: 0, y: 0 };
 
@@ -698,6 +718,7 @@ function SwipePageInner() {
 
       void sendVote(profileId, value).then((vr) => {
         if (!vr.ok) {
+          unmarkProfileVoted(profileId);
           if (exitAnimTimerRef.current != null) {
             window.clearTimeout(exitAnimTimerRef.current);
             exitAnimTimerRef.current = null;
@@ -1207,7 +1228,7 @@ function SwipePageInner() {
               </p>
               <a
                 href="/depot"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:opacity-95"
+                className="rs-on-pink mt-5 inline-flex w-full items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:bg-[#ec4899] hover:text-white hover:no-underline"
               >
                 Déposer mon CV
               </a>
@@ -1234,7 +1255,7 @@ function SwipePageInner() {
                 </a>
                 <a
                   href="/depot"
-                  className="inline-flex w-full min-w-[140px] flex-1 items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline sm:w-auto sm:flex-none"
+                  className="rs-on-pink inline-flex w-full min-w-[140px] flex-1 items-center justify-center rounded-[6px] bg-[#F472B6] px-4 py-2.5 text-sm font-medium text-white no-underline hover:bg-[#ec4899] hover:text-white hover:no-underline sm:w-auto sm:flex-none"
                 >
                   Déposer mon CV
                 </a>

@@ -168,10 +168,22 @@ main.rs-portal-main button.rs-btn.rs-btn--primary:hover {
 }
 
 a[class~="bg-[#f472b6]"],
+a[class~="bg-[#F472B6]"],
 a[class~="!bg-[#f472b6]"],
-button[class~="bg-[#f472b6]"] {
+a[class~="!bg-[#F472B6]"],
+button[class~="bg-[#f472b6]"],
+button[class~="bg-[#F472B6]"] {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff;
+}
+
+a[class~="bg-[#f472b6]"]:hover,
+a[class~="bg-[#F472B6]"]:hover,
+a[class~="!bg-[#f472b6]"]:hover,
+a[class~="!bg-[#F472B6]"]:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  text-decoration: none;
 }
 
 .rs-btn.rs-btn--ghost,

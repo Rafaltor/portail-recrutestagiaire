@@ -69,13 +69,13 @@ h2,
   line-height: 1.12;
 }
 
-main.rs-portal-main a:not(.rs-btn):not(.abt-btn) {
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-on-pink) {
   color: var(--color-brand);
   text-decoration: none;
   font-weight: 600;
 }
 
-main.rs-portal-main a:not(.rs-btn):not(.abt-btn):hover {
+main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-on-pink):hover {
   color: var(--color-brand-hover);
   text-decoration: underline;
   text-underline-offset: 3px;

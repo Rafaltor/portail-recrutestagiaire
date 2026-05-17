@@ -253,7 +253,7 @@ function DepotPageInner() {
     >
       <PortalDesktopPageHeader
         eyebrow="Candidature"
-        title="Dépose ta candidature"
+        title="Dépose ton CV"
         description={
           <>
             Un seul fichier suffit.
@@ -265,7 +265,7 @@ function DepotPageInner() {
 
       <div className="min-w-0 max-w-full rounded-[8px] border border-[#F0F0F0] bg-[#FAFAFA] p-3 sm:p-6 lg:hidden">
         <h1 className="text-lg font-bold leading-tight tracking-tight text-[#0A0A0A]">
-          Dépose ta candidature
+          Dépose ton CV
         </h1>
         <p className="mt-1.5 text-xs font-normal leading-snug text-[#6B6B6B]">
           Un seul fichier suffit. La communauté fait le reste.
