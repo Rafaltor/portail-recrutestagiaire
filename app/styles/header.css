@@ -16,7 +16,7 @@
   --rs-header-logo-size: 60px;
   --rs-header-title-size-mobile: clamp(10px, 3.3vw, 17px);
   --rs-header-title-size-desktop: clamp(1.35rem, 4.2vw, 1.85rem);
-  --rs-header-title-size-desktop-lg: clamp(1.9rem, 5vw, 2.65rem);
+  --rs-header-title-size-desktop-lg: clamp(1.5rem, 4.2vw, 2rem);
   position: sticky;
   top: 0;
   z-index: 9999;
@@ -2068,9 +2068,9 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     overflow: visible;
     text-overflow: unset;
     z-index: 1;
-    font-size: clamp(2rem, 5.8vw, 3.2rem);
-    line-height: 1.08;
-    letter-spacing: 0.06em;
+    font-size: clamp(1.65rem, 4.6vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: 0.05em;
   }
 
   html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:first-of-type {

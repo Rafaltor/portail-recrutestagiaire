@@ -62,25 +62,22 @@ function HotspotLink({ spot }: { spot: HotspotDef }) {
     "--rs-hotspot-left": `${spot.left}%`,
   } as CSSProperties;
 
-  const btnClassName =
-    spot.id === "atelier" ? `${btnClass} rs-home-hotspot__btn--atelier` : btnClass;
-
   let inner: ReactNode;
   if (spot.external) {
     inner = (
-      <a href={spot.href} className={btnClassName}>
+      <a href={spot.href} className={btnClass}>
         <HotspotButtonLabel spot={spot} />
       </a>
     );
   } else if (spot.auth) {
     inner = (
-      <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClassName}>
+      <PortalAuthLink href={spot.href} mode={spot.mode} className={btnClass}>
         <HotspotButtonLabel spot={spot} />
       </PortalAuthLink>
     );
   } else {
     inner = (
-      <Link href={spot.href} className={btnClassName}>
+      <Link href={spot.href} className={btnClass}>
         <HotspotButtonLabel spot={spot} />
       </Link>
     );

@@ -592,11 +592,6 @@ html[data-rs-home-immersive="1"] .rs-home-hotspot__btn {
   min-width: 0;
 }
 
-.rs-home-hotspot__btn--atelier {
-  text-transform: none;
-  letter-spacing: 0.04em;
-}
-
 .rs-home-hotspot__arrow {
   display: inline-block;
   font-size: 1.1em;
