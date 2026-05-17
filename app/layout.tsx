@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, Manrope } from "next/font/google";
-import { siteUrl } from "@/lib/seo";
+import { siteUrl, boutiqueUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
@@ -97,7 +97,7 @@ export default function RootLayout({
                 <div className="rs-header-mobile-bar" data-rs-header-mobile-bar>
                   <Link
                     className="rs-header-mobile-bar__brand rs-ph-mbrand no-underline hover:no-underline"
-                    href="https://recrutestagiaire.eu"
+                    href={boutiqueUrl}
                   >
                     <Image
                       className="rs-header-mobile-bar__logo"
@@ -108,14 +108,18 @@ export default function RootLayout({
                       priority
                     />
                   </Link>
-                  <span className="rs-header-mobile-bar__title">
+                  <a
+                    href={boutiqueUrl}
+                    rel="noopener noreferrer"
+                    className="rs-header-mobile-bar__title no-underline hover:no-underline"
+                  >
                     <span className="rs-header-mobile-bar__title-line">
                       RECRUTE
                     </span>
                     <span className="rs-header-mobile-bar__title-line">
                       STAGIAIRE
                     </span>
-                  </span>
+                  </a>
                   <button
                     type="button"
                     className="rs-header-mobile-bar__menu-btn rs-header-burger-btn"
@@ -137,7 +141,8 @@ export default function RootLayout({
                     <div className="rs-banner-top rs-header-pole-brand rs-header-pole-title">
                       <a
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
-                        href="https://recrutestagiaire.eu"
+                        href={boutiqueUrl}
+                        rel="noopener noreferrer"
                       >
                         <Image
                           src="/rs-logo-eu.png"

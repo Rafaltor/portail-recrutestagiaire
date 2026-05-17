@@ -5,6 +5,9 @@ export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
   "https://portail.recrutestagiaire.eu";
 
+/** Boutique principale (site vitrine / Shopify). */
+export const boutiqueUrl = "https://recrutestagiaire.eu";
+
 /** Image par défaut pour Open Graph / Twitter (fichier dans /public) */
 export const defaultOgImage = {
   url: `${siteUrl}/favicon.svg`,
