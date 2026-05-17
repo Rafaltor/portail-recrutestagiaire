@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HomeHowItWorks } from "@/components/HomeHowItWorks";
-import { HomeHeroSplit } from "@/components/HomeHeroSplit";
+import { HomePanoramicHero } from "@/components/HomePanoramicHero";
 import { HomeTopProfile } from "@/components/HomeTopProfile";
 import { pageMetadata, siteUrl } from "@/lib/seo";
 
@@ -37,12 +37,12 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="rs-home-page">
+      <div className="rs-home-page rs-home-page--panorama">
+        <HomePanoramicHero />
+
         <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
           <HomeHowItWorks />
         </div>
-
-        <HomeHeroSplit />
 
         <HomeTopProfile />
       </div>
