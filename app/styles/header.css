@@ -1842,6 +1842,31 @@ html[data-rs-home-immersive="1"] .header-wrap .rs-header-main-row--desktop {
   max-width: 100%;
 }
 
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-body,
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-body > .container,
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier::before,
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier::after {
+  left: 0;
+  right: 0;
+  width: 100%;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 html[data-rs-home-immersive="1"] .header-wrap::after,
 html[data-rs-home-immersive="1"] .header-wrap.rs-header--banner::before {
   display: none;
@@ -1888,8 +1913,8 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     max-width: none !important;
     width: 100% !important;
     margin: 0 !important;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     box-sizing: border-box;
   }
 
@@ -1936,7 +1961,7 @@ html[data-rs-home-immersive="1"] .rs-header-body {
 
   html[data-rs-home-immersive="1"] body.rs-portal-header .rs-ph-brandlink-logo {
     position: absolute;
-    left: 0;
+    left: max(12px, env(safe-area-inset-left, 0px));
     top: 50%;
     transform: translateY(-50%);
     margin: 0;
@@ -1976,8 +2001,9 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     align-items: center;
     justify-content: center;
     min-height: 64px;
-    padding-left: max(12px, env(safe-area-inset-left, 0px));
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar__brand {
