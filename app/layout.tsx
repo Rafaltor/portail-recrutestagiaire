@@ -103,8 +103,8 @@ export default function RootLayout({
                       className="rs-header-mobile-bar__logo"
                       src="/rs-logo-eu.png"
                       alt="Recrute Stagiaire"
-                      width={48}
-                      height={48}
+                      width={60}
+                      height={60}
                       priority
                     />
                   </Link>
@@ -145,10 +145,9 @@ export default function RootLayout({
                         <Image
                           src="/rs-logo-eu.png"
                           alt="Recrute Stagiaire"
-                          width={80}
-                          height={80}
+                          width={60}
+                          height={60}
                           className="rs-ph-brandlink-logo"
-                          style={{ maxHeight: 80, width: "auto" }}
                           priority
                         />
                         <span className="rs-nav-brand__name logo rs-nav-brand__name--headline rs-ph-brandlink-title">
