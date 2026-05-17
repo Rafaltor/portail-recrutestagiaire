@@ -1,30 +1,46 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties,
+  useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { PortalAuthLink } from "@/components/PortalAuthLink";
-import { supabase } from "@/lib/supabase";
 
 const PANORAMA_SRC = "/room%202.jpg";
 const PANORAMA_MIN_WIDTH_RATIO = 1.35;
-
-function fmt(n: number) {
-  return String(n);
-}
+const MOBILE_MQ = "(max-width: 767.98px)";
 
 type PanoramaMetrics = {
   renderedWidth: number;
   maxOffset: number;
 };
+
+function subscribeMobileMq(onStoreChange: () => void) {
+  const mq = window.matchMedia(MOBILE_MQ);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+}
+
+function getMobileMqSnapshot() {
+  return window.matchMedia(MOBILE_MQ).matches;
+}
+
+function getMobileMqServerSnapshot() {
+  return false;
+}
+
+function useIsMobilePanorama() {
+  return useSyncExternalStore(
+    subscribeMobileMq,
+    getMobileMqSnapshot,
+    getMobileMqServerSnapshot,
+  );
+}
 
 function measurePanorama(
   containerW: number,
@@ -41,6 +57,7 @@ function measurePanorama(
 }
 
 export function HomePanoramicHero() {
+  const isMobile = useIsMobilePanorama();
   const viewportRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
   const naturalSizeRef = useRef({ w: 1536, h: 1024 });
@@ -60,8 +77,6 @@ export function HomePanoramicHero() {
     maxOffset: 0,
   });
   const [offsetX, setOffsetX] = useState(0);
-  const [profiles, setProfiles] = useState(0);
-  const [votes, setVotes] = useState(0);
   const [ready, setReady] = useState(false);
 
   const clampOffset = useCallback(
@@ -72,6 +87,17 @@ export function HomePanoramicHero() {
   const recalcMetrics = useCallback(() => {
     const el = viewportRef.current;
     if (!el) return;
+
+    if (!isMobile) {
+      const containerW = el.clientWidth;
+      setMetrics({ renderedWidth: containerW, maxOffset: 0 });
+      setOffsetX(0);
+      if (layerRef.current) {
+        layerRef.current.style.width = "100%";
+      }
+      return;
+    }
+
     const { w, h } = naturalSizeRef.current;
     const next = measurePanorama(el.clientWidth, el.clientHeight, w, h);
     setMetrics(next);
@@ -79,7 +105,7 @@ export function HomePanoramicHero() {
     if (layerRef.current) {
       layerRef.current.style.width = `${next.renderedWidth}px`;
     }
-  }, [clampOffset]);
+  }, [clampOffset, isMobile]);
 
   useLayoutEffect(() => {
     recalcMetrics();
@@ -89,26 +115,6 @@ export function HomePanoramicHero() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [recalcMetrics]);
-
-  useEffect(() => {
-    let alive = true;
-    async function loadStats() {
-      const [profRes, voteRes] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "published"),
-        supabase.from("votes").select("profile_id", { count: "exact", head: true }),
-      ]);
-      if (!alive) return;
-      setProfiles(profRes.error ? 0 : profRes.count ?? 0);
-      setVotes(voteRes.error ? 0 : voteRes.count ?? 0);
-    }
-    void loadStats();
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -139,6 +145,7 @@ export function HomePanoramicHero() {
 
   const startInertia = useCallback(
     (velocityPxPerMs: number) => {
+      if (!isMobile) return;
       stopInertia();
       if (Math.abs(velocityPxPerMs) < 0.08) return;
 
@@ -158,11 +165,11 @@ export function HomePanoramicHero() {
       };
       rafRef.current = requestAnimationFrame(step);
     },
-    [clampOffset, metrics.maxOffset, stopInertia],
+    [clampOffset, isMobile, metrics.maxOffset, stopInertia],
   );
 
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
+    if (!isMobile || e.button !== 0) return;
     stopInertia();
     dragRef.current = {
       active: true,
@@ -177,6 +184,7 @@ export function HomePanoramicHero() {
   };
 
   const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isMobile) return;
     const drag = dragRef.current;
     if (!drag.active || drag.pointerId !== e.pointerId) return;
 
@@ -191,6 +199,7 @@ export function HomePanoramicHero() {
   };
 
   const finishDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!isMobile) return;
     const drag = dragRef.current;
     if (!drag.active || drag.pointerId !== e.pointerId) return;
     drag.active = false;
@@ -200,20 +209,13 @@ export function HomePanoramicHero() {
     startInertia(drag.velocity);
   };
 
-  const primary =
-    "inline-flex min-h-[40px] items-center justify-center rounded-full bg-[#f472b6] px-4 py-2 text-center text-[13px] font-bold leading-tight text-white no-underline shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-colors hover:bg-[#db2777] hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
-  const secondary =
-    "inline-flex min-h-[40px] items-center justify-center rounded-full border-[1.5px] border-white/90 bg-white/10 px-4 py-2 text-center text-[13px] font-bold leading-tight text-white backdrop-blur-sm no-underline transition-colors hover:border-white hover:bg-white/20 hover:no-underline sm:min-h-[48px] sm:px-7 sm:py-3 sm:text-base";
-
-  const progress =
-    metrics.maxOffset > 0 ? offsetX / metrics.maxOffset : 0;
-
-  const progressStyle = {
-    "--rs-panorama-progress": progress,
-  } as CSSProperties;
+  const layerTransform = isMobile ? `translate3d(${-offsetX}px, 0, 0)` : "none";
 
   return (
-    <section className="rs-home-panorama" aria-label="Espace atelier panoramique">
+    <section
+      className={`rs-home-panorama${isMobile ? " rs-home-panorama--draggable" : " rs-home-panorama--static"}`}
+      aria-label="Fond atelier"
+    >
       <div
         ref={viewportRef}
         className="rs-home-panorama__viewport"
@@ -221,16 +223,15 @@ export function HomePanoramicHero() {
         onPointerMove={onPointerMove}
         onPointerUp={finishDrag}
         onPointerCancel={finishDrag}
-        role="application"
-        aria-roledescription="défilement panoramique"
-        aria-label="Fond atelier — glissez horizontalement pour explorer"
       >
         <div
           ref={layerRef}
           className={`rs-home-panorama__layer${ready ? " is-ready" : ""}`}
           style={{
-            transform: `translate3d(${-offsetX}px, 0, 0)`,
-            width: metrics.renderedWidth ? `${metrics.renderedWidth}px` : undefined,
+            transform: layerTransform,
+            width: isMobile && metrics.renderedWidth
+              ? `${metrics.renderedWidth}px`
+              : undefined,
           }}
         >
           <Image
@@ -239,58 +240,10 @@ export function HomePanoramicHero() {
             fill
             priority
             draggable={false}
-            sizes="200vw"
-            className="rs-home-panorama__image object-cover object-left"
+            sizes={isMobile ? "200vw" : "100vw"}
+            className={`rs-home-panorama__image object-cover ${isMobile ? "object-left" : "object-center"}`}
             onLoad={(e) => onImageReady(e.currentTarget)}
           />
-        </div>
-
-        <div className="rs-home-panorama__vignette" aria-hidden />
-        <div className="rs-home-panorama__edge rs-home-panorama__edge--left" aria-hidden />
-        <div className="rs-home-panorama__edge rs-home-panorama__edge--right" aria-hidden />
-
-        <p className="rs-home-panorama__hint" aria-hidden={metrics.maxOffset <= 0}>
-          <span>Glisse pour explorer l&apos;atelier</span>
-          <span className="rs-home-panorama__hint-arrows">← →</span>
-        </p>
-
-        <div className="rs-home-panorama__progress" aria-hidden style={progressStyle}>
-          <span className="rs-home-panorama__progress-fill" />
-        </div>
-
-        <div className="rs-home-panorama__overlay">
-          <p className="font-[family-name:var(--font-syne)] text-[9px] font-bold uppercase tracking-[0.12em] text-[#f9a8d4] sm:text-[11px] sm:tracking-[0.14em]">
-            Collectif · Paris · 2026
-          </p>
-          <h1
-            className="rs-home-panorama__title mt-2 font-[family-name:var(--font-syne)] font-extrabold leading-[1.1] tracking-tight text-white sm:mt-3 sm:leading-[1.05]"
-            style={{ fontSize: "clamp(22px, 5.5vw, 56px)" }}
-          >
-            On a commencé <span className="text-[#f472b6]">stagiaires.</span>
-            <br />
-            Pourquoi pas vous ?
-          </h1>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/85 sm:text-base">
-            Dépose ton CV créatif dans le collectif mode & textile parisien.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2 sm:mt-7 sm:gap-3">
-            <PortalAuthLink href="/depot" mode="signup" className={primary}>
-              Poste ton CV
-            </PortalAuthLink>
-            <Link href="/profils" className={secondary}>
-              Voir les profils
-            </Link>
-          </div>
-          <div className="rs-home-panorama__stats" aria-live="polite">
-            <div>
-              <p className="rs-home-panorama__stat-num">{fmt(profiles)}</p>
-              <p className="rs-home-panorama__stat-label">CVs dans la base</p>
-            </div>
-            <div>
-              <p className="rs-home-panorama__stat-num">{fmt(votes)}</p>
-              <p className="rs-home-panorama__stat-label">Votes enregistrés</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

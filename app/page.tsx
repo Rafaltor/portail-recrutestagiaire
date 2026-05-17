@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
-import { HomeHowItWorks } from "@/components/HomeHowItWorks";
 import { HomePanoramicHero } from "@/components/HomePanoramicHero";
-import { HomeTopProfile } from "@/components/HomeTopProfile";
 import { pageMetadata, siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title:
-    "Recrute Stagiaire — On a commencé stagiaires. Pourquoi pas vous ? · Portail",
+  title: "Recrute Stagiaire · Portail",
   description:
-    "Dépose ton CV créatif. La communauté vote. Les meilleurs rejoignent le collectif. Label parisien mode & textile.",
+    "Collectif mode & textile parisien — dépose ton CV créatif, vote, rejoins le label.",
   path: "/",
 });
 
@@ -37,14 +34,8 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="rs-home-page rs-home-page--panorama">
+      <div className="rs-home-page rs-home-page--panorama rs-home-page--immersive">
         <HomePanoramicHero />
-
-        <div className="rs-home-how-wrap px-2 py-6 sm:px-6 sm:py-10">
-          <HomeHowItWorks />
-        </div>
-
-        <HomeTopProfile />
       </div>
     </>
   );
