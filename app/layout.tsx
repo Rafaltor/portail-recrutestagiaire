@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, Manrope } from "next/font/google";
-import { siteUrl, boutiqueUrl } from "@/lib/seo";
+import { siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
@@ -97,7 +97,7 @@ export default function RootLayout({
                 <div className="rs-header-mobile-bar" data-rs-header-mobile-bar>
                   <Link
                     className="rs-header-mobile-bar__brand rs-ph-mbrand no-underline hover:no-underline"
-                    href={boutiqueUrl}
+                    href="/"
                   >
                     <Image
                       className="rs-header-mobile-bar__logo"

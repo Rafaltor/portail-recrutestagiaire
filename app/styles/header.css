@@ -1875,6 +1875,13 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     display: none !important;
   }
 
+  html[data-rs-home-immersive="1"] .header-wrap .container {
+    max-width: none;
+    width: 100%;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
   html[data-rs-home-immersive="1"] .rs-header-main-row--desktop {
     display: flex !important;
     background: transparent;
@@ -1882,40 +1889,56 @@ html[data-rs-home-immersive="1"] .rs-header-body {
 
   html[data-rs-home-immersive="1"] .rs-header-top-line {
     position: relative;
+    display: flex;
     justify-content: center;
+    align-items: center;
+    min-height: 88px;
     border: none;
     background: transparent;
   }
 
   html[data-rs-home-immersive="1"] .rs-header-top-line .rs-banner-top.rs-header-pole-brand {
-    flex: 0 1 auto;
-    justify-content: center;
+    flex: 1 1 auto;
+    justify-content: center !important;
     width: 100%;
     max-width: 100%;
+    min-height: 88px;
   }
 
   html[data-rs-home-immersive="1"] .rs-ph-brandlink {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block !important;
     width: 100%;
+    min-height: 88px;
+    margin: 0;
+    padding: 0;
     gap: 0;
   }
 
   html[data-rs-home-immersive="1"] .rs-ph-brandlink-logo {
     position: absolute;
-    left: 0;
+    left: max(16px, env(safe-area-inset-left, 0px));
     top: 50%;
     transform: translateY(-50%);
+    margin: 0;
+    z-index: 2;
   }
 
   html[data-rs-home-immersive="1"] .rs-ph-brandlink-title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: block !important;
-    text-align: center;
-    width: 100%;
-    margin: 0 auto;
+    width: max-content !important;
+    max-width: none;
+    margin: 0;
     padding: 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+    z-index: 1;
   }
 
   html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:first-of-type {

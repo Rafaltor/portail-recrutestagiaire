@@ -565,7 +565,7 @@ main.rs-portal-main a:not(.rs-btn):not(.abt-btn):not(.rs-caf-btn-dossier):hover 
   -webkit-backdrop-filter: blur(8px);
   box-shadow: none;
   font-family: var(--font-syne);
-  font-size: clamp(10px, 2.8vw, 12px);
+  font-size: clamp(11px, 3.15vw, 13.5px);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0.1em;

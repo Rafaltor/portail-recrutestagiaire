@@ -22,7 +22,7 @@ type HotspotDef = {
 
 /** Positions en % du wallpaper (largeur / hauteur de la couche panoramique). */
 const HOTSPOTS: HotspotDef[] = [
-  { id: "voter", label: "Voter", href: "/swipe", top: 40, left: 10, auth: true },
+  { id: "voter", label: "Voter", href: "/swipe", top: 40, left: 25, auth: true },
   {
     id: "depot",
     label: "Déposer son CV",
@@ -32,7 +32,7 @@ const HOTSPOTS: HotspotDef[] = [
     auth: true,
     mode: "signup",
   },
-  { id: "atelier", label: "Atelier", href: boutiqueUrl, top: 50, left: 90, external: true },
+  { id: "atelier", label: "Atelier", href: boutiqueUrl, top: 60, left: 90, external: true },
   { id: "espace", label: "Mon espace", href: "/mon-espace", top: 75, left: 70, auth: true },
 ];
 
