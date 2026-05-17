@@ -108,9 +108,8 @@ export default function RootLayout({
                       priority
                     />
                   </Link>
-                  <a
-                    href={boutiqueUrl}
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/"
                     className="rs-header-mobile-bar__title no-underline hover:no-underline"
                   >
                     <span className="rs-header-mobile-bar__title-line">
@@ -119,7 +118,7 @@ export default function RootLayout({
                     <span className="rs-header-mobile-bar__title-line">
                       STAGIAIRE
                     </span>
-                  </a>
+                  </Link>
                   <button
                     type="button"
                     className="rs-header-mobile-bar__menu-btn rs-header-burger-btn"
@@ -139,10 +138,9 @@ export default function RootLayout({
                 <div className="rs-header-main-row rs-header-main-row--desktop">
                   <div className="rs-header-top-line">
                     <div className="rs-banner-top rs-header-pole-brand rs-header-pole-title">
-                      <a
+                      <Link
                         className="nav-brand rs-nav-brand rs-nav-brand--title-row rs-ph-brandlink"
-                        href={boutiqueUrl}
-                        rel="noopener noreferrer"
+                        href="/"
                       >
                         <Image
                           src="/rs-logo-eu.png"
@@ -157,7 +155,7 @@ export default function RootLayout({
                           <span className="lg:hidden">RS</span>
                           <span className="hidden lg:inline">RECRUTE STAGIAIRE</span>
                         </span>
-                      </a>
+                      </Link>
                     </div>
 
                     <PortalHeaderNav />
