@@ -1857,6 +1857,14 @@ html[data-rs-home-immersive="1"] .header-wrap {
   right: 0;
   width: 100%;
   max-width: 100vw;
+  z-index: 1000;
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+html[data-rs-home-immersive="1"] .header-wrap.rs-header-mobile-fixed--scrolled,
+html[data-rs-home-immersive="1"] .header-wrap.rs-header--scroll-solid {
   background: transparent !important;
   border-bottom: none !important;
   box-shadow: none !important;
@@ -1885,13 +1893,28 @@ html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .container {
   margin-right: 0 !important;
 }
 
+html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier {
+  background: transparent !important;
+  border-bottom: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier::before,
 html[data-rs-home-immersive="1"] body.rs-portal-header .header-wrap .rs-header-two-tier::after {
-  left: 0;
-  right: 0;
-  width: 100%;
-  -webkit-mask-image: none;
-  mask-image: none;
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+html[data-rs-home-immersive="1"] .header-wrap.rs-header-mobile-fixed--scrolled .rs-header-mobile-bar,
+html[data-rs-home-immersive="1"] .header-wrap.rs-header--scroll-solid .rs-header-mobile-bar {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 html[data-rs-home-immersive="1"] .header-wrap::after,
@@ -1914,7 +1937,14 @@ html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line,
 html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline,
 html[data-rs-home-immersive="1"] .rs-ph-brandlink-title {
   color: #fff !important;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  -webkit-text-fill-color: #fff !important;
+  font-family: var(--font-display);
+  font-weight: 800 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.55),
+    0 0 40px rgba(0, 0, 0, 0.35);
 }
 
 html[data-rs-home-immersive="1"] .rs-header-mobile-bar {
@@ -1956,7 +1986,7 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     display: block !important;
     grid-template-columns: none !important;
     width: 100%;
-    min-height: 88px;
+    min-height: 104px;
     border: none;
     background: transparent;
   }
@@ -1969,7 +1999,7 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     justify-self: stretch !important;
     width: 100%;
     max-width: 100%;
-    min-height: 88px;
+    min-height: 104px;
     margin: 0;
     padding: 0;
     border: none;
@@ -1980,7 +2010,7 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     display: block !important;
     width: 100%;
     height: 100%;
-    min-height: 88px;
+    min-height: 104px;
     margin: 0;
     padding: 0;
     gap: 0;
@@ -2010,6 +2040,9 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     overflow: visible;
     text-overflow: unset;
     z-index: 1;
+    font-size: clamp(22px, 3.2vw, 42px);
+    line-height: 1.05;
+    letter-spacing: 0.08em;
   }
 
   html[data-rs-home-immersive="1"] .rs-nav-brand__name--headline span:first-of-type {
@@ -2027,7 +2060,7 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 64px;
+    min-height: 76px;
     width: 100%;
     padding-left: 0;
     padding-right: 0;
@@ -2051,9 +2084,12 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     justify-content: center;
     text-align: center;
     width: max-content;
-    max-width: min(58vw, 240px);
+    max-width: min(72vw, 320px);
     margin: 0;
     padding: 0;
+    font-size: clamp(17px, 5.8vw, 26px);
+    line-height: 1.02;
+    letter-spacing: 0.1em;
   }
 
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line {
@@ -2062,9 +2098,12 @@ html[data-rs-home-immersive="1"] .rs-header-body {
     width: 100%;
     margin: 0;
     padding: 0;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
   }
 
   html[data-rs-home-immersive="1"] .rs-header-mobile-bar__title-line + .rs-header-mobile-bar__title-line {
-    margin-top: 2px;
+    margin-top: 4px;
   }
 }

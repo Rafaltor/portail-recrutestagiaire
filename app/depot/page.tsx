@@ -3,50 +3,12 @@
 import { useMemo, useState } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 import { RequireAuthGate } from "@/components/RequireAuthGate";
+import {
+  DEPOT_MAX_BYTES,
+  formatDepotError,
+  readDepotApiError,
+} from "@/lib/depot-errors";
 import { isPdfUpload } from "@/lib/pdf-file";
-
-function formatDepotError(code: string, retryAfterSec?: number): string {
-  if (code === "rate_limited" || code === "rate_limited_handle") {
-    return `Trop de dépôts d’un coup. Réessaie dans ~${retryAfterSec ?? 60}s.`;
-  }
-  if (code === "already_pending") {
-    return "Un profil avec ce pseudo est déjà en attente de modération.";
-  }
-  if (code === "handle_taken") {
-    return "Ce pseudo Instagram est déjà utilisé sur le portail.";
-  }
-  if (code === "file_too_large") return "PDF trop lourd (max ~12 Mo).";
-  if (code === "pdf_only") {
-    return "Le CV doit être un fichier PDF (extension .pdf).";
-  }
-  if (code === "charte_required") return "Tu dois accepter la charte.";
-  if (code === "handle_required") return "Pseudo Instagram obligatoire.";
-  if (code === "handle_invalid") {
-    return "Pseudo invalide : utilise des lettres, chiffres, points ou tirets.";
-  }
-  if (code === "file_required") return "Ajoute ton CV en PDF.";
-  if (code === "bad_formdata") return "Envoi invalide. Recharge la page et réessaie.";
-  if (code === "server_misconfigured") {
-    return "Service temporairement indisponible. Réessaie plus tard.";
-  }
-  if (code.startsWith("upload_failed:")) {
-    return "Impossible d’enregistrer le PDF. Réessaie dans quelques minutes.";
-  }
-  if (code.startsWith("insert_failed:")) {
-    const detail = code.slice("insert_failed:".length);
-    if (/duplicate|unique|already exists/i.test(detail)) {
-      return "Ce pseudo Instagram est déjà utilisé sur le portail.";
-    }
-    return "Impossible d’enregistrer la candidature. Vérifie le pseudo et réessaie.";
-  }
-  if (code.startsWith("check_failed:")) {
-    return "Impossible de vérifier le pseudo. Réessaie dans quelques instants.";
-  }
-  if (code === "Erreur dépôt" || !code.trim()) {
-    return "Erreur lors du dépôt. Vérifie ta connexion et réessaie.";
-  }
-  return code;
-}
 
 type FormState = {
   handle: string;
@@ -149,6 +111,11 @@ function DepotPageInner() {
       setMessage("Le CV doit être au format PDF.");
       return;
     }
+    if (file.size > DEPOT_MAX_BYTES) {
+      setStatus("error");
+      setMessage(formatDepotError("file_too_large"));
+      return;
+    }
 
     setParsing(true);
     try {
@@ -211,6 +178,9 @@ function DepotPageInner() {
       if (!isPdfUpload(file)) {
         throw new Error("Le CV doit être au format PDF.");
       }
+      if (file.size > DEPOT_MAX_BYTES) {
+        throw new Error(formatDepotError("file_too_large"));
+      }
       if (!stepTwo) throw new Error("Analyse ou saisie manuelle requise avant validation.");
       if (!form.accepted) throw new Error("Tu dois accepter la charte.");
 
@@ -226,12 +196,7 @@ function DepotPageInner() {
 
       const r = await fetch("/api/depot", { method: "POST", body: fd });
       if (!r.ok) {
-        const j: { error?: string; retryAfterSec?: number } = await r
-          .json()
-          .catch(() => ({}));
-
-        const code = j?.error || "Erreur dépôt";
-        throw new Error(formatDepotError(code, j?.retryAfterSec));
+        throw new Error(await readDepotApiError(r));
       }
 
       const data = (await r.json()) as DepotSuccess;
@@ -248,6 +213,12 @@ function DepotPageInner() {
       setForm((f) => ({ ...f, accepted: false }));
     } catch (e: unknown) {
       setStatus("error");
+      if (e instanceof TypeError && /fetch|network/i.test(e.message)) {
+        setMessage(
+          "Connexion interrompue pendant l’envoi. Vérifie le réseau et réessaie.",
+        );
+        return;
+      }
       setMessage(e instanceof Error ? e.message : "Erreur inconnue");
     }
   }
@@ -364,7 +335,7 @@ function DepotPageInner() {
                 Glisse-dépose ton PDF ou clique pour choisir un fichier
               </span>
               <span className="mt-0.5 block text-[11px] font-normal text-[#6B6B6B]/90 sm:mt-1 sm:text-xs">
-                Un seul fichier · PDF uniquement
+                Un seul fichier · PDF uniquement · max 4 Mo
               </span>
               <input
                 type="file"

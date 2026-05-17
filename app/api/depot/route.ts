@@ -4,9 +4,11 @@ import { tryGetSupabaseServer } from "@/lib/supabase-server";
 import { generateProfileOwnerToken } from "@/lib/profile-owner-token";
 import { parseCvWithAffinda } from "@/lib/affinda";
 import { isPdfUpload } from "@/lib/pdf-file";
+import { DEPOT_MAX_BYTES } from "@/lib/depot-errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 declare global {
   var __rsDepotHits: Map<string, number[]> | undefined;
@@ -37,6 +39,16 @@ function bad(msg: string, status = 400) {
 }
 
 export async function POST(req: Request) {
+  try {
+    return await handleDepotPost(req);
+  } catch (e: unknown) {
+    const detail = e instanceof Error ? e.message : "unknown";
+    console.error("[depot] POST unhandled:", detail);
+    return bad("internal_error", 500);
+  }
+}
+
+async function handleDepotPost(req: Request) {
   const supabaseServer = tryGetSupabaseServer();
   if (!supabaseServer) return bad("server_misconfigured", 500);
 
@@ -77,7 +89,7 @@ export async function POST(req: Request) {
   if (handle.length < 2) return bad("handle_required");
   if (!file || !(file instanceof File)) return bad("file_required");
   if (!isPdfUpload(file)) return bad("pdf_only");
-  if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
+  if (file.size > DEPOT_MAX_BYTES) return bad("file_too_large");
 
   const parsedSkills = parsedSkillsRaw
     .split(",")
@@ -86,6 +98,7 @@ export async function POST(req: Request) {
     .slice(0, 12);
 
   const handleNorm = handle.replace(/^@/, "").toLowerCase();
+  const storedHandle = handle.startsWith("@") ? handle : `@${handleNorm}`;
   const rlHandle = rateLimitOrNull(`iphandle:${ipHash}:${handleNorm}`, 1, 60 * 60 * 1000); // 2e tentative même pseudo / 1h
   if (rlHandle) {
     return NextResponse.json(
@@ -95,7 +108,7 @@ export async function POST(req: Request) {
   }
 
   const handleCandidates = Array.from(
-    new Set([handle, handleNorm, `@${handleNorm}`].filter(Boolean)),
+    new Set([handle, handleNorm, `@${handleNorm}`, storedHandle].filter(Boolean)),
   );
 
   // Anti-doublon: refuse si un profil existe déjà avec ce pseudo
@@ -130,21 +143,27 @@ export async function POST(req: Request) {
     upsert: false,
     contentType: "application/pdf",
   });
-  if (upload.error) return bad(`upload_failed:${upload.error.message}`, 500);
+  if (upload.error) {
+    console.error("[depot] upload_failed:", upload.error.message, path);
+    return bad(`upload_failed:${upload.error.message}`, 500);
+  }
 
   const inferredJobTitle = parsedJobTitle.length > 0 ? parsedJobTitle : "Candidature";
   const normalizedCity = parsedCity.length > 0 ? parsedCity : null;
 
   const insert = await supabaseServer.from("profiles").insert({
-    handle,
+    handle: storedHandle,
     job_title: inferredJobTitle,
-    tags: parsedSkills,
+    tags: parsedSkills.length > 0 ? parsedSkills : ["candidature"],
     portfolio_url: null,
     cv_path: path,
     status: "pending",
     city: normalizedCity,
   });
-  if (insert.error) return bad(`insert_failed:${insert.error.message}`, 500);
+  if (insert.error) {
+    console.error("[depot] insert_failed:", insert.error.message);
+    return bad(`insert_failed:${insert.error.message}`, 500);
+  }
 
   const origin = req.headers.get("origin") || "";
   const ALLOWED_ORIGINS = [
@@ -174,7 +193,7 @@ export async function PUT(req: Request) {
   const file = form.get("cv");
   if (!file || !(file instanceof File)) return bad("file_required");
   if (!isPdfUpload(file)) return bad("pdf_only");
-  if (file.size > 12 * 1024 * 1024) return bad("file_too_large");
+  if (file.size > DEPOT_MAX_BYTES) return bad("file_too_large");
   try {
     const parsed = await parseCvWithAffinda(file);
     return NextResponse.json(
