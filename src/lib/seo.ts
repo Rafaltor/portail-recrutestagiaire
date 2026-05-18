@@ -8,12 +8,12 @@ export const siteUrl =
 /** Boutique principale (site vitrine / Shopify). */
 export const boutiqueUrl = "https://recrutestagiaire.eu";
 
-/** Image par défaut pour Open Graph / Twitter (fichier dans /public) */
+/** Image par défaut pour Open Graph / Twitter (`app/opengraph-image.tsx`) */
 export const defaultOgImage = {
-  url: `${siteUrl}/favicon.svg`,
-  width: 512,
-  height: 512,
-  alt: "Recrute Stagiaire",
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "Recrute Stagiaire — Portail candidature créative",
 } as const;
 
 type PageSeoInput = {

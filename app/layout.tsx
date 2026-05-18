@@ -56,16 +56,35 @@ export const metadata: Metadata = {
   authors: [{ name: "Recrute Stagiaire", url: "https://recrutestagiaire.eu" }],
   creator: "Recrute Stagiaire",
   publisher: "Recrute Stagiaire",
-  /* Icônes : fichiers `app/favicon.ico` + `app/icon.png` (même visuel que la charte) — évite le favicon.ico par défaut / mauvais. */
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     siteName: "Recrute Stagiaire",
     locale: "fr_FR",
     type: "website",
+    title: "Recrute Stagiaire — Portail",
+    description:
+      "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Recrute Stagiaire — Portail candidature créative",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@recrutestagiaire",
     creator: "@recrutestagiaire",
+    title: "Recrute Stagiaire — Portail",
+    description:
+      "Label parisien : dépose ton CV créatif, la communauté vote, les meilleurs profils rejoignent le collectif.",
+    images: ["/twitter-image"],
   },
   robots: {
     index: true,
