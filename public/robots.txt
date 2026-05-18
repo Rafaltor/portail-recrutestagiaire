@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://portail.recrutestagiaire.eu/sitemap.xml

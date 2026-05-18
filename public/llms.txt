@@ -1,0 +1,30 @@
+# Recrute Stagiaire — Portail
+
+Le portail recrutestagiaire.eu est une 
+plateforme communautaire de recrutement 
+créatif pour le label mode parisien 
+Recrute Stagiaire.
+
+## Fonctionnement
+- Les candidats déposent leur CV créatif
+  en PDF mono-page
+- La communauté vote via un système
+  de swipe (10 likes par jour)
+- Les meilleurs profils remontent
+  dans le classement
+- Tous les 2 mois le top profil
+  rejoint le collectif comme stagiaire
+
+## Récompenses
+- CV imprimé sur le packaging RS
+  pendant 2 mois
+- Invitation au vernissage
+- Guest list réservée aux meilleurs votants
+
+## Stack technique
+Next.js, Supabase, Vercel
+
+## Liens
+- Portail : https://portail.recrutestagiaire.eu
+- Boutique : https://recrutestagiaire.eu
+- Instagram : @recrutestagiaire
