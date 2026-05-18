@@ -17,8 +17,6 @@ import {
   AUTH_LIKES_PER_DAY,
   FREE_SWIPE_LIMIT,
   LIKES_QUOTA_EXHAUSTED_MESSAGE,
-  dayKeyUTC,
-  getLikesDayKey,
   getSwipeCountKey,
   readLocalInt,
   writeLocalInt,
@@ -242,10 +240,24 @@ function SwipePageInner() {
   const RH_INSIGHT_DISPLAY_MS = 4000;
   const RH_INSIGHT_FADE_MS = 280;
   const swipeCountKey = useMemo(() => getSwipeCountKey(visitorId), [visitorId]);
-  const likesDayKey = useMemo(
-    () => getLikesDayKey(visitorId, dayKeyUTC()),
-    [visitorId],
-  );
+
+  const refreshLikesQuota = useCallback(async () => {
+    if (!isConnected) return;
+    const {
+      data: { session: liveSession },
+    } = await supabase.auth.getSession();
+    const token = liveSession?.access_token;
+    if (!token) return;
+    const qp = new URLSearchParams({ visitorId });
+    const r = await fetch(`/api/swipe/likes-quota?${qp.toString()}`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (!r.ok) return;
+    const j = (await r.json().catch(() => ({}))) as { likesToday?: number };
+    if (typeof j.likesToday === "number") {
+      setLikesToday(Math.max(0, Math.floor(j.likesToday)));
+    }
+  }, [isConnected, visitorId]);
 
   function batchExcludeIds(deckItems: SwipeItem[]): string[] {
     const ids = new Set<string>(votedProfileIdsRef.current);
@@ -384,9 +396,7 @@ function SwipePageInner() {
     value: 1 | -1,
   ): Promise<{ ok: boolean; rhMessage?: string }> {
     if (isConnected && value === 1) {
-      const currentLikes = readLocalInt(likesDayKey);
-      setLikesToday(currentLikes);
-      if (currentLikes >= AUTH_LIKES_PER_DAY) {
+      if (likesToday >= AUTH_LIKES_PER_DAY) {
         setMessage(LIKES_QUOTA_EXHAUSTED_MESSAGE);
         return { ok: false };
       }
@@ -406,10 +416,14 @@ function SwipePageInner() {
     });
     const j = (await r.json().catch(() => ({}))) as {
       error?: string;
+      likesToday?: number;
       rh?: { message?: string };
     };
     if (!r.ok) {
       if (j?.error === "likes_limit_reached") {
+        if (typeof j.likesToday === "number") {
+          setLikesToday(Math.max(0, Math.floor(j.likesToday)));
+        }
         setMessage(LIKES_QUOTA_EXHAUSTED_MESSAGE);
       } else {
         setMessage(j?.error || "Impossible d’enregistrer le vote.");
@@ -423,10 +437,10 @@ function SwipePageInner() {
       if (next >= FREE_SWIPE_LIMIT) {
         setBlockedByFreeLimit(true);
       }
-    } else if (value === 1) {
-      const nextLikes = readLocalInt(likesDayKey) + 1;
-      writeLocalInt(likesDayKey, nextLikes);
-      setLikesToday(nextLikes);
+    } else if (typeof j.likesToday === "number") {
+      setLikesToday(Math.max(0, Math.floor(j.likesToday)));
+    } else {
+      void refreshLikesQuota();
     }
     return { ok: true, rhMessage: j.rh?.message };
   }
@@ -509,8 +523,8 @@ function SwipePageInner() {
 
   useEffect(() => {
     if (!authReady || !isConnected) return;
-    setLikesToday(readLocalInt(likesDayKey));
-  }, [authReady, isConnected, likesDayKey]);
+    void refreshLikesQuota();
+  }, [authReady, isConnected, refreshLikesQuota]);
 
   useEffect(() => {
     try {
@@ -1068,7 +1082,6 @@ function SwipePageInner() {
     setPan(reset);
   }
 
-  const freeLeft = Math.max(0, FREE_SWIPE_LIMIT - freeSwipesUsed);
   const likesLeft = Math.max(0, AUTH_LIKES_PER_DAY - likesToday);
 
   useEffect(() => {
@@ -1499,27 +1512,18 @@ function SwipePageInner() {
                       style={{
                         width: `${Math.max(
                           0,
-                          ((isConnected ? likesLeft : freeLeft) /
-                            (isConnected ? AUTH_LIKES_PER_DAY : FREE_SWIPE_LIMIT)) *
-                            100,
+                          (likesLeft / AUTH_LIKES_PER_DAY) * 100,
                         )}%`,
-                        backgroundColor:
-                          (isConnected ? likesLeft : freeLeft) <= 2 ? "#F59E0B" : "#f472b6",
+                        backgroundColor: likesLeft <= 2 ? "#F59E0B" : "#f472b6",
                       }}
                     />
                   </div>
                   <span className="max-w-xs px-2 text-center text-[11px] font-medium text-[#6B6B6B]">
-                    {isConnected
-                      ? likesLeft === 0
-                        ? "Reviens demain pour continuer à liker ✦"
-                        : likesLeft <= 2
-                          ? `Plus que ${likesLeft} like${likesLeft > 1 ? "s" : ""} aujourd'hui !`
-                          : `${likesLeft} likes restants aujourd'hui`
-                      : freeLeft === 0
-                        ? "Reviens demain pour continuer à voter ✦"
-                        : freeLeft <= 2
-                          ? `Plus que ${freeLeft} vote${freeLeft > 1 ? "s" : ""} aujourd'hui !`
-                          : `${freeLeft} votes restants aujourd'hui`}
+                    {likesLeft === 0
+                      ? "Reviens demain pour continuer à liker ✦"
+                      : likesLeft <= 2
+                        ? `Plus que ${likesLeft} like${likesLeft > 1 ? "s" : ""} aujourd'hui !`
+                        : `${likesLeft} likes restants aujourd'hui`}
                   </span>
                 </div>
                 <div className="pointer-events-auto flex items-end justify-center gap-4 sm:gap-6">

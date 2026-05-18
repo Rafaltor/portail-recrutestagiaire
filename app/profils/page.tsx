@@ -126,7 +126,7 @@ export default function ProfilsPage() {
             Profils
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#6B6B6B]">
-            Les meilleurs profils de ta région.
+            Les profils les plus likés par la communauté.
           </p>
         </div>
         <div className="grid w-full min-w-0 gap-3">

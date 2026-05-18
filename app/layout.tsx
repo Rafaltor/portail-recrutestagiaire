@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, Manrope } from "next/font/google";
-import { siteUrl } from "@/lib/seo";
+import { boutiqueUrl, siteUrl } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { PortalAuthLink } from "@/components/PortalAuthLink";
@@ -230,6 +230,12 @@ export default function RootLayout({
               >
                 Déposer
               </Link>
+              <a
+                href={boutiqueUrl}
+                className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"
+              >
+                Mes basiques d&apos;amour
+              </a>
               <a
                 href="https://recrutestagiaire.eu/pages/about"
                 className="text-[var(--color-ink)] no-underline hover:text-[var(--color-brand)]"

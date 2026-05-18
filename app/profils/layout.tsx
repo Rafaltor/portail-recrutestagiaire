@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Profils créatifs — Les meilleurs profils de ta région · Recrute Stagiaire",
+  title: "Profils créatifs — Les plus likés par la communauté · Recrute Stagiaire",
   description:
-    "Les meilleurs profils de ta région. CV créatifs, mode, textile — la communauté vote.",
+    "Les profils les plus likés par la communauté. CV créatifs, mode, textile — vote et découvre les candidats.",
   path: "/profils",
 });
 

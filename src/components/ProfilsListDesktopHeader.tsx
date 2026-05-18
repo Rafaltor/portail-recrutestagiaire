@@ -3,7 +3,9 @@
 import type { ReactNode } from "react";
 import { PortalDesktopPageHeader } from "@/components/PortalDesktopPageHeader";
 
-const PROFILS_DESCRIPTION = <>Les meilleurs profils de ta région.</>;
+const PROFILS_DESCRIPTION = (
+  <>Les profils les plus likés par la communauté.</>
+);
 
 type ProfilsListDesktopHeaderProps = {
   className?: string;

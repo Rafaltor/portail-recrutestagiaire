@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { readLinkedVisitorIds } from "@/lib/auth-linked-visitors";
+import {
+  countLikesTodayForVisitors,
+  likesQuotaFromCount,
+} from "@/lib/likes-quota-server";
 import { tryGetSupabaseServer } from "@/lib/supabase-server";
 import { AUTH_LIKES_PER_DAY } from "@/lib/swipe-gating";
 
@@ -34,21 +39,6 @@ function rateLimitOrNull(key: string, limit: number, windowMs: number) {
   next.push(now);
   map.set(key, next);
   return next.length > limit ? { retryAfterSec: Math.ceil(windowMs / 1000) } : null;
-}
-
-function dayKeyUTC(date = new Date()) {
-  return date.toISOString().slice(0, 10);
-}
-
-function readLinkedVisitorIds(raw: unknown) {
-  if (!Array.isArray(raw)) return [] as string[];
-  const out: string[] = [];
-  for (const item of raw) {
-    const clean = String(item || "").trim();
-    if (!clean) continue;
-    if (!out.includes(clean)) out.push(clean);
-  }
-  return out;
 }
 
 /** Somme des `value` (+1 / -1) pour un profil — source de vérité pour `profiles.likes`. */
@@ -113,25 +103,23 @@ export async function POST(req: Request) {
       );
       if (!linkedVisitorIds.includes(visitorId)) linkedVisitorIds.push(visitorId);
       if (linkedVisitorIds.length > 0) {
-        const start = `${dayKeyUTC()}T00:00:00.000Z`;
-        const end = `${dayKeyUTC()}T23:59:59.999Z`;
-        const likesTodayRes = await supabaseServer
-          .from("votes")
-          .select("id", { count: "exact" })
-          .in("visitor_id", linkedVisitorIds)
-          .eq("value", 1)
-          .gte("created_at", start)
-          .lte("created_at", end);
-        if (likesTodayRes.error) {
-          return NextResponse.json(
-            { error: likesTodayRes.error.message },
-            { status: 500 },
+        let likesToday = 0;
+        try {
+          likesToday = await countLikesTodayForVisitors(
+            supabaseServer,
+            linkedVisitorIds,
           );
+        } catch (e: unknown) {
+          const message = e instanceof Error ? e.message : "quota_check_failed";
+          return NextResponse.json({ error: message }, { status: 500 });
         }
-        const likesToday = Number(likesTodayRes.count ?? 0);
         if (likesToday >= AUTH_LIKES_PER_DAY) {
           return NextResponse.json(
-            { error: "likes_limit_reached", limit: AUTH_LIKES_PER_DAY },
+            {
+              error: "likes_limit_reached",
+              limit: AUTH_LIKES_PER_DAY,
+              ...likesQuotaFromCount(likesToday),
+            },
             { status: 429 },
           );
         }
@@ -223,12 +211,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: upProf.error.message }, { status: 500 });
   }
 
+  let quota: ReturnType<typeof likesQuotaFromCount> | undefined;
+  if (accessToken) {
+    const { data: userRes } = await supabaseServer.auth.getUser(accessToken);
+    if (userRes?.user) {
+      const linkedVisitorIds = readLinkedVisitorIds(
+        userRes.user.user_metadata?.linked_visitor_ids,
+      );
+      if (!linkedVisitorIds.includes(visitorId)) linkedVisitorIds.push(visitorId);
+      try {
+        const likesToday = await countLikesTodayForVisitors(
+          supabaseServer,
+          linkedVisitorIds,
+        );
+        quota = likesQuotaFromCount(likesToday);
+      } catch {
+        /* quota optionnel dans la réponse */
+      }
+    }
+  }
+
   return NextResponse.json(
     {
       ok: true,
       prev: prevNorm,
       value,
       profileLikes: newLikesSum,
+      ...quota,
       rh: {
         aligned,
         othersNet,
